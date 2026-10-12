@@ -9,9 +9,9 @@ from pathlib import Path
 import subprocess
 import time
 
-from cases import ROOT, HERE, build_cases, load_module
+from cases import HERE, SKILLS, build_cases, load_module
 
-JEV = load_module('jev_validation', ROOT / '.darwin/skills/jev/scripts/jev.py')
+JEV = load_module('jev_validation', SKILLS / 'jev/scripts/jev.py')
 MAX_CALLS = 12
 CONCURRENCY = 2
 SPEND_STOP_USD = Decimal('0.01')  # Observed spend cutoff, not a guaranteed invoice cap.

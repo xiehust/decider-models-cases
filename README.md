@@ -12,6 +12,7 @@
 ## 目录结构
 
 ```
+.agents/                     Jev 技能（jev-skill v0.2.0 原样副本）、安装记录与上游许可
 report/                      生成好的静态 HTML 报告，离线可看（index.html 为总览）
 validation/
   run.py, cases.py           v1 冒烟测试：12 个请求，结果见 validation/README.md
@@ -65,9 +66,10 @@ LLM 的两个数字分别对应“只输出答案”和“答案加一句理由�
 ## 复现
 
 **依赖。** Python 3.10 以上，只用标准库。生成报告时如果装了 Pillow，会顺带裁剪截图。
-Jev 技能和 `jev-decide` CLI 没有放进仓库（`.darwin/` 在 `.gitignore` 里），需要按 jev-skill v0.2.0
-（commit `82c0105`）把技能装到 `.darwin/skills/`，脚本会用到其中的 `jev/scripts/jev.py` 和
-`jev-redteam/scripts/prepare.py`，CLI 则用 `uv tool install` 从同一版本安装。
+Jev 技能已经随仓库提交在 `.agents/skills/`，是 jev-skill v0.2.0（commit `82c0105`）的原样副本，安装记录见
+`.agents/jev-installation.md`。脚本从这里读取 `jev/scripts/jev.py` 和 `jev-redteam/scripts/prepare.py`，
+路径集中定义在 `validation/cases.py` 的 `SKILLS`。运行器还会调用 `jev-decide` CLI，它不在仓库里，
+需要用 `uv tool install` 从同一版本另行安装。
 
 **离线检查，不联网、不花钱：**
 
@@ -118,4 +120,5 @@ Strands Decider 2B 的地址写在 `llm_baseline.py` 的 `BACKENDS` 里，是本
 
 ## 许可
 
-本仓库以 Apache License 2.0 发布，见 `LICENSE`。Jev 技能本身来自上游 jev-skill，使用 MIT 许可，没有包含在本仓库中。
+本仓库以 Apache License 2.0 发布，见 `LICENSE`。`.agents/skills/` 下的 Jev 技能来自上游 jev-skill，使用 MIT 许可，
+许可文本见 `.agents/jev-LICENSE`。

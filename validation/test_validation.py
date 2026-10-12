@@ -37,7 +37,7 @@ class SetupTests(unittest.TestCase):
 class FixtureTests(unittest.TestCase):
     def test_suite_schema_and_coverage(self):
         suite = cases.build_cases()
-        skills = {p.parent.name for p in (cases.ROOT / '.darwin/skills').glob('jev*/SKILL.md')}
+        skills = {p.parent.name for p in cases.SKILLS.glob('jev*/SKILL.md')}
         self.assertEqual({c['skill'] for c in suite} | {'jev-setup'}, skills)
         self.assertEqual(len(suite), run.MAX_CALLS)
         for item in suite:

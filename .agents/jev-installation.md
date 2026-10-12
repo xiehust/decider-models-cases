@@ -3,7 +3,7 @@
 - Source: https://github.com/wuyoscar/jev-skill
 - Published release: `v0.2.0`
 - Source commit: `82c01055c80fa96d3e8a1b82132361693b6bf3a1`
-- Host/scope: Darwin, project-local `.darwin/skills/`
+- Host/scope: project-local `.agents/skills/` (moved from `.darwin/skills/`; tracked in git)
 - Selected mode: real Jev (`jev_api`), provider `openrouter`
 - Bundled model: `typesafe/jev-1.13`
 - License: upstream MIT notice in `jev-LICENSE`
