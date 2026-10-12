@@ -1,0 +1,10 @@
+{
+  "browser": {
+    "browserName": "chromium",
+    "launchOptions": {
+      "executablePath": "/snap/bin/chromium",
+      "chromiumSandbox": true,
+      "headless": true
+    }
+  }
+}
