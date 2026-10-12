@@ -263,38 +263,38 @@ def decider_section(c, d):
         f'<tr><td><b>{e(name)}</b></td><td class="num">{rv["right_sel"]}</td><td class="num">{rv["right_rev"]}</td>'
         f'<td class="num">{rv["wrong_rev"]}</td><td class="num {"bad-text" if rv["wrong_sel"] else "ok-text"}">{len(rv["wrong_sel"])}</td></tr>'
         for name, rv in [('Jev', jr), (DECIDER_NAME, dd.review)])
-    review_rows += (f'<tr><td class="small muted" colspan="5">Jev 直接选定却答错的 {len(jr["wrong_sel"])} 个判断全部来自网格误用对照组；'
+    review_rows += (f'<tr><td class="small muted" colspan="5">Jev 直接选定却答错的 {len(jr["wrong_sel"])} 个判断全部来自网格误用对照组，'
                     f'去掉这一组后为 {len(jev_wrong_sel_norm)} 个。</td></tr>')
     errors = sorted({err.split(': ', 1)[-1][:140] for err in dd.failed_errors})
     return f'''<div class="grid g2">
   <div class="card"><h3>部署与计价</h3><ul class="clean small">
-    <li><b>模型：</b><code>{e(dd.manifest["model_id"])}</code>（Qwen3.5-2B-Base 上的 LoRA + 读出头，与 Jev 同类的决策模型），
-        同 VPC 内自托管，接口 <code>/v1/systemone</code>，请求格式与 Jev 完全相同，76 个请求原样发送。</li>
-    <li><b>实例：</b>{e(dd.instance["type"])}（1 × NVIDIA A10G 24 GB），按需价格 <b>${dd.rate}/小时</b>（{e(dd.instance["source"])}）。
+    <li><b>模型：</b><code>{e(dd.manifest["model_id"])}</code>，在 Qwen3.5-2B-Base 上加 LoRA 和读出头，和 Jev 一样属于决策模型。
+        它部署在同一个 VPC 里，接口是 <code>/v1/systemone</code>，请求格式与 Jev 完全相同，76 个请求原样发送。</li>
+    <li><b>实例：</b>{e(dd.instance["type"])}，一张 24 GB 的 NVIDIA A10G，按需价格 <b>${dd.rate}/小时</b>（{e(dd.instance["source"])}）。
         token 不计费，成本只来自机时。</li>
     <li><b>本批次机时成本：</b>${dd.rate}/小时 × {dd.wall} 秒 = <b>{usd(dd.cost)}</b>，是 Jev 的 {dd.cost / c.jev_cost:.2f} 倍。
-        这是“机器只为这批请求开着”的下限；实例空闲时同样计费。</li>
-    <li><b>常驻成本：</b>全天开机约 ${dd.per_day:.2f}/天。按 Jev 本次每个请求 {usd(per_req_jev, 7)} 计算，每天需要约
-        {breakeven:,.0f} 个请求才与 Jev 持平；而本次串行实测吞吐约 {dd.throughput:.1f} 个请求/秒，单机满负荷每天约 {max_per_day:,.0f} 个，
-        满负荷时每个请求约 {usd(per_req_full_util, 7)}，仍是 Jev 的 {per_req_full_util / per_req_jev:.2f} 倍。</li>
+        这个数字假设机器只为这批请求开着，是下限，实例空闲时同样在计费。</li>
+    <li><b>常驻成本：</b>全天开机约 ${dd.per_day:.2f}/天。按 Jev 本次每个请求 {usd(per_req_jev, 7)} 计算，每天要有约
+        {breakeven:,.0f} 个请求才能与 Jev 持平。本次串行实测的吞吐约为每秒 {dd.throughput:.1f} 个请求，单机满负荷每天约 {max_per_day:,.0f} 个，
+        即使满负荷，每个请求也要 {usd(per_req_full_util, 7)}，仍是 Jev 的 {per_req_full_util / per_req_jev:.2f} 倍。</li>
   </ul></div>
   <div class="card"><h3>发现的问题</h3><ul class="clean small">
-    <li><b>并发不安全：</b>以并发 4 运行时，第一批请求就返回 HTTP 422，报错包括：{"；".join(f"<code>{e(x)}</code>" for x in errors)}。
-        同一请求串行发送时正常；另一次手动复现中，两个请求并发时有一个失败，报错变成 <code>zip() argument 2 is longer than argument 1</code>
-        （该复现结果未单独存档）。这表明服务端在并发时会混用不同请求的状态；并发下即使返回 200，结果是否可靠也无法保证（未验证）。因此本组结果按并发 {dd.concurrency} 串行测得，
-        失败的那次回执原样保留在 <code>llm-baseline-decider-concurrency4-failed-20261012.jsonl</code>。</li>
-    <li><b>评分题偏弱：</b>{len(dd.score_q)} 个 score 题只有 {sq_right} 个落在预设区间，分布普遍很平
-        （例如代码评审 H1 严重度三个等级的概率为 {h1_txt}）。模型卡也写明 score 和 noul 对训练分布之外的评分标准迁移较差。</li>
-    <li><b>付款步骤：</b>结算页上它以 {checkout[pay_label]:.3f} 的概率选择了 <code>{e(pay_label)}</code>（{e(pay_desc)}），只因略低于 0.8 的门槛才进入复核；
-        门槛稍低就会被放行。这一步必须依赖宿主侧的硬拦截。</li>
+    <li><b>并发不安全：</b>以并发 4 运行时，第一批请求就返回 HTTP 422，报错有这几条：{"，".join(f"<code>{e(x)}</code>" for x in errors)}。
+        同一个请求串行发送时一切正常。另一次手动复现中，两个请求并发，其中一个失败，报错变成 <code>zip() argument 2 is longer than argument 1</code>，
+        那次复现的结果没有单独存档。看起来服务端在并发时会把不同请求的状态混在一起，并发下即使返回 200，结果是否可靠也无法保证，这一点没有验证。
+        因此本组结果是按并发 {dd.concurrency} 串行测得的，失败的那次调用记录原样保留在 <code>llm-baseline-decider-concurrency4-failed-20261012.jsonl</code>。</li>
+    <li><b>评分题偏弱：</b>{len(dd.score_q)} 个 score 题只有 {sq_right} 个落在可接受区间，分布普遍很平，
+        比如代码评审 H1 严重度三个等级的概率分别是 {h1_txt}。模型卡里也写明，score 和 noul 迁移到训练分布之外的评分标准时效果较差。</li>
+    <li><b>付款步骤：</b>结算页上，它以 {checkout[pay_label]:.3f} 的概率选了 <code>{e(pay_label)}</code>（{e(pay_desc)}），只是因为略低于 0.8 的门槛才进入复核。
+        门槛再低一点，这一步就会被放行，所以必须依赖调用方的硬拦截。</li>
     <li><b>直接选定却答错的判断（{len(dd.review["wrong_sel"])} 个）：</b>{e(wrong_sel)}。</li>
   </ul></div>
 </div>
 <div style="height:16px"></div>
 <div class="table-wrap"><table><thead><tr><th>方案（choice / noul 题）</th><th>答对且直接选定</th><th>答对但送复核</th><th>答错但已送复核</th><th>答错且直接选定</th></tr></thead>
 <tbody>{review_rows}</tbody></table></div>
-<p class="small muted" style="margin-top:8px">复核门槛统一采用 CLI 默认值（最高概率 ≥ 0.8 且领先 ≥ 0.15，兜底标签总是复核），由 Jev 自带的校验器对两者的原始回执计算。
-score 题没有复核状态，不计入此表。</p>'''
+<p class="small muted" style="margin-top:8px">两者的复核状态都由 Jev 自带的校验器根据原始调用记录计算，门槛统一采用 CLI 默认值：最高概率不低于 0.8，比第二名高出至少 0.15，
+出口标签一律复核。score 题没有复核状态，不计入此表。</p>'''
 
 
 def variants(c):
@@ -343,7 +343,7 @@ def cost_body(d, sec, footer):
                      f'是 Jev 的 {min(xs):.1f}～{max(xs):.1f} 倍'))
     lats = [x['lat'] for _, _, _, x in V]
     kpis.append((f'{c.jev_lat:.2f}s', 'Jev 单次中位耗时', f'LLM 为 {min(lats):.1f}～{max(lats):.1f} 秒'))
-    kpis.append((usd(c.decider.cost, 4), DECIDER_NAME, f'{c.decider.instance["type"]} 机时折算，是 Jev 的 {c.decider.cost / c.jev_cost:.1f} 倍；'
+    kpis.append((usd(c.decider.cost, 4), DECIDER_NAME, f'按 {c.decider.instance["type"]} 机时折算，是 Jev 的 {c.decider.cost / c.jev_cost:.1f} 倍，'
                  f'中位 {c.decider.lat:.2f} 秒，答对 {c.decider.correct}/{c.decider.answered}'))
     kpi_html = ''.join(f'<div class="card kpi"><div class="v" style="font-size:24px">{v}</div><div class="l">{e(l)}</div>'
                        f'<div class="s">{e(s)}</div></div>' for v, l, s in kpis)
@@ -366,8 +366,8 @@ def cost_body(d, sec, footer):
                    f'<td class="num"><b>{usd(x["cost"])}</b></td><td class="num">{xr[(k, s)]:.1f}×</td><td class="num">{x["lat"]:.2f}s</td>'
                    f'<td class="num">{x["correct"]}/{x["answered"]}{filt}</td></tr>')
     table = (f'<div class="table-wrap"><table><thead>{head}</thead><tbody>{"".join(trs)}</tbody></table></div>'
-             '<p class="small muted" style="margin-top:8px">LLM 费用 = 回执中的输入 tokens × 输入单价 + 输出 tokens × 输出单价；单价为你给定的假设值。'
-             'Jev 费用与 OpenRouter 回执中的 usage.cost 逐笔一致。“答对 / 作答”按与 Jev 相同的预设答案逐题打分，共 '
+             '<p class="small muted" style="margin-top:8px">LLM 费用 = 输入 tokens × 输入单价 + 输出 tokens × 输出单价，token 数取自调用记录，单价是你给定的假设值。'
+             'Jev 的费用与 OpenRouter 返回的 usage.cost 逐笔一致。答对数按与 Jev 相同的标准答案逐题打分，共 '
              f'{jev_total} 个判断。</p>')
 
     dec_bar = (DECIDER_NAME + '（机时）', float(c.decider.cost), DECIDER_COLOR, f'  {c.decider.cost / c.jev_cost:.1f}×')
@@ -394,7 +394,7 @@ def cost_body(d, sec, footer):
                               for k in c.runs) + '</tr>' for sk in skills)
     skill_table = ('<div class="table-wrap"><table><thead><tr><th>场景</th><th>调用</th><th>Jev</th>'
                    + ''.join(f'<th>{e(run.label)}<br>只答案</th>' for run in c.runs.values()) + '</tr></thead>'
-                   f'<tbody>{srows}</tbody></table></div><p class="small muted" style="margin-top:8px">为便于阅读只列“只输出答案”这一档（各模型的成本下限）；'
+                   f'<tbody>{srows}</tbody></table></div><p class="small muted" style="margin-top:8px">为了表格好读，这里只列“只输出答案”这一档，也就是各模型的成本下限。'
                    '“答案+理由”的总额见上表。</p>')
 
     scale_rows = ([('Jev', c.jev_cost), (DECIDER_NAME + '（按本批次机时，不含空闲）', c.decider.cost)]
@@ -403,7 +403,7 @@ def cost_body(d, sec, footer):
                    + ''.join(f'<tr><td>{e(name)}</td><td class="num">{usd(cost / c.n_judg, 7)}</td><td class="num">{usd(cost / c.n_judg * 10_000, 2)}</td>'
                              f'<td class="num">{usd(cost / c.n_judg * 1_000_000, 2)}</td></tr>' for name, cost in scale_rows)
                    + f'</tbody></table></div><p class="small muted" style="margin-top:8px">按本次每个判断的平均费用（总费用 ÷ {c.n_judg} 个判断）线性外推，'
-                   '是估算而非实测；实际费用取决于上下文长度和每个请求合并的问题数。</p>')
+                   '是估算，不是实测。实际费用取决于上下文长度和每个请求合并了多少个问题。</p>')
 
     jev_wrong = []
     for cid, r in c.jev.items():
@@ -428,16 +428,16 @@ def cost_body(d, sec, footer):
     acc_rows = [f'<tr><td><b>Jev</b></td><td class="num">{jev_ok}/{jev_total}</td><td class="num">0</td><td class="small">{wrong_cell(jev_wrong)}</td></tr>']
     dd_wrong = [(r['id'], q) for r in c.decider.llm for q, v in r['graded'].items() if not v]
     acc_rows.append(f'<tr><td><b>{e(DECIDER_NAME)}</b></td><td class="num">{c.decider.correct}/{c.decider.answered}</td><td class="num">0</td>'
-                    f'<td class="small">共 {len(dd_wrong)} 个，分布在 {e(by_skill_label(c, dd_wrong))}；其中 {c.decider.review["wrong_rev"]} 个已被自身标为 needs_review'
-                    '（明细见下文“自托管决策模型”）</td></tr>')
+                    f'<td class="small">共 {len(dd_wrong)} 个，分布在{e(by_skill_label(c, dd_wrong))}，其中 {c.decider.review["wrong_rev"]} 个已被它自己标为 needs_review'
+                    '，明细见下文“自托管决策模型”一节</td></tr>')
     for k, s, run, x in V:
         acc_rows.append(f'<tr><td><b>{e(vname(run, s))}</b></td><td class="num">{x["correct"]}/{x["answered"]}</td>'
                         f'<td class="num">{jev_total - x["answered"]}</td><td class="small">{wrong_cell(x["wrong"])}'
                         + (f'<br><span class="warn-text">被过滤未作答：{e("、".join(x["filtered"]))}</span>' if x['filtered'] else '') + '</td></tr>')
     acc_table = ('<div class="table-wrap"><table><thead><tr><th>方案</th><th>答对 / 作答</th><th>未作答</th><th>答错或未作答的判断</th></tr></thead>'
                  f'<tbody>{"".join(acc_rows)}</tbody></table></div>'
-                 f'<p class="small muted" style="margin-top:8px">Jev 的 {jev_ok}/{jev_total} 包含总览页单列为对照组的网格变体 A（其中 {grid_wrong} 个回合不是最优步），'
-                 f'所以与总览页 {overview_pass}/{overview_total} 的口径不同；这里统一按标签是否与预设一致计，不计复核状态。</p>')
+                 f'<p class="small muted" style="margin-top:8px">Jev 的 {jev_ok}/{jev_total} 包含总览页单独列为对照组的网格变体 A，其中 {grid_wrong} 个回合不是最优步，'
+                 f'所以与总览页的 {overview_pass}/{overview_total} 口径不同。这里统一按标签是否与标准答案一致来计，不看复核状态。</p>')
 
     casc_rows = []
     for k, run in c.runs.items():
@@ -446,7 +446,7 @@ def cost_body(d, sec, footer):
                          f'<td class="num">{cs["cost"] / c.jev_cost:.1f}×</td><td class="num">{cs["correct"]}/{cs["total"]}</td></tr>')
     casc_table = ('<div class="table-wrap"><table><thead><tr><th>组合（估算）</th><th>转交 LLM 的请求</th><th>费用</th><th>相对纯 Jev</th><th>答对</th></tr></thead>'
                   f'<tbody>{"".join(casc_rows)}</tbody></table></div><p class="small muted" style="margin-top:8px">先全部交给 Jev，只把含 needs_review 决策的请求再交给 LLM。'
-                  '这是用两组真实回执拼算的反事实结果，没有实际运行这条流程；被过滤的请求按答错计。</p>')
+                  '这是用两组真实调用记录拼算出来的反事实结果，并没有实际按这条流程运行。被过滤的请求按答错计。</p>')
 
     think_rows = ''.join(
         f'<tr><td>{e(vname(run, s))}</td><td class="num">{x["thinking"]}/{x["n"]}</td>'
@@ -456,7 +456,7 @@ def cost_body(d, sec, footer):
         f'<tr><td>{e(vname(run, s))}</td><td class="num">{x["thinking"]}/{x["n"]}</td>'
         f'<td class="num">{(sum(x["out_think"]) / len(x["out_think"])) if x["out_think"] else 0:.0f}</td>'
         f'<td class="num">{(sum(x["out_plain"]) / len(x["out_plain"])) if x["out_plain"] else 0:.0f}</td>'
-        f'<td class="num muted">—（回执未单列，已含在输出 tokens 中）</td></tr>'
+        f'<td class="num muted">—（调用记录没有单列，已含在输出 tokens 中）</td></tr>'
         for k, s, run, x in V)
     think_table = ('<div class="table-wrap"><table><thead><tr><th>方案</th><th>出现思考/推理的调用</th><th>有思考时平均输出</th><th>无思考时平均输出</th>'
                    f'<th>推理 tokens 合计</th></tr></thead><tbody>{think_rows}</tbody></table></div>'
@@ -464,30 +464,31 @@ def cost_body(d, sec, footer):
                    'GPT-6 Luna（Responses API）在 usage.output_tokens_details 里单独报告推理 tokens。两者都计入输出 tokens 并按输出单价计费，已包含在上面的费用中。</p>')
     design = f'''<div class="grid g2">
   <div class="card"><h3>测试方法</h3><ul class="clean small">
-    <li><b>同样的用例：</b>{n} 个请求、{c.n_judg} 个判断，与 Jev 运行时看到的完全一致；60 个闭环回合按 Jev 的历史回执回放，在同样的状态下重建请求。</li>
-    <li><b>同样的提示：</b>三个模型使用同一份系统提示和同一份 JSON 输入（state、问题、候选），要求返回 JSON 答案。</li>
-    <li><b>接口：</b>Claude 两个模型用 Bedrock Runtime Converse；GPT-6 Luna 用 Bedrock Runtime 上的 OpenAI Responses API
-        （<code>/openai/v1/responses</code>，实例角色 SigV4 签名，<code>store: false</code>，不在 Bedrock 保留数据）。区域 {e(c.manifest["region"])}，全部用 global 推理配置文件。</li>
-    <li><b>两种输出风格：</b>“答案+一句理由”接近 Agent 自己判断的常见写法；“只输出答案”是 LLM 的成本下限。</li>
-    <li><b>边界：</b>每个模型 {c.runs["opus"].summary["calls"]} 次调用，并发 4，不重试；三个模型均无调用错误。</li>
-    <li><b>耗时口径：</b>所有方案都取客户端实测的单次往返时间（Jev 取 CLI 回执的 elapsed_seconds，LLM 取调用前后的墙钟时间），
-        各方案中位数与 Bedrock 服务端记录的耗时最多相差 {max(abs(x["lat"] - x["lat_server"]) for _, _, _, x in V):.2f} 秒。</li>
+    <li><b>同样的用例：</b>{n} 个请求、{c.n_judg} 个判断，和 Jev 运行时看到的完全一致。60 个闭环回合按 Jev 当时的调用记录回放，在同样的状态下重建请求。</li>
+    <li><b>同样的提示：</b>三个 LLM 使用同一份系统提示和同一份 JSON 输入（state、问题、候选），要求返回 JSON 答案。
+        Strands Decider 2B 是决策模型，直接接收与 Jev 相同的原生请求，不用提示。</li>
+    <li><b>接口：</b>两个 Claude 模型走 Bedrock Runtime 的 Converse 接口，GPT-6 Luna 走 Bedrock Runtime 上的 OpenAI Responses API
+        （<code>/openai/v1/responses</code>，用实例角色做 SigV4 签名，设 <code>store: false</code>，Bedrock 不保留数据）。区域是 {e(c.manifest["region"])}，全部使用 global 推理配置文件。</li>
+    <li><b>两种输出风格：</b>“答案+一句理由”接近 Agent 自己判断时的常见写法，“只输出答案”则是 LLM 的成本下限。</li>
+    <li><b>边界：</b>每个 LLM 调用 {c.runs["opus"].summary["calls"]} 次，并发 4，不重试，三个模型都没有出现调用错误。</li>
+    <li><b>耗时口径：</b>所有方案都取客户端实测的单次往返时间，Jev 用 CLI 返回记录里的 elapsed_seconds，LLM 用调用前后的墙钟时间。
+        各方案的中位数与 Bedrock 服务端记录的耗时最多相差 {max(abs(x["lat"] - x["lat_server"]) for _, _, _, x in V):.2f} 秒。</li>
   </ul></div>
   <div class="card"><h3>计价与 token 口径</h3><ul class="clean small">
-    <li><b>单价（你给定）：</b>Opus 5.5 $4 / $20，Haiku 5.5 与 GPT-6 Luna 均为 $0.10 / $0.50（每百万输入 / 输出 tokens）；Jev $0.042 / 百万输入，输出免费。本报告没有另行核实牌价。</li>
-    <li><b>token 取实测：</b>全部来自服务端回执。分词器不同：同样的输入，Claude 计得 Jev 的 {c.runs["haiku"].t["terse"]["in"] / c.jev_in:.2f} 倍，
-        GPT-6 Luna 计得 {c.runs["gpt6luna"].t["terse"]["in"] / c.jev_in:.2f} 倍。</li>
-    <li><b>差距来源：</b>Haiku 与 GPT-6 Luna 的输入单价是 Jev 的 {Decimal("0.10") / Decimal("0.042"):.1f} 倍，此外还要为输出（含思考）付费；Opus 的输入单价是 Jev 的
+    <li><b>单价（你给定）：</b>每百万输入 / 输出 tokens，Opus 5.5 是 $4 / $20，Haiku 5.5 和 GPT-6 Luna 都是 $0.10 / $0.50。Jev 每百万输入 $0.042，输出免费。本报告没有另行核实牌价。</li>
+    <li><b>token 取实测：</b>全部来自服务端返回的记录。各家分词器不同，同样的输入，Claude 计得的 tokens 是 Jev 的 {c.runs["haiku"].t["terse"]["in"] / c.jev_in:.2f} 倍，
+        GPT-6 Luna 是 {c.runs["gpt6luna"].t["terse"]["in"] / c.jev_in:.2f} 倍。</li>
+    <li><b>差距来源：</b>Haiku 和 GPT-6 Luna 的输入单价是 Jev 的 {Decimal("0.10") / Decimal("0.042"):.1f} 倍，此外还要为输出付费，思考 tokens 也算在输出里。Opus 的输入单价是 Jev 的
         {Decimal(4) / Decimal("0.042"):.0f} 倍。</li>
   </ul></div></div>'''
 
     caveats = '''<ul class="clean small">
-  <li>价格采用你给定的数字；Bedrock 实际牌价、批量与缓存折扣都没有考虑。系统提示很短，没有使用提示缓存。</li>
-  <li>每个请求每种风格只跑了一次，没有测量随机波动；GPT-6 Luna 在两种风格下错的题并不完全相同，说明单次结果有波动。</li>
-  <li>准确率基于同一作者编写的小样本，只说明这些用例上的表现，不代表普遍结论。</li>
-  <li>LLM 的“理由”与 Jev 的概率分布用途不同：前者可以给人看，后者可以直接设门槛做自动复核，纯成本对比没有计入这部分差异。</li>
-  <li>原始回执：<code>validation/v2/llm-baseline-20261012.jsonl</code>（Opus）、<code>llm-baseline-haiku-20261012.jsonl</code>、<code>llm-baseline-gpt6luna-20261012.jsonl</code>；
-      重建的请求 <code>llm-requests.json</code>；脚本 <code>llm_baseline.py</code>。</li>
+  <li>价格采用你给定的数字，没有考虑 Bedrock 实际牌价，也没有计入批量和缓存折扣。系统提示很短，没有使用提示缓存。</li>
+  <li>每个请求每种风格只跑了一次，没有测随机波动。GPT-6 Luna 在两种风格下答错的题并不完全相同，可见单次结果有波动。</li>
+  <li>准确率来自同一个作者编写的小样本，只反映这些用例上的表现，不能推广成普遍结论。</li>
+  <li>LLM 给的理由和 Jev 给的概率分布用途不同。理由可以给人看，概率分布可以直接设门槛做自动复核，纯成本对比没有计入这一差别。</li>
+  <li>原始调用记录在 <code>validation/v2/llm-baseline-20261012.jsonl</code>（Opus）、<code>llm-baseline-haiku-20261012.jsonl</code> 和 <code>llm-baseline-gpt6luna-20261012.jsonl</code>，
+      重建的请求在 <code>llm-requests.json</code>，脚本是 <code>llm_baseline.py</code>。</li>
 </ul>'''
 
     g = c.runs['gpt6luna'].t
@@ -506,23 +507,23 @@ def cost_body(d, sec, footer):
     jev_other = [w for w in jev_wrong if not w[0].startswith('grid:')]
     ui_done = [r for r in c.runs['gpt6luna'].llm if r['id'] == 'ui_settings:turn2' and r['answers'] and r['answers'].get('next') == 'done']
     findings = f'''<div class="grid g2">
-  <div class="callout ok"><b>最便宜的 LLM 仍是 Jev 的 {min(xr.values()):.1f} 倍以上。</b>GPT-6 Luna 只答案 {usd(g["terse"]["cost"], 4)}、Haiku 5.5 只答案 {usd(h["terse"]["cost"], 4)}，
-    Jev {usd(c.jev_cost, 4)}。在同样单价下，GPT-6 Luna 比 Haiku 便宜约 {1 - g["terse"]["cost"] / h["terse"]["cost"]:.0%}：输入 tokens 少约
-    {1 - g["terse"]["in"] / h["terse"]["in"]:.0%}，输出 tokens 也更少。</div>
+  <div class="callout ok"><b>最便宜的 LLM 也要花 Jev 的 {min(xr.values()):.1f} 倍。</b>GPT-6 Luna 只答案 {usd(g["terse"]["cost"], 4)}，Haiku 5.5 只答案 {usd(h["terse"]["cost"], 4)}，
+    Jev 是 {usd(c.jev_cost, 4)}。两者单价相同，GPT-6 Luna 却比 Haiku 便宜约 {1 - g["terse"]["cost"] / h["terse"]["cost"]:.0%}，因为它计得的输入 tokens 少约
+    {1 - g["terse"]["in"] / h["terse"]["in"]:.0%}，输出也更短。</div>
   <div class="callout ok"><b>Haiku 5.5 的准确率最高。</b>两种风格分别答对 {h["terse"]["correct"]}/{h["terse"]["answered"]} 和 {h["reasoned"]["correct"]}/{h["reasoned"]["answered"]}，
     没有请求被过滤，答错的是 {e("、".join(judgment_name(d, *w) for w in h_wrong)) or "无"}。Opus 5.5 能作答的判断全部答对，但有 {len(o_filtered)} 个请求
     （{e("、".join(o_filtered))}）被内容过滤。</div>
-  <div class="callout warn"><b>GPT-6 Luna 最快、最便宜，但错得最多。</b>两种风格分别答对 {g["terse"]["correct"]}/{jev_total} 和 {g["reasoned"]["correct"]}/{jev_total}；
-    两种风格合计答错的判断分布在 {by_skill(g_wrong)}。{"其中 UI 第 2 步只勾选了复选框、还没点保存，就判定任务已完成（done）。" if ui_done else ""}
-    两种风格错的题并不完全相同。</div>
-  <div class="callout note"><b>Jev 的错题与 LLM 不同。</b>Jev 主要错在网格独自规划（{grid_wrong} 个回合），其余 {len(jev_other)} 个是
-    {e("、".join(judgment_name(d, *w) for w in jev_other))}；这些题 LLM 基本都答对了。组合方案（见下文）先 Jev、再把需复核的请求交给 Haiku，
+  <div class="callout warn"><b>三个 LLM 里，GPT-6 Luna 最快、最便宜，错得也最多。</b>两种风格分别答对 {g["terse"]["correct"]}/{jev_total} 和 {g["reasoned"]["correct"]}/{jev_total}，
+    合计答错的判断分布在{by_skill(g_wrong)}。{"UI 第 2 步它只勾选了复选框，还没点保存，就判定任务已完成（done）。" if ui_done else ""}
+    两种风格错的题也不完全相同。</div>
+  <div class="callout note"><b>Jev 的错题和 LLM 不在一处。</b>Jev 主要错在网格独自规划（{grid_wrong} 个回合），其余 {len(jev_other)} 个是
+    {e("、".join(judgment_name(d, *w) for w in jev_other))}，这些题 LLM 基本都答对了。下文的组合方案先交给 Jev、再把需复核的请求转给 Haiku，
     费用约为纯 Jev 的 {c.cascade("terse", "haiku")["cost"] / c.jev_cost:.1f} 倍。</div>
-  <div class="callout warn"><b>自托管的 Strands Decider 2B 最快，但这批用例上明显不准。</b>串行中位 {c.decider.lat:.2f} 秒，按 {c.decider.instance["type"]} 机时折算
-    {usd(c.decider.cost, 4)}（Jev 的 {c.decider.cost / c.jev_cost:.1f} 倍）；答对 {c.decider.correct}/{c.decider.answered}（不含网格误用对照组
-    {c.decider.correct_norm}/{c.runs["opus"].t["terse"]["total_norm"]}）。在有复核状态的 choice / noul 题里，它答错的
-    {c.decider.review["wrong_rev"] + len(c.decider.review["wrong_sel"])} 个中有 {c.decider.review["wrong_rev"]} 个已被自身送去复核，直接选定却答错的只有
-    {len(c.decider.review["wrong_sel"])} 个；另有 {sum(not ok for *_, ok in c.decider.score_q)} 个评分题超出预设区间。服务端并发不安全，只能串行。</div>
+  <div class="callout warn"><b>自托管的 Strands Decider 2B 最快，在这批用例上却明显不准。</b>串行中位 {c.decider.lat:.2f} 秒，按 {c.decider.instance["type"]} 机时折算
+    {usd(c.decider.cost, 4)}，是 Jev 的 {c.decider.cost / c.jev_cost:.1f} 倍。它答对 {c.decider.correct}/{c.decider.answered}，不含网格误用对照组时为
+    {c.decider.correct_norm}/{c.runs["opus"].t["terse"]["total_norm"]}。在有复核状态的 choice / noul 题里，它答错的
+    {c.decider.review["wrong_rev"] + len(c.decider.review["wrong_sel"])} 个中有 {c.decider.review["wrong_rev"]} 个已被自己送去复核，直接选定却答错的只有
+    {len(c.decider.review["wrong_sel"])} 个。另有 {sum(not ok for *_, ok in c.decider.score_q)} 个评分题超出可接受区间。服务端在并发时不安全，只能串行。</div>
 </div>'''
 
     return (f'''<div class="hero"><div class="wrap">
@@ -531,7 +532,7 @@ def cost_body(d, sec, footer):
   <h1>💰 成本对比：Jev vs 直接用 LLM 判断</h1>
   <p class="lead">把本报告中 Jev 处理过的 {n} 个请求（{c.n_judg} 个判断）原样交给 Bedrock Runtime 上的三个模型直接判断：
   Claude Opus 5.5、Claude Haiku 5.5（Converse）和 GPT-6 Luna（Responses API），并加入同 VPC 自托管的决策模型 Strands Decider 2B。
-  实测输入、输出 tokens 与耗时，按给定单价（自托管按机时）折算费用，并用同一套预设答案打分。</p>
+  实测输入、输出 tokens 与耗时，按给定单价折算费用（自托管模型按机时），并用同一套标准答案打分。</p>
   <div class="meta">{"".join(f"<span>{e(run.label)} <b>{e(run.manifest['model_id'])}</b></span>" for run in c.runs.values())}
   <span>{e(DECIDER_NAME)} <b>{e(c.decider.manifest["model_id"])}</b></span>
   <span>运行日期 <b>2026-10-12</b></span></div>

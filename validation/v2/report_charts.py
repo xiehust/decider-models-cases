@@ -26,7 +26,7 @@ def skill_bars(rows, width=760):
     """rows: [(label, passed, total, review)] -> horizontal pass-rate bars with review ticks."""
     left, bar_w, row_h = 150, width - 150 - 110, 30
     height = 34 + row_h * len(rows)
-    body = [text(left, 16, '通过预设的判断占比', 11, MUTED), text(width - 4, 16, '通过 / 总数 · 复核', 11, MUTED, 'end')]
+    body = [text(left, 16, '符合标准答案的判断占比', 11, MUTED), text(width - 4, 16, '通过 / 总数 · 复核', 11, MUTED, 'end')]
     for i, (label, passed, total, review) in enumerate(rows):
         y = 28 + i * row_h
         rate = passed / total if total else 0
@@ -66,7 +66,7 @@ def score_bar(probs, levels, value, band=None, width=520):
     if band:
         x0, x1 = left + span * band[0] / (n - 1), left + span * band[1] / (n - 1)
         body.append(f'<rect x="{x0:.1f}" y="{top - 6}" width="{x1 - x0:.1f}" height="52" rx="6" fill="#ccfbf1" opacity=".7"/>')
-        body.append(text((x0 + x1) / 2, top - 10, f'预设区间 [{band[0]}, {band[1]}]', 10.5, TEAL, 'middle', 600))
+        body.append(text((x0 + x1) / 2, top - 10, f'可接受区间 [{band[0]}, {band[1]}]', 10.5, TEAL, 'middle', 600))
     for i in range(n):
         x = left + span * i / (n - 1)
         p = probs.get(str(i), 0)
@@ -105,7 +105,7 @@ def calibration_chart(bins, width=520, height=250):
         body.append(f'<rect x="{x:.1f}" y="{bottom - h:.1f}" width="{w:.1f}" height="{h:.1f}" rx="4" '
                     f'fill="{TEAL if b["rate"] >= .9 else AMBER if b["rate"] >= .6 else RED}"/>')
         body.append(text(x + w / 2, bottom - h - 6, f'{b["agree"]}/{b["n"]}', 11, INK, 'middle', 600))
-    return svg(width, height, ''.join(body), '概率分段与预设一致率')
+    return svg(width, height, ''.join(body), '概率分段与标准答案的一致率')
 
 
 def histogram(values, width=520, height=220, bins=8, unit='s'):
@@ -147,7 +147,7 @@ def flow(steps, width=760, accent=BLUE):
             ax = x + box_w + 3
             body.append(f'<path d="M{ax:.1f},45 L{ax + gap - 8:.1f},45" stroke="{SLATE}" stroke-width="1.6"/>'
                         f'<path d="M{ax + gap - 8:.1f},40 L{ax + gap - 2:.1f},45 L{ax + gap - 8:.1f},50 Z" fill="{SLATE}"/>')
-    legend = [('宿主（Agent/代码）', BLUE), ('Jev 类型化判断', VIOLET), ('确定性校验', TEAL), ('停止/上报', AMBER)]
+    legend = [('调用方（Agent 或代码）', BLUE), ('Jev 类型化判断', VIOLET), ('确定性校验', TEAL), ('停止/上报', AMBER)]
     lx = 2
     for name, color in legend:
         body.append(f'<rect x="{lx}" y="96" width="10" height="10" rx="2" fill="{color}"/>')

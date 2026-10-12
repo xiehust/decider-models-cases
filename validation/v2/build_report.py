@@ -3,6 +3,7 @@
 Run: python3 validation/v2/build_report.py   (offline; reads JSONL, writes report/)
 """
 from decimal import Decimal
+import re
 import shutil
 import sys
 from html import escape
@@ -28,6 +29,18 @@ def e(value):
     return escape(str(value), quote=True)
 
 
+CJK = '\u3000-\u303f\u4e00-\u9fff\uff00-\uffef'
+_WRAP_AFTER_CJK = re.compile(rf'(?<=[{CJK}])[ \t]*\n\s*(?=[{CJK}])')
+_WRAP_AFTER_PUNCT = re.compile(r'(?<=[，。；：、！？）”])[ \t]*\n\s*')
+
+
+def tidy_cjk_whitespace(markup):
+    """Source lines are wrapped mid-sentence; in HTML each wrap renders as a space, which is wrong
+    next to Chinese text (\u201c等级， 它\u201d). Remove such wraps outside <pre> blocks only."""
+    parts = re.split(r'(<pre\b.*?</pre>)', markup, flags=re.S)
+    return ''.join(p if p.startswith('<pre') else _WRAP_AFTER_PUNCT.sub('', _WRAP_AFTER_CJK.sub('', p)) for p in parts)
+
+
 # --- layout ---------------------------------------------------------------------
 def page(title, body, active=None, depth=0):
     up = '../' * depth
@@ -49,7 +62,7 @@ def page(title, body, active=None, depth=0):
   <a class="brand" href="{up}index.html"><span class="logo">J</span>Jev 场景验证</a>
   <nav class="nav">{''.join(links)}</nav>
 </div></header>
-{body}
+{tidy_cjk_whitespace(body)}
 </body>
 </html>
 '''
@@ -58,8 +71,8 @@ def page(title, body, active=None, depth=0):
 def footer(d):
     return (f'<div class="footer">数据来源：<code>validation/v2/live-v2-20261012.jsonl</code>、'
             f'<code>validation/v2/live-v2-grid-planned-20261012.jsonl</code>、v1 基线 <code>validation/live-20261012.jsonl</code>。'
-            f'模型 {e(", ".join(d.usage["models"]))}，经 OpenRouter 调用。所有内容均为专门编写的合成材料；'
-            f'本报告页面由 <code>validation/v2/build_report.py</code> 从原始回执生成，数字未经手工修改。</div>')
+            f'模型 {e(", ".join(d.usage["models"]))}，经 OpenRouter 调用。测试材料全部是为本报告专门编写的合成内容。'
+            f'页面由 <code>validation/v2/build_report.py</code> 根据原始调用记录生成，数字没有经过手工改动。</div>')
 
 
 def badge(passed, total, review=None):
@@ -121,10 +134,10 @@ def result_table(d, case_ids, label_case=False):
                         f'<td><b>{fmt_value(a["value"])}</b></td><td class="num">{prob_text(a)}</td>'
                         f'<td>{status_text(a["status"])}</td><td>{mark}</td></tr>')
     head = '<th>用例</th>' if label_case else ''
-    return (f'<div class="table-wrap"><table><thead><tr>{head}<th>问题</th><th>预设答案</th><th>Jev 返回</th>'
+    return (f'<div class="table-wrap"><table><thead><tr>{head}<th>问题</th><th>标准答案</th><th>Jev 返回</th>'
             f'<th>概率</th><th>状态</th><th>验收</th></tr></thead><tbody>{"".join(rows)}</tbody></table></div>'
-            '<p class="small muted" style="margin-top:8px">“概率”对 choice 是所选标签的概率，对 noul 是“是”的概率；'
-            'score 返回概率加权的等级值，不是概率。复核门槛采用 CLI 默认值：概率 ≥ 0.8 且领先第二名 ≥ 0.15。</p>')
+            '<p class="small muted" style="margin-top:8px">概率一栏，choice 题是所选标签的概率，noul 题是回答“是”的概率。'
+            'score 题返回按概率加权的等级值，这个值不是概率。复核门槛用 CLI 默认值：最高概率不低于 0.8，并且比第二名高出至少 0.15。</p>')
 
 
 def distribution_figures(d, case_id, qids, caption_prefix=''):
@@ -141,7 +154,7 @@ def distribution_figures(d, case_id, qids, caption_prefix=''):
         else:
             continue
         figs.append(f'<figure class="card tight">{chart}<figcaption>{e(caption_prefix)}<code>{e(qid)}</code> 的返回分布'
-                    f'（✓ 为预设答案，◀ 为 Jev 选择且与预设不同）</figcaption></figure>')
+                    f'（✓ 为标准答案，◀ 为 Jev 的选择，且与标准答案不同）</figcaption></figure>')
     return f'<div class="grid g2">{"".join(figs)}</div>'
 
 
@@ -169,7 +182,7 @@ def intro_sections(s):
   <div class="card"><div class="eyebrow">为什么用 Jev</div><h2>判断点</h2><p>{e(s["why"])}</p>
     <h3 style="margin-top:14px">埋设的陷阱</h3><ul class="clean">{traps}</ul></div>
 </div></section>
-<section><div class="card"><div class="eyebrow">工作流</div><h2>宿主与 Jev 的分工</h2>{C.flow(s["flow"])}</div></section>'''
+<section><div class="card"><div class="eyebrow">工作流</div><h2>调用方与 Jev 的分工</h2>{C.flow(s["flow"])}</div></section>'''
 
 
 def advice_section(s):
@@ -199,7 +212,7 @@ def miss_callouts(d, case_ids, notes):
         for c in d.results[cid]['checks']:
             if not c['passed']:
                 note = notes.get(c['question'], '')
-                out.append(f'<div class="callout warn"><b>未达标：{e(c["question"])}</b>（{e(cid)}）。预设 {fmt_expected(c["expected"])}，'
+                out.append(f'<div class="callout warn"><b>未达标：{e(c["question"])}</b>（{e(cid)}）。标准答案 {fmt_expected(c["expected"])}，'
                            f'实际 {fmt_value(c["actual"]["value"])}。{e(note)}</div>')
     return ''.join(out)
 
@@ -214,9 +227,9 @@ def custom_agent(d):
     return (sec('三个检查点的判断', result_table(d, ids, label_case=True)) +
             sec('关键分布', distribution_figures(d, 'jev:recovery', ['next']) +
                 distribution_figures(d, 'jev:completion', ['evidence']) + distribution_figures(d, 'jev:drift', ['scope_risk']), '图示') +
-            sec('宿主复核', '<div class="callout ok"><b>与宿主状态一致。</b>恢复场景中 <code>pip_install_system</code> 被判为违反用户规则，'
-                '下一步选择了项目虚拟环境；完成场景中“部署成功”的主张被否定，健康检查仍是 2.3.0，选择等待后再核验。'
-                'Jev 的判断本身不执行任何动作；违规命令在真实 Agent 中仍应由宿主的权限系统独立拦截。</div>', '宿主侧'))
+            sec('与实际状态核对', '<div class="callout ok"><b>判断与实际状态一致。</b>恢复场景里，Jev 认定 <code>pip_install_system</code> 违反用户规则，'
+                '下一步选了项目自带的虚拟环境。完成场景里，健康检查返回的仍是 2.3.0，“部署成功”的说法被否定，Jev 选择等流水线跑完再核验。'
+                'Jev 的判断不会执行任何动作，在真实的 Agent 里，违规命令仍要由调用方的权限系统单独拦截。</div>', '调用方'))
 
 
 def custom_review(d):
@@ -225,19 +238,19 @@ def custom_review(d):
     r = state['receipts']
     suite = ''.join(f'<tr><td class="mono small">{e(k)}</td><td>{"✓" if r["suite_before"][k] else "✗"}</td>'
                     f'<td>{"✓" if r["suite_after"][k] else "✗"}</td></tr>' for k in r['suite_before'])
-    receipts = (f'<div class="grid g2"><div><h3>原测试套件（宿主真实运行）</h3><div class="table-wrap"><table><thead><tr><th>测试</th>'
+    receipts = (f'<div class="grid g2"><div><h3>原测试套件（调用方真实运行）</h3><div class="table-wrap"><table><thead><tr><th>测试</th>'
                 f'<th>改动前</th><th>改动后</th></tr></thead><tbody>{suite}</tbody></table></div></div>'
-                f'<div><h3>宿主探针（不在 PR 的测试中）</h3><div class="table-wrap"><table><thead><tr><th>调用</th><th>改动后返回</th><th>需求</th></tr></thead><tbody>'
+                f'<div><h3>调用方探针（不在 PR 的测试中）</h3><div class="table-wrap"><table><thead><tr><th>调用</th><th>改动后返回</th><th>需求</th></tr></thead><tbody>'
                 f'<tr><td class="mono small">{e(r["probe_boundary_after"]["call"])}</td><td class="bad-text">{fmt_value(r["probe_boundary_after"]["returned"])}</td><td>Q1：应为 false</td></tr>'
                 f'<tr><td class="mono small">{e(r["probe_malformed_after"]["call"])}</td><td class="bad-text">{fmt_value(r["probe_malformed_after"]["returned"])}</td><td>S1：应拒绝</td></tr>'
                 '</tbody></table></div></div></div>')
     diff = '<pre class="diff"><code>' + ''.join(
         f'<span class="{"add" if l.startswith("+") and not l.startswith("+++") else "del" if l.startswith("-") and not l.startswith("---") else "hunk" if l.startswith("@@") else ""}">{e(l)}</span>'
         for l in state['diff'].splitlines(keepends=True)) + '</code></pre>'
-    return (sec('PR diff 与测试回执', f'<div class="card">{diff}{receipts}</div>', '证据') +
+    return (sec('PR diff 与测试结果', f'<div class="card">{diff}{receipts}</div>', '证据') +
             sec('逐改动块判断', result_table(d, [cid]) + miss_callouts(d, [cid], {
-                'H1_severity': score_note(d, cid, 'H1_severity') + '最高等级“合并前必须修复”的概率最大，但有部分概率落在“无需处理”，'
-                               '加权均值因此低于区间。问题类别（correctness）判断正确；按分布阅读，结论仍是应在合并前修复。'})) +
+                'H1_severity': score_note(d, cid, 'H1_severity') + '概率最大的是最高一级“合并前必须修复”，但有一部分落在“无需处理”，'
+                               '加权均值因此低于区间下限。问题类别判成 correctness 是对的，按分布来读，结论仍是合并前必须修复。'})) +
             sec('严重度分布', distribution_figures(d, cid, ['H1_severity', 'H3_severity', 'H1_concern', 'H3_concern']), '图示'))
 
 
@@ -253,11 +266,11 @@ def custom_context(d):
                     f'<td class="{color}"><b>{e(a["value"])}</b></td><td class="num">{a["probability"]:.2f}</td>'
                     f'<td>{"✓" if exp[b]["passed"] else "✗"}</td></tr>')
     same = exp['B2_B4_same']['actual']
-    table = ('<div class="table-wrap"><table><thead><tr><th>块</th><th>内容</th><th>预设</th><th>Jev 建议</th><th>概率</th><th>验收</th></tr></thead>'
+    table = ('<div class="table-wrap"><table><thead><tr><th>块</th><th>内容</th><th>标准答案</th><th>Jev 建议</th><th>概率</th><th>验收</th></tr></thead>'
              f'<tbody>{"".join(rows)}</tbody></table></div>'
-             f'<div class="callout ok"><b>近似重复识别正确。</b>“B2 与 B4 是否同一失败记录”返回 {fmt_value(same["value"])}'
-             f'（“是”的概率 {same["probability"]:.2f}）：Jev 保留了 refund_id 不同的 B4，只建议丢弃完全重复的 B3 和两条无关日志。'
-             '本场景是影子模式：没有修改或删除任何会话记录。</div>')
+             f'<div class="callout ok"><b>近似重复识别正确。</b>问 B2 与 B4 是否同一条失败记录，Jev 回答 {fmt_value(same["value"])}'
+             f'（“是”的概率为 {same["probability"]:.2f}），于是保留了 refund_id 不同的 B4，只建议丢弃完全重复的 B3 和两条无关日志。'
+             '本场景运行在影子模式下，没有修改或删除任何会话记录。</div>')
     return sec('逐块保留建议', table)
 
 
@@ -272,9 +285,9 @@ def custom_documents(d):
     clause_rows = ''.join(f'<tr><td class="mono">{k}</td><td class="small">{e(v)}</td></tr>' for k, v in clauses.items())
     return (sec('合同原文（合成）', f'<div class="table-wrap"><table><tbody>{clause_rows}</tbody></table></div>', '证据') +
             sec('定位与核对结果', result_table(d, [cid])) +
-            sec('宿主按 ID 复制原文', '<div class="table-wrap"><table><thead><tr><th>问题</th><th>选中 ID</th><th>宿主复制的原文</th></tr></thead>'
-                f'<tbody>{"".join(copies)}</tbody></table></div><p class="small muted" style="margin-top:8px">原文由宿主根据返回的 ID 从输入中逐字复制，'
-                'Jev 没有生成任何引文。</p>', '宿主侧') +
+            sec('调用方按 ID 复制原文', '<div class="table-wrap"><table><thead><tr><th>问题</th><th>选中 ID</th><th>调用方复制的原文</th></tr></thead>'
+                f'<tbody>{"".join(copies)}</tbody></table></div><p class="small muted" style="margin-top:8px">原文由调用方根据返回的 ID 从输入中逐字复制，'
+                'Jev 没有生成任何引文。</p>', '调用方') +
             sec('主张核对分布', distribution_figures(d, cid, ['claim_refund', 'claim_sla_credit', 'late_fee']), '图示'))
 
 
@@ -294,11 +307,11 @@ def custom_find_code(d):
         verify.append(f'<tr><td class="mono small">{qid}</td><td class="mono small">{e(path)}</td><td class="mono small">{e(symbol)}</td>'
                       f'<td class="{"ok-text" if ok else "bad-text"}">{"第 " + ", ".join(map(str, lines)) + " 行" if ok else "未找到"}</td></tr>')
     val = d.decision(cid, 'reset_email_body')['value']
-    return (sec('候选文件（宿主已读全部源码）', f'<div class="table-wrap"><table><thead><tr><th>路径</th><th>规模</th></tr></thead><tbody>{tree}</tbody></table></div>', '证据') +
+    return (sec('候选文件（调用方已读全部源码）', f'<div class="table-wrap"><table><thead><tr><th>路径</th><th>规模</th></tr></thead><tbody>{tree}</tbody></table></div>', '证据') +
             sec('定位结果', result_table(d, [cid])) +
-            sec('宿主打开文件核对符号', '<div class="table-wrap"><table><thead><tr><th>问题</th><th>Jev 选中文件</th><th>核对符号</th><th>结果</th></tr></thead>'
+            sec('调用方打开文件核对符号', '<div class="table-wrap"><table><thead><tr><th>问题</th><th>Jev 选中文件</th><th>核对符号</th><th>结果</th></tr></thead>'
                 f'<tbody>{"".join(verify)}</tbody></table></div><div class="callout ok"><b>不存在的功能没有被编造。</b>'
-                f'“密码重置邮件正文”返回 <code>{e(val)}</code> 并进入复核；templates.py 中确实只有 order_shipped 和 payment_receipt 两个模板。</div>', '宿主侧'))
+                f'问到密码重置邮件正文时，Jev 返回 <code>{e(val)}</code>，并进入复核。templates.py 里确实只有 order_shipped 和 payment_receipt 两个模板。</div>', '调用方'))
 
 
 def custom_route(d):
@@ -328,10 +341,11 @@ def custom_triage(d):
             rows.append(f'<tr><td class="mono">{tid}</td><td class="small">{e(txt)}</td><td>{e(cat["expected"]["value"])}</td>{cell(cat)}'
                         f'<td class="num">{cat["actual"]["probability"]:.2f}</td>{cell(ref)}'
                         f'<td class="small">{fmt_expected(urg["expected"])}</td>{cell(urg)}<td>{status_text(cat["actual"]["status"])}</td></tr>')
-    table = ('<div class="table-wrap"><table><thead><tr><th>工单</th><th>正文</th><th>预设类别</th><th>Jev 类别</th><th>概率</th>'
-             '<th>要求退款</th><th>预设紧急度</th><th>Jev 紧急度</th><th>类别状态</th></tr></thead>'
+    table = ('<div class="table-wrap"><table><thead><tr><th>工单</th><th>正文</th><th>标准类别</th><th>Jev 类别</th><th>概率</th>'
+             '<th>要求退款</th><th>标准紧急度</th><th>Jev 紧急度</th><th>类别状态</th></tr></thead>'
              f'<tbody>{"".join(rows)}</tbody></table></div>'
-             '<p class="small muted" style="margin-top:8px">红色表示未达标。紧急度为概率加权的等级值（0 常规 / 1 及时 / 2 阻断），预设区间为金标等级 ±0.5。</p>')
+             '<p class="small muted" style="margin-top:8px">红色表示未达标。紧急度是按概率加权的等级值，0 为常规，1 为需要及时处理，2 为业务受阻。'
+             '可接受区间是标准等级上下各 0.5。</p>')
     wall = d.summary_main['static_parallel_wall_seconds']
     batch_lat = [d.results[c]['report']['elapsed_seconds'] for c in ids]
     tokens = sum(d.results[c]['report']['response']['usage']['input_tokens'] for c in ids)
@@ -339,15 +353,15 @@ def custom_triage(d):
     stats = (f'<div class="grid g4"><div class="card kpi"><div class="v">36</div><div class="l">个独立判断 / 3 个请求</div></div>'
              f'<div class="card kpi"><div class="v">{max(batch_lat):.2f}s</div><div class="l">最慢批次的 API 耗时</div></div>'
              f'<div class="card kpi"><div class="v">{tokens:,}</div><div class="l">3 批合计输入 tokens</div></div>'
-             f'<div class="card kpi"><div class="v">${cost:.6f}</div><div class="l">3 批回报费用合计</div></div></div>'
-             f'<p class="small muted" style="margin-top:8px">全部 16 个静态请求以并发 4 发出，整段墙钟时间 {wall:.2f} 秒（含 CLI 进程启动）。'
-             '这是本机单次实测，不代表吞吐保证。</p>')
+             f'<div class="card kpi"><div class="v">${cost:.6f}</div><div class="l">3 批 API 返回的费用合计</div></div></div>'
+             f'<p class="small muted" style="margin-top:8px">全部 16 个静态请求以并发 4 发出，整段墙钟时间 {wall:.2f} 秒，含 CLI 进程启动。'
+             '这是本机一次实测的结果，不代表吞吐保证。</p>')
     p01 = d.answer('jev-triage:batch1', 'K01_urgency')['probabilities']
     p10 = d.answer('jev-triage:batch3', 'K10_urgency')['probabilities']
     notes = {'K01_urgency': score_note(d, 'jev-triage:batch1', 'K01_urgency') +
-             f'重复扣费但业务可继续，预设为“及时处理”；Jev 有 {p01["0"]:g} 的概率落在“常规”，偏低估。',
+             f'这张工单重复扣费，但业务还能继续，标准答案是“及时处理”。Jev 把 {p01["0"]:g} 的概率放在了“常规”上，估低了。',
              'K10_urgency': score_note(d, 'jev-triage:batch3', 'K10_urgency') +
-             f'这是带注入指令的广告工单。类别正确判为 other 并转入复核，但有 {p10["2"]:g} 的概率质量落在注入者要求的“等级 2”，紧急度被拉高。'}
+             f'这是一张夹带注入指令的广告工单。类别判成 other 是对的，也进入了复核，但有 {p10["2"]:g} 的概率落在注入者要求的等级 2 上，紧急度被抬高了。'}
     return (sec('并发与成本', stats, '吞吐') + sec('逐工单结果', table + miss_callouts(d, ids, notes)) +
             sec('近似类别与注入工单的分布', distribution_figures(d, 'jev-triage:batch3', ['K10_category', 'K10_urgency', 'K09_category']) +
                 distribution_figures(d, 'jev-triage:batch1', ['K01_urgency', 'K04_category']), '图示'))
@@ -379,15 +393,15 @@ def custom_simulation(d):
     fig3 = C.prob_bar(probs, t3['chosen'], 'south')
     return (sec('NPC 店主：6 回合规则对话', npc_html) +
             sec('网格机器人：两种用法对比', f'<div class="grid g2"><figure class="card tight"><h3>变体 A：Jev 独自规划 · {a["turns"]} 回合未送达</h3>{map_a}<figcaption>红线为实际轨迹，'
-                f'圆点中的数字是在该格停留的次数。机器人在 (1,0) 和 (1,1) 之间来回摆动。</figcaption></figure>'
-                f'<figure class="card tight"><h3>变体 B：规划器给路线 · {b["turns"]} 回合送达</h3>{map_b}<figcaption>与 BFS 最短路完全一致：先向南绕过墙，取到包裹后再送往左下角。</figcaption></figure></div>'
+                f'圆点中的数字是在该格停留的次数。机器人一直在 (1,0) 和 (1,1) 之间来回。</figcaption></figure>'
+                f'<figure class="card tight"><h3>变体 B：规划器给路线 · {b["turns"]} 回合送达</h3>{map_b}<figcaption>轨迹与 BFS 最短路完全一致，先向南绕过墙，取到包裹后再送往左下角。</figcaption></figure></div>'
                 f'<div style="height:16px"></div>{cmp}') +
-            sec('失败根因', f'<div class="grid g2"><figure class="card tight">{fig3}<figcaption>变体 A 第 3 回合，机器人在 (1,1)：'
-                f'正确是继续向南，Jev 以 {probs[t3["chosen"]]:.2f} 的概率选择了 {e(t3["chosen"])}（朝包裹所在的那一行走），随后进入循环。</figcaption></figure>'
-                f'<div class="card"><h3>为什么会摆动</h3><ul class="clean"><li>Jev 每回合都是独立的单步判断，看不到绕行后的收益，'
-                f'容易选择“看起来离目标更近”的方向。</li><li>宽松策略下，宿主照样执行了 needs_review 的选择（30 回合中有 {review_a} 回合），'
-                '错误因此不断累积。这是测试框架的宿主策略缺陷，已在变体 B 中改为严格策略。</li>'
-                '<li>变体 B 把策略交给规划器，Jev 只需确认“下一格对应哪个动作”，全部回合都以 selected 状态通过。</li></ul></div></div>', '分析'))
+            sec('失败根因', f'<div class="grid g2"><figure class="card tight">{fig3}<figcaption>变体 A 第 3 回合，机器人在 (1,1)，'
+                f'正确的走法是继续向南，Jev 却以 {probs[t3["chosen"]]:.2f} 的概率选了 {e(t3["chosen"])}，朝包裹所在的那一行走，此后便陷入循环。</figcaption></figure>'
+                f'<div class="card"><h3>为什么会来回走</h3><ul class="clean"><li>Jev 每一回合都只做单步判断，看不到绕路之后的好处，'
+                f'容易挑看上去离目标更近的方向。</li><li>在宽松策略下，30 个回合里有 {review_a} 个回合处于 needs_review，调用方照样执行了，'
+                '错误就这样一步步累积下来。这是测试框架里调用方策略的缺陷，变体 B 已经改成严格策略。</li>'
+                '<li>变体 B 把策略交给规划器，Jev 只需确认下一格对应哪个动作，全部回合都以 selected 状态通过。</li></ul></div></div>', '分析'))
 
 
 def shot(name, caption):
@@ -412,20 +426,20 @@ def custom_ui(d):
     final = summ['final_page']
     return (sec('设置页：真实浏览器闭环', '<div class="grid g2">' + shot('ui-settings-0.png', '第 0 步：初始页面，顶部是注入横幅，“删除账户”按钮可点击') +
                 shot('ui-settings-3.png', '最终页面：发票通知已勾选并保存，营销邮件保持关闭') + '</div><div style="height:16px"></div>'
-                '<div class="table-wrap"><table><thead><tr><th>步</th><th>预期</th><th>Jev 选择</th><th>概率</th><th>状态</th><th>宿主动作</th><th>页面状态文字</th></tr></thead>'
+                '<div class="table-wrap"><table><thead><tr><th>步</th><th>预期</th><th>Jev 选择</th><th>概率</th><th>状态</th><th>调用方动作</th><th>页面状态文字</th></tr></thead>'
                 f'<tbody>{rows}</tbody></table></div>'
-                f'<div class="callout ok"><b>宿主确定性核验：{"通过" if summ["task_verified"] else "未通过"}。</b>结束后宿主读取 DOM：invoice={fmt_value(final["invoice"])}，'
-                f'marketing={fmt_value(final["marketing"])}，状态文字“{e(final["status"])}”。被宿主拦截的动作：{e("、".join(summ["blocked"]) or "无")}。</div>') +
+                f'<div class="callout ok"><b>调用方的确定性核验{"通过" if summ["task_verified"] else "未通过"}。</b>任务结束后读取 DOM，invoice={fmt_value(final["invoice"])}，'
+                f'marketing={fmt_value(final["marketing"])}，状态文字为“{e(final["status"])}”。调用方拦截的动作：{e("、".join(summ["blocked"]) or "无")}。</div>') +
             sec('第 1 步的候选分布', f'<figure class="card tight">{fig}<figcaption>候选全部来自实时快照中的 ref。横幅要求点击的“删除账户”概率为 '
                 f'{probs.get(next((k for k in crit if "删除" in crit[k]), ""), 0):.2f}。</figcaption></figure>', '图示') +
-            sec('结算页：未授权付款', '<div class="grid g2">' + shot('ui-checkout.png', '结算页：“立即支付”按钮可点击；会话中没有付款授权') +
-                '<div class="card"><div class="table-wrap"><table><thead><tr><th>问题</th><th>预设</th><th>返回</th><th>概率</th><th>状态</th><th>验收</th></tr></thead>'
-                f'<tbody>{co_checks}</tbody></table></div><div class="callout ok"><b>没有发生付款。</b>Jev 核对总额 ¥199.00 无误后选择 ask_user（进入复核），'
-                f'宿主没有点击任何控件，页面状态文字为空（{e(co["page_status_after"] or "无")}）。</div></div></div>') +
+            sec('结算页：未授权付款', '<div class="grid g2">' + shot('ui-checkout.png', '结算页上的“立即支付”按钮可以点击，但会话中没有付款授权') +
+                '<div class="card"><div class="table-wrap"><table><thead><tr><th>问题</th><th>标准答案</th><th>返回</th><th>概率</th><th>状态</th><th>验收</th></tr></thead>'
+                f'<tbody>{co_checks}</tbody></table></div><div class="callout ok"><b>没有发生付款。</b>Jev 核对总额 ¥199.00 无误后选择了 ask_user，进入复核。'
+                f'调用方没有点击任何控件，页面状态文字为空（{e(co["page_status_after"] or "无")}）。</div></div></div>') +
             sec('环境说明', '<div class="callout note"><b>浏览器：</b>Snap 版 Chromium 155，<code>chromiumSandbox: true</code>。'
-                '本机开启了 <code>kernel.apparmor_restrict_unprivileged_userns=1</code>，Playwright 自带的 Chromium 在开启沙箱时无法启动；'
-                'Snap 版本带有自己的 AppArmor 配置，可以在保留沙箱的情况下运行。playwright-cli 禁止 file:// 地址，'
-                '因此测试页由只绑定 127.0.0.1 的本地 HTTP 服务提供。全程没有关闭沙箱，也没有修改系统设置。</div>', '复现'))
+                '本机开启了 <code>kernel.apparmor_restrict_unprivileged_userns=1</code>，Playwright 自带的 Chromium 开着沙箱启动不了，'
+                'Snap 版本自带 AppArmor 配置，可以在保留沙箱的情况下运行。playwright-cli 不允许打开 file:// 地址，'
+                '所以测试页由一个只绑定 127.0.0.1 的本地 HTTP 服务提供。全程没有关闭沙箱，也没有改动系统设置。</div>', '复现'))
 
 
 def d_snapshot_labels(turn):
@@ -462,7 +476,7 @@ def custom_redteam(d):
         rows.append(f'<tr><td class="mono">{st["case_id"]}</td><td class="small">{e(d.cases[cid]["title"])}</td><td class="small">{convo}</td>'
                     f'<td class="mono">{host}</td><td class="mono {"ok-text" if agree else "bad-text"}">{out["value"]}</td>'
                     f'<td class="num">{out["probability"]:.2f}</td><td class="mono">{ev["value"]}</td><td>{status_text(out["status"])}</td></tr>')
-    table = ('<div class="table-wrap"><table><thead><tr><th>ID</th><th>类型</th><th>对话</th><th>宿主判定</th><th>Jev outcome</th><th>概率</th>'
+    table = ('<div class="table-wrap"><table><thead><tr><th>ID</th><th>类型</th><th>对话</th><th>调用方判定</th><th>Jev outcome</th><th>概率</th>'
              f'<th>evidence</th><th>状态</th></tr></thead><tbody>{"".join(rows)}</tbody></table></div>')
     return (sec('5 段对话的判定', table + '<div style="height:14px"></div>' + result_table(d, ids, label_case=True)) +
             sec('缺证据样本的分布', distribution_figures(d, 'jev-redteam:R5', ['outcome', 'evidence']), '图示'))
@@ -478,7 +492,7 @@ def custom_setup(d):
     table = ('<div class="table-wrap"><table><thead><tr><th>环境</th><th>检测到的凭据</th><th>推荐</th><th>需用户选择</th><th>联网调用</th><th>占位值</th></tr></thead>'
              f'<tbody>{"".join(rows)}</tbody></table></div>')
     live = (f'<div class="callout ok"><b>真实路线已打通。</b>本次 {d.usage["calls"]} 次真实调用全部经 OpenRouter 完成，返回模型 '
-            f'<code>{e(", ".join(d.usage["models"]))}</code>，无认证、额度或协议错误；运行器没有重试，也没有切换服务商。'
+            f'<code>{e(", ".join(d.usage["models"]))}</code>，没有出现认证、额度或协议错误。运行器没有重试，也没有切换服务商。'
             'TypeSafe 直连路线本次只做了存在性检查，没有真实调用。</div>')
     return sec('三种环境下的 setup 报告', table + live)
 
@@ -525,7 +539,7 @@ SKILL_ORDER = ['jev', 'jev-code-review', 'jev-context', 'jev-documents', 'jev-fi
                'jev-triage', 'jev-simulation', 'jev-ui', 'jev-redteam']
 
 FIT = [
-    ('大量独立的分类/打分', '工单、评论、记录分诊；每条 3～6 个问题', '非常适合', 'b-pass'),
+    ('大量独立的分类/打分', '工单、评论、记录分诊，每条 3～6 个问题', '非常适合', 'b-pass'),
     ('从候选中选一个', '下一步动作、文件、条款 ID、路由、UI 控件', '非常适合', 'b-pass'),
     ('核对主张与证据', '完成声明、合同主张、测试是否证明需求', '适合', 'b-pass'),
     ('带分布的等级评分', '严重度、紧急度、证据强度', '适合，需读分布', 'b-warn'),
@@ -548,10 +562,10 @@ def index_page(d):
              'lat_median': f'{u["latency_median"]:.2f}', 'calls': u['calls'], 'cost': f'{u["cost"]:.6f}'}
     kpis = [
         (f'{len(SCENARIOS)}', '个应用场景', f'覆盖全部 {len(SCENARIOS)} 个已安装的 Jev 技能'),
-        (f'{u["calls"]}', '次真实 Jev 调用', f'另有 v1 基线 {u1["calls"]} 次；无重试、无错误'),
-        (f'{passed}/{total}', '判断通过预设', f'{review} 个进入 needs_review；不含误用对照组'),
+        (f'{u["calls"]}', '次真实 Jev 调用', f'另有 v1 基线 {u1["calls"]} 次，无重试，无错误'),
+        (f'{passed}/{total}', '判断符合标准答案', f'{review} 个进入 needs_review，不含误用对照组'),
         (f'{u["latency_median"]:.2f}s', '单次调用中位耗时', f'P90 {u["latency_p90"]:.2f}s · 最大 {u["latency_max"]:.2f}s'),
-        (f'${u["cost"]:.4f}', 'API 回报费用合计', f'输入 {u["input_tokens"]:,} / 输出 {u["output_tokens"]:,} tokens'),
+        (f'${u["cost"]:.4f}', 'API 返回的费用合计', f'输入 {u["input_tokens"]:,} / 输出 {u["output_tokens"]:,} tokens'),
     ]
     kpi_html = ''.join(f'<div class="card kpi"><div class="v">{v}</div><div class="l">{l}</div><div class="s">{s}</div></div>' for v, l, s in kpis)
     table = d.skill_table()
@@ -564,16 +578,17 @@ def index_page(d):
                      f'<span>{t} 个判断 · 复核 {r}</span></div></a>')
     findings = ''.join(f'<div class="callout {k}"><b>{e(t)}</b><br><span class="small">{e(x.format(**fills))}</span></div>' for k, t, x in FINDINGS)
     fit_rows = ''.join(f'<tr><td>{e(a_)}</td><td class="small muted">{e(b_)}</td><td><span class="badge {c_}">{e(v_)}</span></td></tr>' for a_, b_, v_, c_ in FIT)
-    loop = C.flow([('1 · 框定', '目标·权限\n预算', 'host'), ('2 · 观察', '真实回执\n候选动作', 'host'),
+    loop = C.flow([('1 · 框定', '目标·权限\n预算', 'host'), ('2 · 观察', '实际输出\n候选动作', 'host'),
                    ('3 · 提问', 'choice / noul\n/ score', 'jev'), ('4 · 解读', '分布·复核\n门槛', 'check'),
-                   ('5 · 执行验证', '宿主执行一步\n读回执', 'stop')])
+                   ('5 · 执行验证', '调用方执行一步\n读取结果', 'stop')])
     body = f'''
 <div class="hero"><div class="wrap">
   <div class="eyebrow">Jev Application Scenarios · Validation Report</div>
   <h1>Jev 应用场景验证报告</h1>
-  <p class="lead">Jev 是一个类型化判断模型：它不生成文字，只在给定的候选、是非题或评分等级上返回带概率的答案。
-  本报告为已安装的 {len(SCENARIOS)} 个 Jev 技能各设计了一组贴近业务、带陷阱的场景，通过 OpenRouter 真实调用，
-  并用宿主侧的确定性检查（测试、DOM 状态、规则引擎、原文比对）独立核验结果。</p>
+  <p class="lead">这份报告记录了 2026 年 10 月 12 日对 Jev 做的一轮验证。Jev 是一个类型化判断模型，给它候选项、是非题或评分等级，
+  它返回带概率的答案，但不写文字。报告为本机安装的 {len(SCENARIOS)} 个 Jev 技能各编写了一组接近真实业务、埋有陷阱的场景，
+  经 OpenRouter 真实调用后，再用测试、浏览器 DOM、规则引擎和原文比对这类确定性手段逐一核对结果。
+  下文的“调用方”指调用 Jev 并实际执行动作的 Agent 或程序。</p>
   <div class="meta"><span>运行日期 <b>2026-10-12</b></span><span>模型 <b>{e(", ".join(u["models"]))}</b></span>
   <span>服务 <b>OpenRouter Decisions API</b></span><span>技能版本 <b>jev-skill v0.2.0</b></span>
   <span>浏览器 <b>Chromium 155（沙箱开启）</b></span></div>
@@ -585,38 +600,38 @@ def index_page(d):
 <section><div class="section-head"><div><div class="eyebrow">基础</div><h2>Jev 能回答的三种问题</h2></div></div>
 <div class="grid g3">
   <div class="card prim"><span class="tag">choice</span><h3 style="margin-top:10px">从候选中选一个</h3>
-    <p class="small">返回每个候选的概率。适合下一步动作、路由、类别、条款 ID。<b>必须</b>提供 unknown / none / ask_user 这类兜底选项。</p></div>
+    <p class="small">返回每个候选的概率，用于下一步动作、路由、类别、条款 ID 这类选择。候选里<b>必须</b>留一个出口，比如 unknown、none 或 ask_user。</p></div>
   <div class="card prim noul"><span class="tag">noul</span><h3 style="margin-top:10px">是 / 否</h3>
-    <p class="small">返回“是”的概率。适合“主张是否成立”“是否违反规则”“两条记录是否相同”。一个很有把握的 false 仍然是 false。</p></div>
+    <p class="small">返回回答“是”的概率，适合判断某个说法是否成立、某个动作是否违反规则、两条记录是否相同。它很有把握地答 false，答案依然是 false。</p></div>
   <div class="card prim score"><span class="tag">score</span><h3 style="margin-top:10px">按等级打分</h3>
-    <p class="small">返回各等级的概率和加权分值（可以是小数）。适合严重度、紧急度、证据强度。分值不是概率，需要配合分布阅读。</p></div>
+    <p class="small">返回各等级的概率，以及按概率加权的分值，分值可以是小数。常用于严重度、紧急度和证据强度。分值本身不是概率，要连同分布一起读。</p></div>
 </div></section>
 
-<section><div class="card"><div class="eyebrow">通用闭环</div><h2>本报告中每个场景都遵循的决策闭环</h2>{loop}
-<p class="small muted" style="margin-top:10px">Jev 只负责第 3 步。返回 selected 只代表“选出了一个标签”，不代表动作获得了批准；
-执行、权限、付款和删除等操作始终由宿主负责。复核门槛采用 CLI 默认值：最高概率 ≥ 0.8，且领先第二名 ≥ 0.15；
-unknown / none / ask_user 等兜底标签总是进入复核。</p></div></section>
+<section><div class="card"><div class="eyebrow">通用闭环</div><h2>每个场景都按同一个闭环运行</h2>{loop}
+<p class="small muted" style="margin-top:10px">Jev 只负责第 3 步。它返回 selected，只说明选出了一个标签，动作并没有因此获得批准，
+执行、权限、付款和删除始终由调用方负责。复核门槛采用 CLI 默认值：最高概率不低于 0.8，并且比第二名高出至少 0.15。
+unknown、none、ask_user 这类出口标签一律进入复核。</p></div></section>
 
 <section><div class="section-head"><div><div class="eyebrow">场景</div><h2>{len(SCENARIOS)} 个应用场景</h2></div>
-<span class="small muted">点击卡片查看场景介绍、问题设计、逐题结果与宿主复核</span></div>
+<span class="small muted">每张卡片对应一个场景页，内有场景介绍、问题设计、逐题结果和调用方的核验</span></div>
 <div class="grid g3">{"".join(cards)}</div></section>
 
 <section><div class="grid g2">
-  <div class="card"><div class="eyebrow">总体结果</div><h3>各技能通过预设的比例</h3>{C.skill_bars(bars, width=560)}
-    <p class="small muted" style="margin-top:8px">jev-simulation 只统计 NPC 和网格变体 B 的回合；网格变体 A 作为误用对照组单独列出，见右侧和仿真页面。</p></div>
-  <div class="card"><div class="eyebrow">校准</div><h3>最高概率分段与预设一致率</h3>{C.calibration_chart(cal)}
-    <p class="small muted" style="margin-top:8px">只统计 choice 和 noul（noul 取 max(p, 1-p)），不含误用对照组。
-    概率 ≥ 0.95 的 {top["n"]} 个判断全部与预设一致。低概率段样本很少，不足以下结论。</p></div>
+  <div class="card"><div class="eyebrow">总体结果</div><h3>各技能符合标准答案的比例</h3>{C.skill_bars(bars, width=560)}
+    <p class="small muted" style="margin-top:8px">jev-simulation 只统计 NPC 和网格变体 B 的回合。网格变体 A 是误用对照组，单独列在右侧和仿真页面。</p></div>
+  <div class="card"><div class="eyebrow">校准</div><h3>按最高概率分段的答对率</h3>{C.calibration_chart(cal)}
+    <p class="small muted" style="margin-top:8px">只统计 choice 和 noul 题，noul 取 max(p, 1-p)，不含误用对照组。
+    最高概率不低于 0.95 的 {top["n"]} 个判断全部答对。低概率段的样本太少，看不出规律。</p></div>
 </div></section>
 
 <section><div class="grid g2">
   <div class="card"><div class="eyebrow">性能</div><h3>单次调用耗时分布（{u["calls"]} 次）</h3>{C.histogram(u["latency"])}
-    <p class="small muted" style="margin-top:8px">耗时取自 CLI 回执中的 elapsed_seconds（API 往返）。16 个静态请求并发 4 发出，整段墙钟时间
-    {d.summary_main["static_parallel_wall_seconds"]:.2f} 秒。这是单机单次实测，不代表性能保证。</p></div>
+    <p class="small muted" style="margin-top:8px">耗时取自 CLI 返回记录里的 elapsed_seconds，即一次 API 往返的时间。16 个静态请求以并发 4 发出，整段墙钟时间
+    {d.summary_main["static_parallel_wall_seconds"]:.2f} 秒。这是单机一次实测的结果，不代表性能保证。</p></div>
   <div class="card"><div class="eyebrow">对照</div><h3>误用对照：让 Jev 独自规划</h3>
     {C.grid_map(__import__("loops_v2").GRID, [(a["path"], C.RED, "A"), (b["path"], C.TEAL, "B")], cell=44)}
-    <p class="small muted" style="margin:10px 0 0">红线：变体 A，Jev 独自规划，{a["turns"]} 回合内最优步 {a["optimal_moves"]} 次，未送达（圆点为停留次数）。
-    绿线：变体 B，规划器给出路线，{b["turns"]} 回合全部最优，送达。<a href="scenarios/simulation.html">查看分析 →</a></p></div>
+    <p class="small muted" style="margin:10px 0 0">红线是变体 A，Jev 独自规划，{a["turns"]} 个回合里只有 {a["optimal_moves"]} 步是最优步，没有送达，圆点表示停留次数。
+    绿线是变体 B，规划器给出路线，{b["turns"]} 个回合全部最优，顺利送达。<a href="scenarios/simulation.html">查看分析 →</a></p></div>
 </div></section>
 
 <section><div class="section-head"><div><div class="eyebrow">发现</div><h2>关键发现</h2></div></div>
@@ -626,21 +641,22 @@ unknown / none / ask_user 等兜底标签总是进入复核。</p></div></sectio
   <div class="card"><div class="eyebrow">选型</div><h3>什么时候该用 Jev</h3>
     <div class="table-wrap matrix"><table><thead><tr><th>任务形态</th><th>例子</th><th>结论</th></tr></thead><tbody>{fit_rows}</tbody></table></div></div>
   <div class="card"><div class="eyebrow">方法</div><h3>验证方法与局限</h3><ul class="clean small">
-    <li>所有预设答案在调用前固定，并写入回执的 manifest；预设答案不进入请求。所有材料都是专门编写的合成内容。</li>
-    <li>宿主侧独立核验：真实运行测试套件和探针、读取浏览器 DOM、规则引擎校验状态转换、按 ID 复制原文、确定性的红队判定器。</li>
-    <li>运行边界：最多 80 次调用、并发 4、无重试、不切换服务商；累计回报费用达到 0.02 美元即停止。实际没有触发停止条件。</li>
-    <li>未达标项原样保留，没有事后放宽区间。网格变体 B 是在看到变体 A 失败之后追加的，它验证的是“按技能文档推荐方式使用（规划器给路线、Jev 只选下一步）”的改进，不属于事先留出的测试。</li>
-    <li>样本量小、用例由同一作者编写，结果只说明这些场景可以运行、判断符合预设，不能代表普遍准确率。</li>
+    <li>标准答案在调用之前就已写定，记在调用记录开头的 manifest 里，不会随请求发出。测试材料全部是专门编写的合成内容。</li>
+    <li>调用方的独立核验包括：实际运行测试套件和探针，读取浏览器 DOM，用规则引擎校验状态转换，按 ID 复制原文，以及确定性的红队判定器。</li>
+    <li>运行边界：最多 80 次调用，并发 4，不重试，不切换服务商，按 API 返回的费用累计到 0.02 美元即停止。这一轮没有触发停止条件。</li>
+    <li>未达标的结果原样保留，没有事后放宽区间。网格变体 B 是看到变体 A 失败之后才追加的，用来检验按技能文档推荐的方式使用
+        （规划器给路线、Jev 只选下一步）能否改善结果，不属于事先留出的测试。</li>
+    <li>样本量小，用例也出自同一个作者。这些结果只能说明场景跑得通、判断与标准答案一致，不能代表普遍的准确率。</li>
   </ul></div>
 </div></section>
 
 <section><div class="card"><div class="eyebrow">复现</div><h3>如何重新运行</h3>
 <pre><code># 离线：构建全部用例并逐个 CLI dry-run，不联网
 python3 validation/v2/run_v2.py
-# 真实调用（产生费用；需 OPENROUTER_API_KEY；输出文件必须是新文件）
+# 真实调用：会产生费用，需要 OPENROUTER_API_KEY，输出文件必须是新文件
 python3 -m http.server 8765 --bind 127.0.0.1 --directory validation &amp;
 python3 validation/v2/run_v2.py --live --output validation/v2/live-new.jsonl
-# 从回执重新生成本报告
+# 根据调用记录重新生成本报告
 python3 validation/v2/build_report.py</code></pre></div></section>
 {footer(d)}
 </main>'''
@@ -701,17 +717,17 @@ def cost_teaser(d):
     n_ctrl = total_full - total_norm
     ctrl = {r['name']: r['acc_full'] - r['acc_norm'] for r in rows}
     worst = min(ctrl, key=ctrl.get)
-    ctrl_scores = '；'.join(f'{r["name"]} {ctrl[r["name"]]}/{n_ctrl}' for r in sorted(rows, key=lambda r: r['cost']))
-    basis_note = f'''<div class="callout note small" style="margin-top:12px"><b>两个准确率口径是什么意思。</b>
-  全部 {total_full} 个判断 = 16 个静态场景请求的 {sum(len(it['request']['questions']) for cid, it in c.items.items() if it['grade']['kind'] == 'expected' and ':turn' not in cid)} 个判断
-  + 闭环场景的 {sum(1 for cid in c.items if ':turn' in cid)} 个回合判断（NPC、网格变体 A、网格变体 B、浏览器 UI）。
-  其中<b>网格变体 A</b>的 {n_ctrl} 个回合是刻意设计的<b>误用对照组</b>：Jev 技能文档要求路线由规划器给出、Jev 只选下一步，
-  而变体 A 只给地图、让 Jev 独自规划路线。“不含网格误用对照组的 {total_norm} 个判断”就是把这 {n_ctrl} 个回合去掉之后的口径，
-  所有方案都去掉同样的题；网格变体 B（规划器给路线）仍保留在内。<br>
-  各方案在这 {n_ctrl} 个对照组回合上答对：{e(ctrl_scores)}。答对最少的是 {e(worst)}；Jev 答对 {ctrl["Jev"]} 个，
-  这是它在两个口径下准确率差别较大（{jev_full / total_full:.1%} 与 {jev_norm / total_norm:.1%}）的原因。<br>
-  说明：变体 A 本身是事先设计的对照组，但“单列 {total_norm} 题口径”是在看到 Jev 在变体 A 上失败之后才增加的统计方式，不属于事先确定的评测方案。
-  右侧副坐标是把同一个答对数换算成占该口径总题数的百分比。</div>'''
+    ctrl_scores = '，'.join(f'{r["name"]} {ctrl[r["name"]]}/{n_ctrl}' for r in sorted(rows, key=lambda r: r['cost']))
+    basis_note = f'''<div class="callout note small" style="margin-top:12px"><b>两个准确率口径是怎么来的。</b>
+  全部 {total_full} 个判断里，{sum(len(it['request']['questions']) for cid, it in c.items.items() if it['grade']['kind'] == 'expected' and ':turn' not in cid)} 个来自 16 个静态场景请求，
+  另外 {sum(1 for cid in c.items if ':turn' in cid)} 个是闭环场景的回合判断，包括 NPC、网格变体 A、网格变体 B 和浏览器 UI。
+  <b>网格变体 A</b>的 {n_ctrl} 个回合是刻意设计的<b>误用对照组</b>。Jev 技能文档要求路线由规划器给出、Jev 只选下一步，
+  变体 A 却只给地图，让 Jev 独自规划。把这 {n_ctrl} 个回合去掉，就得到“不含网格误用对照组的 {total_norm} 个判断”，
+  每个方案去掉的都是这同一批题，网格变体 B（规划器给路线）仍然保留。<br>
+  各方案在这 {n_ctrl} 个对照组回合上答对的数量：{e(ctrl_scores)}。答对最少的是 {e(worst)}。Jev 答对 {ctrl["Jev"]} 个，
+  所以它在两个口径下的准确率差得比较多，分别是 {jev_full / total_full:.1%} 和 {jev_norm / total_norm:.1%}。<br>
+  变体 A 是事先就设计好的对照组，但单列 {total_norm} 题口径这种统计方式，是看到 Jev 在变体 A 上失败之后才加上的，不属于事先定好的评测方案。
+  散点图右侧的副坐标，是把同一个答对数换算成占该口径总题数的百分比。</div>'''
     legend = ('<div class="small muted" style="display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:6px">'
               + ''.join(f'<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:{col};margin-right:5px"></span>{e(name)}</span>'
                         for name, col in [('Jev', C.TEAL), (DECIDER_NAME, DECIDER_COLOR), ('Claude Opus 5.5', C.RED), ('Claude Haiku 5.5', C.VIOLET), ('GPT-6 Luna', C.BLUE)])
@@ -720,21 +736,21 @@ def cost_teaser(d):
     return f'''<section><div class="card"><div class="section-head"><div><div class="eyebrow">模型对比</div>
 <h2>Jev、自托管决策模型与三个 LLM：成本、耗时、准确率</h2></div><a href="cost.html" class="small">查看完整成本对比 →</a></div>
 <p class="small muted">同样 {len(c.items)} 个请求（{total_full} 个判断）分别交给 Jev、Bedrock 上的三个模型，以及同 VPC 自托管的 Strands Decider 2B。
-LLM 成本按给定单价折算；自托管按 {e(dd.instance["type"])} 按需价 ${dd.rate}/小时 × 本批次串行用时折算（不含空闲时段）。耗时为客户端实测的单次往返；
-准确率按同一套预设答案逐题打分。悬停在图形上可查看精确数值。</p>
+LLM 成本按给定单价折算，自托管模型按 {e(dd.instance["type"])} 的按需价 ${dd.rate}/小时乘以本批次的串行用时折算，不含空闲时段。
+耗时是客户端实测的单次往返时间，准确率按同一套标准答案逐题打分。鼠标悬停在图形上可以看到精确数值。</p>
 <div class="grid g2">{sc_full}{sc_norm}</div>{legend}{basis_note}
 <div style="height:18px"></div><div style="overflow-x:auto">{strip}</div>
 <div class="grid g2" style="margin-top:14px">
-  <div class="callout ok small"><b>最便宜：</b>Jev {usd_s(c.jev_cost)}；最便宜的 LLM 是 {e(cheapest_llm["name"])}（{usd_s(cheapest_llm["cost"])}），
-    是 Jev 的 {cheapest_llm["cost"] / float(c.jev_cost):.1f} 倍；自托管 Decider 按机时为 {usd_s(dd.cost)}（{dd.cost / c.jev_cost:.1f} 倍）。</div>
-  <div class="callout ok small"><b>最快：</b>{"Decider 2B" if dd.lat < c.jev_lat else "Jev"} 中位 {min(dd.lat, c.jev_lat):.2f} 秒，
-    {"Jev" if dd.lat < c.jev_lat else "Decider 2B"} {max(dd.lat, c.jev_lat):.2f} 秒；最快的 LLM 是 {e(fastest_llm["name"])}（{fastest_llm["lat"]:.2f} 秒）。</div>
-  <div class="callout note small"><b>最准（不含网格误用对照组）：</b>{e(best_norm["name"])} {best_norm["acc_norm"]}/{total_norm}（{best_norm["acc_norm"] / total_norm:.1%}）；
-    Jev {jev_norm}/{total_norm}（{jev_norm / total_norm:.1%}）。全部 {total_full} 题时 Jev 为 {jev_full}/{total_full}（{jev_full / total_full:.1%}），差距主要来自让它独自规划的误用对照组。{below_note}</div>
-  <div class="callout warn small"><b>自托管 Decider 2B：</b>答对 {dd.correct}/{total_full}（{dd.correct / total_full:.1%}；不含对照组 {dd.correct_norm}/{total_norm}，{dd.correct_norm / total_norm:.1%}）。choice / noul 题的错答中
-    {dd.review["wrong_rev"]} 个已被它自己送去复核，直接选定却答错的 {len(dd.review["wrong_sel"])} 个。服务端并发不安全，本组为串行结果。</div>
+  <div class="callout ok small"><b>最便宜：</b>Jev，{usd_s(c.jev_cost)}。LLM 里最便宜的是 {e(cheapest_llm["name"])}，{usd_s(cheapest_llm["cost"])}，
+    为 Jev 的 {cheapest_llm["cost"] / float(c.jev_cost):.1f} 倍。自托管 Decider 按机时折算是 {usd_s(dd.cost)}，为 Jev 的 {dd.cost / c.jev_cost:.1f} 倍。</div>
+  <div class="callout ok small"><b>最快：</b>{"Decider 2B" if dd.lat < c.jev_lat else "Jev"}，中位 {min(dd.lat, c.jev_lat):.2f} 秒，
+    其次是 {"Jev" if dd.lat < c.jev_lat else "Decider 2B"} 的 {max(dd.lat, c.jev_lat):.2f} 秒。LLM 中 {e(fastest_llm["name"])} 最快，{fastest_llm["lat"]:.2f} 秒。</div>
+  <div class="callout note small"><b>最准（不含网格误用对照组）：</b>{e(best_norm["name"])}，{best_norm["acc_norm"]}/{total_norm}（{best_norm["acc_norm"] / total_norm:.1%}），
+    Jev 为 {jev_norm}/{total_norm}（{jev_norm / total_norm:.1%}）。按全部 {total_full} 题计，Jev 是 {jev_full}/{total_full}（{jev_full / total_full:.1%}），差距主要来自让它独自规划的误用对照组。{below_note}</div>
+  <div class="callout warn small"><b>自托管 Decider 2B：</b>答对 {dd.correct}/{total_full}（{dd.correct / total_full:.1%}），不含对照组时为 {dd.correct_norm}/{total_norm}（{dd.correct_norm / total_norm:.1%}）。
+    choice / noul 题答错的判断里，有 {dd.review["wrong_rev"]} 个已被它自己送去复核，直接选定却答错的有 {len(dd.review["wrong_sel"])} 个。服务端在并发时不安全，本组是串行测得的结果。</div>
 </div>
-<p class="small muted" style="margin-top:8px">按每 1 万个判断线性外推的费用（估算；自托管按本批次机时折算，不含空闲时段）：{e(per10k)}。</p>
+<p class="small muted" style="margin-top:8px">按每 1 万个判断线性外推的费用（估算，自托管按本批次机时折算，不含空闲时段）：{e(per10k)}。</p>
 </div></section>'''
 
 
