@@ -33,8 +33,8 @@ BACKENDS = {
                  'label': 'GPT-6 Luna'},
     # Self-hosted decision model in the same VPC: no per-token price; cost is instance time.
     'decider': {'model': 'strands-decider-2B-qwen3.5-v1-2610', 'api': 'systemone', 'in': '0', 'out': '0',
-                'label': 'Strands Decider 2B（自托管）', 'url': 'http://172.31.240.177:8000/v1/systemone',
-                'instance': {'type': 'g5.xlarge', 'id': 'i-0783cd0d0f61a45df', 'usd_per_hour': '1.006',
+                'label': 'Strands Decider 2B（自托管）', 'url': 'http://172.31.240.20:8000/v1/systemone',
+                'instance': {'type': 'g5.xlarge', 'id': 'i-08386e854afa4afb5', 'usd_per_hour': '1.006',
                              'source': 'AWS Pricing API: us-west-2, On-Demand, Linux, Shared tenancy; effective 2026-10-01'}},
 }
 RESPONSES_URL = f'https://bedrock-runtime.{REGION}.amazonaws.com/openai/v1/responses'
