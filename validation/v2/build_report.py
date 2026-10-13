@@ -183,7 +183,7 @@ def v1_baseline(d, skill):
             f'<tbody>{"".join(body)}</tbody></table></div>')
 
 
-def intro_sections(s):
+def intro_sections(s, trigger=''):
     bg = ''.join(f'<p>{e(p)}</p>' for p in s['background'])
     traps = ''.join(f'<li>{e(t)}</li>' for t in s['traps'])
     return f'''
@@ -191,8 +191,47 @@ def intro_sections(s):
   <div class="card"><div class="eyebrow">场景介绍</div><h2>业务背景</h2>{bg}</div>
   <div class="card"><div class="eyebrow">为什么用 Jev</div><h2>判断点</h2><p>{e(s["why"])}</p>
     <h3 style="margin-top:14px">埋设的陷阱</h3><ul class="clean">{traps}</ul></div>
-</div></section>
+</div></section>{trigger}
 <section><div class="card"><div class="eyebrow">工作流</div><h2>调用方与 Jev 的分工</h2>{C.flow(s["flow"])}</div></section>'''
+
+
+def skill_description(skill):
+    """The `description:` line of the installed skill's SKILL.md frontmatter, verbatim."""
+    from cases import SKILLS
+    text = (SKILLS / skill / 'SKILL.md').read_text(encoding='utf-8')
+    front = text.split('---', 2)[1]
+    return re.search(r'^description:\s*(.+)$', front, re.M).group(1).strip()
+
+
+def trigger_how(d, s):
+    """How this run actually invoked the skill, from receipts and the runner (not from prose)."""
+    calls = d.calls_by_skill().get(s['skill'], 0)
+    if s['slug'] == 'setup':
+        return (f'验证脚本在三种合成环境下各运行一次 <code>jev-decide setup</code>，共 {len(d.setup)} 次，'
+                '只检查环境变量是否存在，不联网，也不调用 Jev。')
+    if s['slug'] in ('simulation', 'ui'):
+        unit = '每个回合' if s['slug'] == 'simulation' else '每走一步'
+        return (f'闭环由验证脚本驱动，{unit}构造一次请求，经 <code>jev-decide decide - --provider openrouter</code> 真实调用，'
+                f'本场景共 {calls} 次。')
+    extra = ('请求由技能自带的 <code>scripts/prepare.py</code> 从对话记录生成，标准答案不进入模型输入。'
+             if s['slug'] == 'redteam' else '')
+    return (f'验证脚本扮演调用方，按 SKILL.md 的流程写好 {calls} 个请求，经 <code>jev-decide decide - --provider openrouter</code> '
+            f'各真实调用一次。{extra}')
+
+
+def trigger_section(d, s):
+    """Card: what in the skill's own SKILL.md makes this scenario a match, and how this run invoked it."""
+    t = s['trigger']
+    return f'''
+<section><div class="card"><div class="eyebrow">触发方式</div><h2>这个场景怎样触发 <span class="tag">{e(s["skill"])}</span></h2>
+  <p class="small muted">Agent 启动时只读入每个技能的名称和 description，任务和 description 对得上，才加载完整的 SKILL.md 按其中的流程执行。
+  本次测试跳过了自动匹配这一步，由验证脚本直接按技能流程构造请求。</p>
+  <div class="grid g2">
+    <div><h3>技能的 description</h3><p class="small mono">{e(skill_description(s["skill"]))}</p><p>{e(t["desc_zh"])}</p>
+      <h3 style="margin-top:14px">本场景的触发时机</h3><p>{e(t["when"])}</p></div>
+    <div><h3>本次怎么调用</h3><p>{trigger_how(d, s)}</p>
+      <h3 style="margin-top:14px">什么时候不该触发</h3><p>{e(t["skip"])}</p></div>
+  </div></div></section>'''
 
 
 def result_section(d, s):
@@ -560,7 +599,7 @@ def scenario_page(d, s):
         design = sec('问题设计', question_table(d, s['cases'][:1] if s['slug'] in ('triage', 'redteam') else s['cases']) +
                      ('<p class="small muted" style="margin-top:8px">同类批次/样本使用相同的问题模板，此处只展示第一个。</p>'
                       if s['slug'] in ('triage', 'redteam') else ''), '判断设计')
-    body = (head + '<main class="wrap">' + intro_sections(s) + result_section(d, s) + design + CUSTOM[s['slug']](d) +
+    body = (head + '<main class="wrap">' + intro_sections(s, trigger_section(d, s)) + result_section(d, s) + design + CUSTOM[s['slug']](d) +
             v1_baseline(d, s['skill']) + pager(s['slug']) + footer(d) + '</main>')
     return page(s['title'], body, s['slug'], depth=1)
 

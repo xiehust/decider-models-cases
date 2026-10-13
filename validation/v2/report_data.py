@@ -12,6 +12,8 @@ VALIDATION = V2.parent
 RUN_MAIN = V2 / 'live-v2-20261012.jsonl'
 RUN_FOLLOWUP = V2 / 'live-v2-grid-planned-20261012.jsonl'
 RUN_V1 = VALIDATION / 'live-20261012.jsonl'
+LOOP_SKILL = {'npc': 'jev-simulation', 'grid': 'jev-simulation', 'grid_planned': 'jev-simulation',
+              'ui_settings': 'jev-ui', 'ui_checkout': 'jev-ui'}
 
 
 def rows(path):
@@ -102,8 +104,7 @@ class Data:
                 out.append({'skill': r['skill'], 'case': cid, 'question': c['question'], 'passed': c['passed'],
                             'value_ok': value_ok, 'status': c['actual']['status'],
                             'probability': c['actual'].get('probability'), 'kind': kind, 'value': val})
-        skill_of = {'npc': 'jev-simulation', 'grid': 'jev-simulation', 'grid_planned': 'jev-simulation',
-                    'ui_settings': 'jev-ui', 'ui_checkout': 'jev-ui'}
+        skill_of = LOOP_SKILL
         for scen, turns in self.turns.items():
             for t in turns:
                 if scen == 'ui_checkout':
@@ -117,6 +118,15 @@ class Data:
                 out.append({'skill': skill_of[scen], 'case': scen, 'question': f'turn{t["turn"]}',
                             'passed': bool(t.get('passed')), 'value_ok': bool(value_ok), 'status': t.get('status'),
                             'probability': t.get('probability'), 'kind': 'choice', 'value': t.get('chosen')})
+        return out
+
+    def calls_by_skill(self):
+        """Live Jev calls per skill: one per static request, one per loop turn."""
+        out = {}
+        for r in self.results.values():
+            out[r['skill']] = out.get(r['skill'], 0) + 1
+        for scen, turns in self.turns.items():
+            out[LOOP_SKILL[scen]] = out.get(LOOP_SKILL[scen], 0) + len(turns)
         return out
 
     def skill_table(self, exclude=('grid',)):
