@@ -185,9 +185,28 @@ def intro_sections(s):
 <section><div class="card"><div class="eyebrow">工作流</div><h2>调用方与 Jev 的分工</h2>{C.flow(s["flow"])}</div></section>'''
 
 
-def advice_section(s):
-    items = ''.join(f'<li>{e(a)}</li>' for a in s['advice'])
-    return f'<section><div class="card"><div class="eyebrow">结论与建议</div><h2>如何在生产中使用</h2><ul class="clean">{items}</ul></div></section>'
+def result_section(d, s):
+    """Fourth intro card: receipt-derived result line, the scenario's core conclusion and the
+    production advice (previously a closing card), so the outcome is visible before the detail."""
+    passed, total, review = scenario_stats(d, s)
+    if s['slug'] == 'setup':
+        lines = [f'{passed}/{total} 种凭据环境下的 setup 报告符合预期。']
+    else:
+        lines = [f'{passed}/{total} 个判断符合标准答案，{review} 个进入 needs_review。']
+        misses = [j for j in d.all_judgments() if j['skill'] == s['skill'] and j['case'] != 'grid' and not j['passed']]
+        lines.append('未达标：' + '、'.join(f'{j["case"]} · {j["question"]}' for j in misses) + '。' if misses else '没有未达标的判断。')
+        grid = [j for j in d.all_judgments() if j['case'] == 'grid' and j['skill'] == s['skill']]
+        if grid:
+            lines.append(f'另有网格变体 A（误用对照组）{sum(j["value_ok"] for j in grid)}/{len(grid)} 个回合走的是最优步，不计入上面的数字。')
+    facts = ''.join(f'<li>{e(x)}</li>' for x in lines)
+    advice = ''.join(f'<li>{e(a)}</li>' for a in s['advice'])
+    return f'''
+<section><div class="card"><div class="eyebrow">测试结果与结论</div><h2>测试结果、核心结论与建议</h2>
+  <div class="grid g2">
+    <div><h3>测试结果</h3><ul class="clean">{facts}</ul>
+      <h3 style="margin-top:14px">核心结论</h3><p>{e(s["verdict"])}</p></div>
+    <div><h3>生产使用建议</h3><ul class="clean">{advice}</ul></div>
+  </div></div></section>'''
 
 
 def pager(slug):
@@ -528,7 +547,7 @@ def scenario_page(d, s):
         design = sec('问题设计', question_table(d, s['cases'][:1] if s['slug'] in ('triage', 'redteam') else s['cases']) +
                      ('<p class="small muted" style="margin-top:8px">同类批次/样本使用相同的问题模板，此处只展示第一个。</p>'
                       if s['slug'] in ('triage', 'redteam') else ''), '判断设计')
-    body = (head + '<main class="wrap">' + intro_sections(s) + design + CUSTOM[s['slug']](d) + advice_section(s) +
+    body = (head + '<main class="wrap">' + intro_sections(s) + result_section(d, s) + design + CUSTOM[s['slug']](d) +
             v1_baseline(d, s['skill']) + pager(s['slug']) + footer(d) + '</main>')
     return page(s['title'], body, s['slug'], depth=1)
 
