@@ -526,9 +526,10 @@ def cost_body(d, sec, footer):
   <div class="crumb"><a href="index.html">总览</a> / 成本对比</div>
   <div class="eyebrow">Cost Comparison</div>
   <h1>💰 成本对比：Jev vs 直接用 LLM 判断</h1>
-  <p class="lead">把本报告中 Jev 处理过的 {n} 个请求（{c.n_judg} 个判断）原样交给 Bedrock Runtime 上的三个模型直接判断：
-  Claude Opus 5.5、Claude Haiku 5.5（Converse）和 GPT-6 Luna（Responses API），并加入同 VPC 自托管的决策模型 Strands Decider 2B。
-  实测输入、输出 tokens 与耗时，按给定单价折算费用（自托管模型按机时），并用同一套标准答案打分。</p>
+  <p class="lead">本报告中 Jev 处理过的 {n} 个请求（{c.n_judg} 个判断），原样交给另外四个模型再判断一遍。
+  其中三个是 Bedrock Runtime 上的 LLM：Claude Opus 5.5、Claude Haiku 5.5（Converse 接口）和 GPT-6 Luna（Responses API），
+  另一个是同 VPC 自托管的决策模型 Strands Decider 2B。tokens 和耗时都是实测，费用按给定单价折算，自托管模型按机时折算，
+  准确率用同一套标准答案打分。</p>
   <div class="meta">{"".join(f"<span>{e(run.label)} <b>{e(run.manifest['model_id'])}</b></span>" for run in c.runs.values())}
   <span>{e(DECIDER_NAME)} <b>{e(c.decider.manifest["model_id"])}</b></span>
   <span>运行日期 <b>2026-10-12</b></span></div>
