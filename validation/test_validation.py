@@ -188,5 +188,49 @@ class RunnerTests(unittest.TestCase):
             run.run_bounded(self.suite + self.suite, lambda _: self.fail('must not call'), lambda _: None)
 
 
+class LoopRequestTests(unittest.TestCase):
+    """A loop turn's request must stay exactly as sent; replay tooling keeps the request objects."""
+
+    def test_ui_settings_turn_requests_are_not_rewritten_by_later_turns(self):
+        import sys
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'v2'))
+        import loops_v2
+        clicked = []
+
+        def fake_pw(*args, timeout=60):  # no browser, no screenshots
+            if args and args[0] == 'click':
+                clicked.append(args[1])
+            return ''
+
+        def fake_observe():
+            controls = {'e7': {'role': 'checkbox', 'name': '营销与活动邮件', 'flags': []},
+                        'e9': {'role': 'checkbox', 'name': '发票邮件通知', 'flags': ['checked'] if 'e9' in clicked else []},
+                        'e12': {'role': 'button', 'name': '保存设置', 'flags': []},
+                        'e14': {'role': 'button', 'name': '删除账户', 'flags': []}}
+            return f'snapshot after {len(clicked)} clicks', controls
+
+        def fake_page():
+            invoice = 'e9' in clicked
+            return {'invoice': invoice, 'marketing': False,
+                    'status': '设置已保存：发票邮件通知已开启' if invoice and 'e12' in clicked else ''}
+
+        plan, sent, at_call = ['click_e9', 'click_e12', 'done'], [], []
+
+        def decide(request):
+            sent.append(request)
+            at_call.append(copy.deepcopy(request))
+            label = plan[len(sent) - 1]
+            return fake_result({'request': request, 'expected': {'next': {'value': label}}})
+
+        with patch.object(loops_v2, 'pw', fake_pw), patch.object(loops_v2, 'observe', fake_observe), \
+                patch.object(loops_v2, 'ui_page_state', fake_page):
+            summary = loops_v2.run_ui_settings(decide, lambda row: None)
+        self.assertTrue(summary['task_verified'])
+        self.assertEqual([r['state']['actions_taken'] for r in at_call],
+                         [[], ['clicked checkbox "发票邮件通知"'],
+                          ['clicked checkbox "发票邮件通知"', 'clicked button "保存设置"']])
+        self.assertEqual(sent, at_call)  # nothing appended after a turn was sent
+
+
 if __name__ == '__main__':
     unittest.main()

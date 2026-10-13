@@ -39,7 +39,205 @@
     <div><h3>测试结果</h3><ul class="clean"><li>6/7 个判断符合标准答案，0 个进入 needs_review。</li><li>未达标：jev-code-review:pr · H1_severity。</li></ul>
       <h3 style="margin-top:14px">核心结论</h3><p>两个真正的问题，配额多放行一次和异常时放行鉴权，类别都判对了。只改文案的那一块判为无需处理，也没有把“原有测试全部通过”当成改动安全的证据。唯一未达标的是 H1 的严重度评分：概率分在两头，加权均值略低于区间，按分布来读，结论仍是合并前必须修复。</p></div>
     <div><h3>生产使用建议</h3><ul class="clean"><li>state 里除了 diff，还应放进需求编号（Q1、S1）和探针结果，判断才有具体的依据。</li><li>严重度用 score 打分时，概率可能分散在两头，要看分布，不能只看加权均值。</li><li>Jev 的输出是给评审人的线索，不能当作合并批准。合并保护、静态分析和原有测试一样都不能少。</li></ul></div>
-  </div></div></section><section><div class="section-head"><div><div class="eyebrow">判断设计</div><h2>问题设计</h2></div></div><div class="table-wrap"><table><thead><tr><th>问题 ID</th><th>类型</th><th>问题</th><th>候选/等级</th></tr></thead><tbody><tr><td class="mono small">H1_concern</td><td><span class="tag">choice</span></td><td>Classify the main concern of hunk H1 only.</td><td class="small"><code>correctness</code> · <code>security</code> · <code>cosmetic</code> · <code>none</code></td></tr><tr><td class="mono small">H1_severity</td><td><span class="tag">score</span></td><td>Rate review priority for hunk H1 only.</td><td class="small">3 级：No action needed. / Minor; fix when convenient. / Must fix before merge.</td></tr><tr><td class="mono small">H2_concern</td><td><span class="tag">choice</span></td><td>Classify the main concern of hunk H2 only.</td><td class="small"><code>correctness</code> · <code>security</code> · <code>cosmetic</code> · <code>none</code></td></tr><tr><td class="mono small">H2_severity</td><td><span class="tag">score</span></td><td>Rate review priority for hunk H2 only.</td><td class="small">3 级：No action needed. / Minor; fix when convenient. / Must fix before merge.</td></tr><tr><td class="mono small">H3_concern</td><td><span class="tag">choice</span></td><td>Classify the main concern of hunk H3 only.</td><td class="small"><code>correctness</code> · <code>security</code> · <code>cosmetic</code> · <code>none</code></td></tr><tr><td class="mono small">H3_severity</td><td><span class="tag">score</span></td><td>Rate review priority for hunk H3 only.</td><td class="small">3 级：No action needed. / Minor; fix when convenient. / Must fix before merge.</td></tr><tr><td class="mono small">tests_prove_safe</td><td><span class="tag">noul</span></td><td>Do the passing existing tests demonstrate that the PR satisfies Q1 and S1?</td><td class="small">true / false</td></tr></tbody></table></div></section><section><div class="section-head"><div><div class="eyebrow">证据</div><h2>PR diff 与测试结果</h2></div></div><div class="card"><pre class="diff"><code><span class="">--- a/service.py
+  </div></div></section><section><div class="section-head"><div><div class="eyebrow">判断设计</div><h2>问题设计</h2></div></div><div class="table-wrap"><table><thead><tr><th>问题 ID</th><th>类型</th><th>问题</th><th>候选/等级</th></tr></thead><tbody><tr><td class="mono small">H1_concern</td><td><span class="tag">choice</span></td><td>Classify the main concern of hunk H1 only.</td><td class="small"><code>correctness</code> · <code>security</code> · <code>cosmetic</code> · <code>none</code></td></tr><tr><td class="mono small">H1_severity</td><td><span class="tag">score</span></td><td>Rate review priority for hunk H1 only.</td><td class="small">3 级：No action needed. / Minor; fix when convenient. / Must fix before merge.</td></tr><tr><td class="mono small">H2_concern</td><td><span class="tag">choice</span></td><td>Classify the main concern of hunk H2 only.</td><td class="small"><code>correctness</code> · <code>security</code> · <code>cosmetic</code> · <code>none</code></td></tr><tr><td class="mono small">H2_severity</td><td><span class="tag">score</span></td><td>Rate review priority for hunk H2 only.</td><td class="small">3 级：No action needed. / Minor; fix when convenient. / Must fix before merge.</td></tr><tr><td class="mono small">H3_concern</td><td><span class="tag">choice</span></td><td>Classify the main concern of hunk H3 only.</td><td class="small"><code>correctness</code> · <code>security</code> · <code>cosmetic</code> · <code>none</code></td></tr><tr><td class="mono small">H3_severity</td><td><span class="tag">score</span></td><td>Rate review priority for hunk H3 only.</td><td class="small">3 级：No action needed. / Minor; fix when convenient. / Must fix before merge.</td></tr><tr><td class="mono small">tests_prove_safe</td><td><span class="tag">noul</span></td><td>Do the passing existing tests demonstrate that the PR satisfies Q1 and S1?</td><td class="small">true / false</td></tr></tbody></table></div></section><section><div class="section-head"><div><div class="eyebrow">输入</div><h2>发给 Jev 的输入</h2></div></div><p>本场景共 1 次调用。每次调用先给出精简后的结构：长文本只保留开头或模块说明，与前面某题相同的候选只列一次。展开后可以看到完整的原始请求。请求里没有标准答案。</p><p class="small muted">请求取自运行记录第一行 manifest 中保存的原文，与发送内容逐字一致。</p><details open style="margin-top:10px"><summary><b class="mono small">jev-code-review:pr</b> · “小清理”PR 中的越界与失败放行 · 输入 1,781 tokens</summary><pre><code>{
+  &quot;model&quot;: &quot;typesafe/jev-1.13&quot;,
+  &quot;state&quot;: {
+    &quot;pr_title&quot;: &quot;Tidy service helpers&quot;,
+    &quot;pr_description&quot;: &quot;Small cleanups; all tests pass.&quot;,
+    &quot;requirements&quot;: {
+      &quot;Q1&quot;: &quot;A client with quota limit may make exactly limit requests.&quot;,
+      &quot;S1&quot;: &quot;Invalid or malformed tokens must be rejected (fail closed).&quot;
+    },
+    &quot;diff&quot;: &quot;&lt;26 行、896 字符，开头：--- a/service.py&gt;&quot;,
+    &quot;hunks&quot;: {
+      &quot;H1&quot;: &quot;allow_request: `return used &lt; limit` changed to `return used &lt;= limit`.&quot;,
+      &quot;H2&quot;: &quot;record_usage: log text \&quot;usage client=\&quot; changed to \&quot;quota usage client=\&quot;.&quot;,
+      &quot;H3&quot;: &quot;verify_token: TypeError guard removed; any exception from compare_digest now logs and returns True.&quot;
+    },
+    &quot;full_source_after&quot;: &quot;&lt;27 行源码，模块说明：Synthetic API service helpers for the code-review scenario (base revision).&gt;&quot;,
+    &quot;existing_tests&quot;: &quot;&lt;32 行源码，模块说明：The repository&#x27;s existing test suite for service.py (unchanged by the PR).&gt;&quot;,
+    &quot;receipts&quot;: {
+      &quot;suite_before&quot;: {
+        &quot;test_allow_under_quota&quot;: true,
+        &quot;test_verify_valid_token&quot;: true,
+        &quot;test_verify_wrong_token&quot;: true,
+        &quot;test_record_usage&quot;: true
+      },
+      &quot;suite_after&quot;: {
+        &quot;test_allow_under_quota&quot;: true,
+        &quot;test_verify_valid_token&quot;: true,
+        &quot;test_verify_wrong_token&quot;: true,
+        &quot;test_record_usage&quot;: true
+      },
+      &quot;probe_boundary_after&quot;: {
+        &quot;call&quot;: &quot;allow_request(3, 3)&quot;,
+        &quot;returned&quot;: true
+      },
+      &quot;probe_malformed_after&quot;: {
+        &quot;call&quot;: &quot;verify_token(None, \&quot;abc\&quot;)&quot;,
+        &quot;returned&quot;: true
+      }
+    },
+    &quot;receipt_notes&quot;: &quot;used counts requests already accepted; allow_request(3, 3) would allow a 4th request.&quot;
+  },
+  &quot;questions&quot;: {
+    &quot;H1_concern&quot;: {
+      &quot;type&quot;: &quot;choice&quot;,
+      &quot;instructions&quot;: &quot;Classify the main concern of hunk H1 only.&quot;,
+      &quot;criteria&quot;: {
+        &quot;correctness&quot;: &quot;Violates a functional requirement.&quot;,
+        &quot;security&quot;: &quot;Weakens a security requirement.&quot;,
+        &quot;cosmetic&quot;: &quot;Text/format only; no requirement affected.&quot;,
+        &quot;none&quot;: &quot;No concern.&quot;
+      }
+    },
+    &quot;H1_severity&quot;: {
+      &quot;type&quot;: &quot;score&quot;,
+      &quot;instructions&quot;: &quot;Rate review priority for hunk H1 only.&quot;,
+      &quot;criteria&quot;: [
+        &quot;No action needed.&quot;,
+        &quot;Minor; fix when convenient.&quot;,
+        &quot;Must fix before merge.&quot;
+      ]
+    },
+    &quot;H2_concern&quot;: {
+      &quot;type&quot;: &quot;choice&quot;,
+      &quot;instructions&quot;: &quot;Classify the main concern of hunk H2 only.&quot;,
+      &quot;criteria&quot;: &quot;&lt;与 H1_concern 相同的 4 个候选&gt;&quot;
+    },
+    &quot;H2_severity&quot;: {
+      &quot;type&quot;: &quot;score&quot;,
+      &quot;instructions&quot;: &quot;Rate review priority for hunk H2 only.&quot;,
+      &quot;criteria&quot;: [
+        &quot;No action needed.&quot;,
+        &quot;Minor; fix when convenient.&quot;,
+        &quot;Must fix before merge.&quot;
+      ]
+    },
+    &quot;H3_concern&quot;: {
+      &quot;type&quot;: &quot;choice&quot;,
+      &quot;instructions&quot;: &quot;Classify the main concern of hunk H3 only.&quot;,
+      &quot;criteria&quot;: &quot;&lt;与 H1_concern 相同的 4 个候选&gt;&quot;
+    },
+    &quot;H3_severity&quot;: {
+      &quot;type&quot;: &quot;score&quot;,
+      &quot;instructions&quot;: &quot;Rate review priority for hunk H3 only.&quot;,
+      &quot;criteria&quot;: [
+        &quot;No action needed.&quot;,
+        &quot;Minor; fix when convenient.&quot;,
+        &quot;Must fix before merge.&quot;
+      ]
+    },
+    &quot;tests_prove_safe&quot;: {
+      &quot;type&quot;: &quot;noul&quot;,
+      &quot;instructions&quot;: &quot;Do the passing existing tests demonstrate that the PR satisfies Q1 and S1?&quot;
+    }
+  }
+}</code></pre><details style="margin:6px 0 4px 14px"><summary class="small">展开完整的原始请求（逐字）</summary><pre><code>{
+  &quot;model&quot;: &quot;typesafe/jev-1.13&quot;,
+  &quot;state&quot;: {
+    &quot;pr_title&quot;: &quot;Tidy service helpers&quot;,
+    &quot;pr_description&quot;: &quot;Small cleanups; all tests pass.&quot;,
+    &quot;requirements&quot;: {
+      &quot;Q1&quot;: &quot;A client with quota limit may make exactly limit requests.&quot;,
+      &quot;S1&quot;: &quot;Invalid or malformed tokens must be rejected (fail closed).&quot;
+    },
+    &quot;diff&quot;: &quot;--- a/service.py\n+++ b/service.py\n@@ -10,16 +10,18 @@\n \n     `used` is the number of requests already accepted in the current window.\n     \&quot;\&quot;\&quot;\n-    return used &lt; limit\n+    return used &lt;= limit\n \n \n def record_usage(client_id: str, used: int) -&gt; None:\n     \&quot;\&quot;\&quot;Emit one structured usage line per accepted request.\&quot;\&quot;\&quot;\n-    log.info(\&quot;usage client=%s used=%d\&quot;, client_id, used)\n+    log.info(\&quot;quota usage client=%s used=%d\&quot;, client_id, used)\n \n \n def verify_token(token, expected: str) -&gt; bool:\n     \&quot;\&quot;\&quot;Requirement S1: invalid or malformed tokens must be rejected (fail closed).\&quot;\&quot;\&quot;\n-    if not isinstance(token, str):\n-        raise TypeError(\&quot;token must be str\&quot;)\n-    return hmac.compare_digest(token, expected)\n+    try:\n+        return hmac.compare_digest(token, expected)\n+    except Exception:\n+        log.warning(\&quot;token check failed on malformed input; allowing request\&quot;)\n+        return True\n&quot;,
+    &quot;hunks&quot;: {
+      &quot;H1&quot;: &quot;allow_request: `return used &lt; limit` changed to `return used &lt;= limit`.&quot;,
+      &quot;H2&quot;: &quot;record_usage: log text \&quot;usage client=\&quot; changed to \&quot;quota usage client=\&quot;.&quot;,
+      &quot;H3&quot;: &quot;verify_token: TypeError guard removed; any exception from compare_digest now logs and returns True.&quot;
+    },
+    &quot;full_source_after&quot;: &quot;\&quot;\&quot;\&quot;Synthetic API service helpers for the code-review scenario (base revision).\&quot;\&quot;\&quot;\nimport hmac\nimport logging\n\nlog = logging.getLogger(\&quot;svc\&quot;)\n\n\ndef allow_request(used: int, limit: int) -&gt; bool:\n    \&quot;\&quot;\&quot;Requirement Q1: a client with quota `limit` may make exactly `limit` requests.\n\n    `used` is the number of requests already accepted in the current window.\n    \&quot;\&quot;\&quot;\n    return used &lt;= limit\n\n\ndef record_usage(client_id: str, used: int) -&gt; None:\n    \&quot;\&quot;\&quot;Emit one structured usage line per accepted request.\&quot;\&quot;\&quot;\n    log.info(\&quot;quota usage client=%s used=%d\&quot;, client_id, used)\n\n\ndef verify_token(token, expected: str) -&gt; bool:\n    \&quot;\&quot;\&quot;Requirement S1: invalid or malformed tokens must be rejected (fail closed).\&quot;\&quot;\&quot;\n    try:\n        return hmac.compare_digest(token, expected)\n    except Exception:\n        log.warning(\&quot;token check failed on malformed input; allowing request\&quot;)\n        return True\n&quot;,
+    &quot;existing_tests&quot;: &quot;\&quot;\&quot;\&quot;The repository&#x27;s existing test suite for service.py (unchanged by the PR).\&quot;\&quot;\&quot;\n\n\ndef run_suite(svc):\n    \&quot;\&quot;\&quot;Return {test_name: passed} for the module object `svc`.\&quot;\&quot;\&quot;\n    results = {}\n\n    def check(name, fn):\n        try:\n            fn()\n            results[name] = True\n        except Exception:  # A failing assertion or crash is a failed test.\n            results[name] = False\n\n    def under_quota():\n        assert svc.allow_request(0, 3) is True\n        assert svc.allow_request(2, 3) is True\n\n    def valid_token():\n        assert svc.verify_token(\&quot;abc\&quot;, \&quot;abc\&quot;) is True\n\n    def wrong_token():\n        assert svc.verify_token(\&quot;abd\&quot;, \&quot;abc\&quot;) is False\n\n    def usage_logs():\n        svc.record_usage(\&quot;c-1\&quot;, 1)\n\n    check(\&quot;test_allow_under_quota\&quot;, under_quota)\n    check(\&quot;test_verify_valid_token\&quot;, valid_token)\n    check(\&quot;test_verify_wrong_token\&quot;, wrong_token)\n    check(\&quot;test_record_usage\&quot;, usage_logs)\n    return results\n&quot;,
+    &quot;receipts&quot;: {
+      &quot;suite_before&quot;: {
+        &quot;test_allow_under_quota&quot;: true,
+        &quot;test_verify_valid_token&quot;: true,
+        &quot;test_verify_wrong_token&quot;: true,
+        &quot;test_record_usage&quot;: true
+      },
+      &quot;suite_after&quot;: {
+        &quot;test_allow_under_quota&quot;: true,
+        &quot;test_verify_valid_token&quot;: true,
+        &quot;test_verify_wrong_token&quot;: true,
+        &quot;test_record_usage&quot;: true
+      },
+      &quot;probe_boundary_after&quot;: {
+        &quot;call&quot;: &quot;allow_request(3, 3)&quot;,
+        &quot;returned&quot;: true
+      },
+      &quot;probe_malformed_after&quot;: {
+        &quot;call&quot;: &quot;verify_token(None, \&quot;abc\&quot;)&quot;,
+        &quot;returned&quot;: true
+      }
+    },
+    &quot;receipt_notes&quot;: &quot;used counts requests already accepted; allow_request(3, 3) would allow a 4th request.&quot;
+  },
+  &quot;questions&quot;: {
+    &quot;H1_concern&quot;: {
+      &quot;type&quot;: &quot;choice&quot;,
+      &quot;instructions&quot;: &quot;Classify the main concern of hunk H1 only.&quot;,
+      &quot;criteria&quot;: {
+        &quot;correctness&quot;: &quot;Violates a functional requirement.&quot;,
+        &quot;security&quot;: &quot;Weakens a security requirement.&quot;,
+        &quot;cosmetic&quot;: &quot;Text/format only; no requirement affected.&quot;,
+        &quot;none&quot;: &quot;No concern.&quot;
+      }
+    },
+    &quot;H1_severity&quot;: {
+      &quot;type&quot;: &quot;score&quot;,
+      &quot;instructions&quot;: &quot;Rate review priority for hunk H1 only.&quot;,
+      &quot;criteria&quot;: [
+        &quot;No action needed.&quot;,
+        &quot;Minor; fix when convenient.&quot;,
+        &quot;Must fix before merge.&quot;
+      ]
+    },
+    &quot;H2_concern&quot;: {
+      &quot;type&quot;: &quot;choice&quot;,
+      &quot;instructions&quot;: &quot;Classify the main concern of hunk H2 only.&quot;,
+      &quot;criteria&quot;: {
+        &quot;correctness&quot;: &quot;Violates a functional requirement.&quot;,
+        &quot;security&quot;: &quot;Weakens a security requirement.&quot;,
+        &quot;cosmetic&quot;: &quot;Text/format only; no requirement affected.&quot;,
+        &quot;none&quot;: &quot;No concern.&quot;
+      }
+    },
+    &quot;H2_severity&quot;: {
+      &quot;type&quot;: &quot;score&quot;,
+      &quot;instructions&quot;: &quot;Rate review priority for hunk H2 only.&quot;,
+      &quot;criteria&quot;: [
+        &quot;No action needed.&quot;,
+        &quot;Minor; fix when convenient.&quot;,
+        &quot;Must fix before merge.&quot;
+      ]
+    },
+    &quot;H3_concern&quot;: {
+      &quot;type&quot;: &quot;choice&quot;,
+      &quot;instructions&quot;: &quot;Classify the main concern of hunk H3 only.&quot;,
+      &quot;criteria&quot;: {
+        &quot;correctness&quot;: &quot;Violates a functional requirement.&quot;,
+        &quot;security&quot;: &quot;Weakens a security requirement.&quot;,
+        &quot;cosmetic&quot;: &quot;Text/format only; no requirement affected.&quot;,
+        &quot;none&quot;: &quot;No concern.&quot;
+      }
+    },
+    &quot;H3_severity&quot;: {
+      &quot;type&quot;: &quot;score&quot;,
+      &quot;instructions&quot;: &quot;Rate review priority for hunk H3 only.&quot;,
+      &quot;criteria&quot;: [
+        &quot;No action needed.&quot;,
+        &quot;Minor; fix when convenient.&quot;,
+        &quot;Must fix before merge.&quot;
+      ]
+    },
+    &quot;tests_prove_safe&quot;: {
+      &quot;type&quot;: &quot;noul&quot;,
+      &quot;instructions&quot;: &quot;Do the passing existing tests demonstrate that the PR satisfies Q1 and S1?&quot;
+    }
+  }
+}</code></pre></details></details></section><section><div class="section-head"><div><div class="eyebrow">证据</div><h2>PR diff 与测试结果</h2></div></div><div class="card"><pre class="diff"><code><span class="">--- a/service.py
 </span><span class="">+++ b/service.py
 </span><span class="hunk">@@ -10,16 +10,18 @@
 </span><span class=""> 
@@ -65,6 +263,6 @@
 </span><span class="add">+    except Exception:
 </span><span class="add">+        log.warning(&quot;token check failed on malformed input; allowing request&quot;)
 </span><span class="add">+        return True
-</span></code></pre><div class="grid g2"><div><h3>原测试套件（调用方真实运行）</h3><div class="table-wrap"><table><thead><tr><th>测试</th><th>改动前</th><th>改动后</th></tr></thead><tbody><tr><td class="mono small">test_allow_under_quota</td><td>✓</td><td>✓</td></tr><tr><td class="mono small">test_verify_valid_token</td><td>✓</td><td>✓</td></tr><tr><td class="mono small">test_verify_wrong_token</td><td>✓</td><td>✓</td></tr><tr><td class="mono small">test_record_usage</td><td>✓</td><td>✓</td></tr></tbody></table></div></div><div><h3>调用方探针（不在 PR 的测试中）</h3><div class="table-wrap"><table><thead><tr><th>调用</th><th>改动后返回</th><th>需求</th></tr></thead><tbody><tr><td class="mono small">allow_request(3, 3)</td><td class="bad-text">true</td><td>Q1：应为 false</td></tr><tr><td class="mono small">verify_token(None, &quot;abc&quot;)</td><td class="bad-text">true</td><td>S1：应拒绝</td></tr></tbody></table></div></div></div></div></section><section><div class="section-head"><div><div class="eyebrow">验证结果</div><h2>逐改动块判断</h2></div></div><div class="table-wrap"><table><thead><tr><th>问题</th><th>标准答案</th><th>Jev 返回</th><th>概率</th><th>状态</th><th>验收</th></tr></thead><tbody><tr><td class="mono small">H1_concern</td><td>correctness</td><td><b>correctness</b></td><td class="num">0.81</td><td><span class="ok-text">selected</span></td><td><span class="ok-text">✓ 通过</span></td></tr><tr><td class="mono small">H1_severity</td><td><span style="white-space:nowrap">[1.5, 2]</span></td><td><b>1.44</b></td><td class="num">—</td><td><span class="muted">scored</span></td><td><span class="bad-text">✗ 未达标</span></td></tr><tr><td class="mono small">H2_concern</td><td>cosmetic</td><td><b>cosmetic</b></td><td class="num">1.00</td><td><span class="ok-text">selected</span></td><td><span class="ok-text">✓ 通过</span></td></tr><tr><td class="mono small">H2_severity</td><td><span style="white-space:nowrap">[0, 1]</span></td><td><b>0.2</b></td><td class="num">—</td><td><span class="muted">scored</span></td><td><span class="ok-text">✓ 通过</span></td></tr><tr><td class="mono small">H3_concern</td><td>security</td><td><b>security</b></td><td class="num">0.96</td><td><span class="ok-text">selected</span></td><td><span class="ok-text">✓ 通过</span></td></tr><tr><td class="mono small">H3_severity</td><td><span style="white-space:nowrap">[1.5, 2]</span></td><td><b>2</b></td><td class="num">—</td><td><span class="muted">scored</span></td><td><span class="ok-text">✓ 通过</span></td></tr><tr><td class="mono small">tests_prove_safe</td><td>false</td><td><b>false</b></td><td class="num">0.05</td><td><span class="ok-text">selected</span></td><td><span class="ok-text">✓ 通过</span></td></tr></tbody></table></div><p class="small muted" style="margin-top:8px">概率一栏，choice 题是所选标签的概率，noul 题是回答“是”的概率。score 题返回按概率加权的等级值，这个值不是概率。复核门槛用 CLI 默认值：最高概率不低于 0.8，并且比第二名高出至少 0.15。</p><div class="callout warn"><b>未达标：H1_severity</b>（jev-code-review:pr）。标准答案 <span style="white-space:nowrap">[1.5, 2]</span>，实际 1.44。等级分布 0:0.24 / 1:0.08 / 2:0.68。概率最大的是最高一级“合并前必须修复”，但有一部分落在“无需处理”，加权均值因此低于区间下限。问题类别判成 correctness 是对的，按分布来读，结论仍是合并前必须修复。</div></section><section><div class="section-head"><div><div class="eyebrow">图示</div><h2>严重度分布</h2></div></div><div class="grid g2"><figure class="card tight"><svg class="chart" viewBox="0 0 520 110" role="img" aria-label="评分分布" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif"><line x1="20" y1="70" x2="500" y2="70" stroke="#e2e8f0" stroke-width="2"/><rect x="380.0" y="24" width="120.0" height="52" rx="6" fill="#ccfbf1" opacity=".7"/><text x="440.0" y="20.0" font-size="10.5" fill="#0d9488" text-anchor="middle" font-weight="600">可接受区间 [1.5, 2]</text><rect x="6.0" y="61.4" width="28" height="8.6" rx="3" fill="#2563eb" opacity=".8"/><text x="20.0" y="86.0" font-size="10.5" fill="#64748b" text-anchor="middle" font-weight="400">等级 0</text><text x="20.0" y="57.4" font-size="10" fill="#1e293b" text-anchor="middle" font-weight="400">0.24</text><rect x="246.0" y="67.1" width="28" height="2.9" rx="3" fill="#2563eb" opacity=".8"/><text x="260.0" y="86.0" font-size="10.5" fill="#64748b" text-anchor="middle" font-weight="400">等级 1</text><text x="260.0" y="63.1" font-size="10" fill="#1e293b" text-anchor="middle" font-weight="400">0.08</text><rect x="486.0" y="45.5" width="28" height="24.5" rx="3" fill="#2563eb" opacity=".8"/><text x="500.0" y="86.0" font-size="10.5" fill="#64748b" text-anchor="middle" font-weight="400">等级 2</text><text x="500.0" y="41.5" font-size="10" fill="#1e293b" text-anchor="middle" font-weight="400">0.68</text><line x1="365.6" y1="28" x2="365.6" y2="74" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="4 3"/><circle cx="365.6" cy="70" r="5" fill="#dc2626"/><text x="365.6" y="102.0" font-size="11" fill="#dc2626" text-anchor="middle" font-weight="700">加权分 1.44</text></svg><figcaption><code>H1_severity</code> 的返回分布（✓ 为标准答案，◀ 为 Jev 的选择，且与标准答案不同）</figcaption></figure><figure class="card tight"><svg class="chart" viewBox="0 0 520 110" role="img" aria-label="评分分布" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif"><line x1="20" y1="70" x2="500" y2="70" stroke="#e2e8f0" stroke-width="2"/><rect x="380.0" y="24" width="120.0" height="52" rx="6" fill="#ccfbf1" opacity=".7"/><text x="440.0" y="20.0" font-size="10.5" fill="#0d9488" text-anchor="middle" font-weight="600">可接受区间 [1.5, 2]</text><rect x="6.0" y="70.0" width="28" height="0.0" rx="3" fill="#2563eb" opacity=".8"/><text x="20.0" y="86.0" font-size="10.5" fill="#64748b" text-anchor="middle" font-weight="400">等级 0</text><text x="20.0" y="66.0" font-size="10" fill="#1e293b" text-anchor="middle" font-weight="400">0.00</text><rect x="246.0" y="70.0" width="28" height="0.0" rx="3" fill="#2563eb" opacity=".8"/><text x="260.0" y="86.0" font-size="10.5" fill="#64748b" text-anchor="middle" font-weight="400">等级 1</text><text x="260.0" y="66.0" font-size="10" fill="#1e293b" text-anchor="middle" font-weight="400">0.00</text><rect x="486.0" y="34.0" width="28" height="36.0" rx="3" fill="#2563eb" opacity=".8"/><text x="500.0" y="86.0" font-size="10.5" fill="#64748b" text-anchor="middle" font-weight="400">等级 2</text><text x="500.0" y="30.0" font-size="10" fill="#1e293b" text-anchor="middle" font-weight="400">1.00</text><line x1="500.0" y1="28" x2="500.0" y2="74" stroke="#0d9488" stroke-width="2.5" stroke-dasharray="4 3"/><circle cx="500.0" cy="70" r="5" fill="#0d9488"/><text x="500.0" y="102.0" font-size="11" fill="#0d9488" text-anchor="middle" font-weight="700">加权分 2</text></svg><figcaption><code>H3_severity</code> 的返回分布（✓ 为标准答案，◀ 为 Jev 的选择，且与标准答案不同）</figcaption></figure><figure class="card tight"><svg class="chart" viewBox="0 0 520 94" role="img" aria-label="概率分布" style="max-width:624px;margin:0 auto" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif"><text x="142.0" y="17.0" font-size="11.5" fill="#1e293b" text-anchor="end" font-weight="600">correctness ✓</text><rect x="150" y="7" width="320" height="12" rx="6" fill="#f1f5f9"/><rect x="150" y="7" width="259.2" height="12" rx="6" fill="#0d9488"/><text x="478.0" y="17.0" font-size="11" fill="#64748b" text-anchor="start" font-weight="400">0.81</text><text x="142.0" y="39.0" font-size="11.5" fill="#64748b" text-anchor="end" font-weight="400">none</text><rect x="150" y="29" width="320" height="12" rx="6" fill="#f1f5f9"/><rect x="150" y="29" width="54.4" height="12" rx="6" fill="#94a3b8"/><text x="478.0" y="39.0" font-size="11" fill="#64748b" text-anchor="start" font-weight="400">0.17</text><text x="142.0" y="61.0" font-size="11.5" fill="#64748b" text-anchor="end" font-weight="400">security</text><rect x="150" y="51" width="320" height="12" rx="6" fill="#f1f5f9"/><rect x="150" y="51" width="6.4" height="12" rx="6" fill="#94a3b8"/><text x="478.0" y="61.0" font-size="11" fill="#64748b" text-anchor="start" font-weight="400">0.02</text><text x="142.0" y="83.0" font-size="11.5" fill="#64748b" text-anchor="end" font-weight="400">cosmetic</text><rect x="150" y="73" width="320" height="12" rx="6" fill="#f1f5f9"/><rect x="150" y="73" width="0.0" height="12" rx="6" fill="#94a3b8"/><text x="478.0" y="83.0" font-size="11" fill="#64748b" text-anchor="start" font-weight="400">0.00</text></svg><figcaption><code>H1_concern</code> 的返回分布（✓ 为标准答案，◀ 为 Jev 的选择，且与标准答案不同）</figcaption></figure><figure class="card tight"><svg class="chart" viewBox="0 0 520 94" role="img" aria-label="概率分布" style="max-width:624px;margin:0 auto" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif"><text x="142.0" y="17.0" font-size="11.5" fill="#1e293b" text-anchor="end" font-weight="600">security ✓</text><rect x="150" y="7" width="320" height="12" rx="6" fill="#f1f5f9"/><rect x="150" y="7" width="307.2" height="12" rx="6" fill="#0d9488"/><text x="478.0" y="17.0" font-size="11" fill="#64748b" text-anchor="start" font-weight="400">0.96</text><text x="142.0" y="39.0" font-size="11.5" fill="#64748b" text-anchor="end" font-weight="400">correctness</text><rect x="150" y="29" width="320" height="12" rx="6" fill="#f1f5f9"/><rect x="150" y="29" width="12.8" height="12" rx="6" fill="#94a3b8"/><text x="478.0" y="39.0" font-size="11" fill="#64748b" text-anchor="start" font-weight="400">0.04</text><text x="142.0" y="61.0" font-size="11.5" fill="#64748b" text-anchor="end" font-weight="400">cosmetic</text><rect x="150" y="51" width="320" height="12" rx="6" fill="#f1f5f9"/><rect x="150" y="51" width="0.0" height="12" rx="6" fill="#94a3b8"/><text x="478.0" y="61.0" font-size="11" fill="#64748b" text-anchor="start" font-weight="400">0.00</text><text x="142.0" y="83.0" font-size="11.5" fill="#64748b" text-anchor="end" font-weight="400">none</text><rect x="150" y="73" width="320" height="12" rx="6" fill="#f1f5f9"/><rect x="150" y="73" width="0.0" height="12" rx="6" fill="#94a3b8"/><text x="478.0" y="83.0" font-size="11" fill="#64748b" text-anchor="start" font-weight="400">0.00</text></svg><figcaption><code>H3_concern</code> 的返回分布（✓ 为标准答案，◀ 为 Jev 的选择，且与标准答案不同）</figcaption></figure></div></section><h3 style="margin-top:22px">v1 冒烟基线（同技能，较简单的用例）</h3><div class="table-wrap"><table><thead><tr><th>v1 用例</th><th>通过</th><th>未达标问题</th></tr></thead><tbody><tr><td class="mono small">jev-code-review</td><td class="num">4/4</td><td class="small">—</td></tr></tbody></table></div><div class="pager"><a href="agent-checkpoint.html"><div class="card"><div class="small muted">← 上一个场景</div><b>Agent 执行检查点</b></div></a><a href="context.html" style="text-align:right"><div class="card"><div class="small muted">下一个场景 →</div><b>长会话上下文压缩</b></div></a></div><div class="footer">数据来源：<code>validation/v2/live-v2-20261012.jsonl</code>、<code>validation/v2/live-v2-grid-planned-20261012.jsonl</code>、v1 基线 <code>validation/live-20261012.jsonl</code>。模型 typesafe/jev-1.13-20260917，经 OpenRouter 调用。测试材料全部是为本报告专门编写的合成内容。页面由 <code>validation/v2/build_report.py</code> 根据原始调用记录生成，数字没有经过手工改动。</div></main>
+</span></code></pre><div class="grid g2"><div><h3>原测试套件（调用方真实运行）</h3><div class="table-wrap"><table><thead><tr><th>测试</th><th>改动前</th><th>改动后</th></tr></thead><tbody><tr><td class="mono small">test_allow_under_quota</td><td>✓</td><td>✓</td></tr><tr><td class="mono small">test_verify_valid_token</td><td>✓</td><td>✓</td></tr><tr><td class="mono small">test_verify_wrong_token</td><td>✓</td><td>✓</td></tr><tr><td class="mono small">test_record_usage</td><td>✓</td><td>✓</td></tr></tbody></table></div></div><div><h3>调用方探针（不在 PR 的测试中）</h3><div class="table-wrap"><table><thead><tr><th>调用</th><th>改动后返回</th><th>需求</th></tr></thead><tbody><tr><td class="mono small">allow_request(3, 3)</td><td class="bad-text">true</td><td>Q1：应为 false</td></tr><tr><td class="mono small">verify_token(None, &quot;abc&quot;)</td><td class="bad-text">true</td><td>S1：应拒绝</td></tr></tbody></table></div></div></div></div></section><section><div class="section-head"><div><div class="eyebrow">验证结果</div><h2>逐改动块判断</h2></div></div><div class="table-wrap"><table><thead><tr><th>问题</th><th>标准答案</th><th>Jev 返回</th><th>概率</th><th>状态</th><th>验收</th></tr></thead><tbody><tr><td class="mono small">H1_concern</td><td>correctness</td><td><b>correctness</b></td><td class="num">0.81</td><td><span class="ok-text">selected</span></td><td><span class="ok-text">✓ 通过</span></td></tr><tr><td class="mono small">H1_severity</td><td><span style="white-space:nowrap">[1.5, 2]</span></td><td><b>1.44</b></td><td class="num">—</td><td><span class="muted">scored</span></td><td><span class="bad-text">✗ 未达标</span></td></tr><tr><td class="mono small">H2_concern</td><td>cosmetic</td><td><b>cosmetic</b></td><td class="num">1.00</td><td><span class="ok-text">selected</span></td><td><span class="ok-text">✓ 通过</span></td></tr><tr><td class="mono small">H2_severity</td><td><span style="white-space:nowrap">[0, 1]</span></td><td><b>0.2</b></td><td class="num">—</td><td><span class="muted">scored</span></td><td><span class="ok-text">✓ 通过</span></td></tr><tr><td class="mono small">H3_concern</td><td>security</td><td><b>security</b></td><td class="num">0.96</td><td><span class="ok-text">selected</span></td><td><span class="ok-text">✓ 通过</span></td></tr><tr><td class="mono small">H3_severity</td><td><span style="white-space:nowrap">[1.5, 2]</span></td><td><b>2</b></td><td class="num">—</td><td><span class="muted">scored</span></td><td><span class="ok-text">✓ 通过</span></td></tr><tr><td class="mono small">tests_prove_safe</td><td>false</td><td><b>false</b></td><td class="num">0.05</td><td><span class="ok-text">selected</span></td><td><span class="ok-text">✓ 通过</span></td></tr></tbody></table></div><p class="small muted" style="margin-top:8px">概率一栏，choice 题是所选标签的概率，noul 题是回答“是”的概率。score 题返回按概率加权的等级值，这个值不是概率。复核门槛用 CLI 默认值：最高概率不低于 0.8，并且比第二名高出至少 0.15。</p><div class="callout warn"><b>未达标：H1_severity</b>（jev-code-review:pr）。标准答案 <span style="white-space:nowrap">[1.5, 2]</span>，实际 1.44。等级分布 0:0.24 / 1:0.08 / 2:0.68。概率最大的是最高一级“合并前必须修复”，但有一部分落在“无需处理”，加权均值因此低于区间下限。问题类别判成 correctness 是对的，按分布来读，结论仍是合并前必须修复。</div></section><section><div class="section-head"><div><div class="eyebrow">图示</div><h2>严重度分布</h2></div></div><div class="grid g2"><figure class="card tight"><svg class="chart" viewBox="0 0 520 110" role="img" aria-label="评分分布" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif"><line x1="20" y1="70" x2="500" y2="70" stroke="#e2e8f0" stroke-width="2"/><rect x="380.0" y="24" width="120.0" height="52" rx="6" fill="#ccfbf1" opacity=".7"/><text x="440.0" y="20.0" font-size="10.5" fill="#0d9488" text-anchor="middle" font-weight="600">可接受区间 [1.5, 2]</text><rect x="6.0" y="61.4" width="28" height="8.6" rx="3" fill="#2563eb" opacity=".8"/><text x="20.0" y="86.0" font-size="10.5" fill="#64748b" text-anchor="middle" font-weight="400">等级 0</text><text x="20.0" y="57.4" font-size="10" fill="#1e293b" text-anchor="middle" font-weight="400">0.24</text><rect x="246.0" y="67.1" width="28" height="2.9" rx="3" fill="#2563eb" opacity=".8"/><text x="260.0" y="86.0" font-size="10.5" fill="#64748b" text-anchor="middle" font-weight="400">等级 1</text><text x="260.0" y="63.1" font-size="10" fill="#1e293b" text-anchor="middle" font-weight="400">0.08</text><rect x="486.0" y="45.5" width="28" height="24.5" rx="3" fill="#2563eb" opacity=".8"/><text x="500.0" y="86.0" font-size="10.5" fill="#64748b" text-anchor="middle" font-weight="400">等级 2</text><text x="500.0" y="41.5" font-size="10" fill="#1e293b" text-anchor="middle" font-weight="400">0.68</text><line x1="365.6" y1="28" x2="365.6" y2="74" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="4 3"/><circle cx="365.6" cy="70" r="5" fill="#dc2626"/><text x="365.6" y="102.0" font-size="11" fill="#dc2626" text-anchor="middle" font-weight="700">加权分 1.44</text></svg><figcaption><code>H1_severity</code> 的返回分布（✓ 为标准答案，◀ 为 Jev 的选择，且与标准答案不同）</figcaption></figure><figure class="card tight"><svg class="chart" viewBox="0 0 520 110" role="img" aria-label="评分分布" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif"><line x1="20" y1="70" x2="500" y2="70" stroke="#e2e8f0" stroke-width="2"/><rect x="380.0" y="24" width="120.0" height="52" rx="6" fill="#ccfbf1" opacity=".7"/><text x="440.0" y="20.0" font-size="10.5" fill="#0d9488" text-anchor="middle" font-weight="600">可接受区间 [1.5, 2]</text><rect x="6.0" y="70.0" width="28" height="0.0" rx="3" fill="#2563eb" opacity=".8"/><text x="20.0" y="86.0" font-size="10.5" fill="#64748b" text-anchor="middle" font-weight="400">等级 0</text><text x="20.0" y="66.0" font-size="10" fill="#1e293b" text-anchor="middle" font-weight="400">0.00</text><rect x="246.0" y="70.0" width="28" height="0.0" rx="3" fill="#2563eb" opacity=".8"/><text x="260.0" y="86.0" font-size="10.5" fill="#64748b" text-anchor="middle" font-weight="400">等级 1</text><text x="260.0" y="66.0" font-size="10" fill="#1e293b" text-anchor="middle" font-weight="400">0.00</text><rect x="486.0" y="34.0" width="28" height="36.0" rx="3" fill="#2563eb" opacity=".8"/><text x="500.0" y="86.0" font-size="10.5" fill="#64748b" text-anchor="middle" font-weight="400">等级 2</text><text x="500.0" y="30.0" font-size="10" fill="#1e293b" text-anchor="middle" font-weight="400">1.00</text><line x1="500.0" y1="28" x2="500.0" y2="74" stroke="#0d9488" stroke-width="2.5" stroke-dasharray="4 3"/><circle cx="500.0" cy="70" r="5" fill="#0d9488"/><text x="500.0" y="102.0" font-size="11" fill="#0d9488" text-anchor="middle" font-weight="700">加权分 2</text></svg><figcaption><code>H3_severity</code> 的返回分布（✓ 为标准答案，◀ 为 Jev 的选择，且与标准答案不同）</figcaption></figure><figure class="card tight"><svg class="chart" viewBox="0 0 520 94" role="img" aria-label="概率分布" style="max-width:624px;margin:0 auto" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif"><text x="142.0" y="17.0" font-size="11.5" fill="#1e293b" text-anchor="end" font-weight="600">correctness ✓</text><rect x="150" y="7" width="320" height="12" rx="6" fill="#f1f5f9"/><rect x="150" y="7" width="259.2" height="12" rx="6" fill="#0d9488"/><text x="478.0" y="17.0" font-size="11" fill="#64748b" text-anchor="start" font-weight="400">0.81</text><text x="142.0" y="39.0" font-size="11.5" fill="#64748b" text-anchor="end" font-weight="400">none</text><rect x="150" y="29" width="320" height="12" rx="6" fill="#f1f5f9"/><rect x="150" y="29" width="54.4" height="12" rx="6" fill="#94a3b8"/><text x="478.0" y="39.0" font-size="11" fill="#64748b" text-anchor="start" font-weight="400">0.17</text><text x="142.0" y="61.0" font-size="11.5" fill="#64748b" text-anchor="end" font-weight="400">security</text><rect x="150" y="51" width="320" height="12" rx="6" fill="#f1f5f9"/><rect x="150" y="51" width="6.4" height="12" rx="6" fill="#94a3b8"/><text x="478.0" y="61.0" font-size="11" fill="#64748b" text-anchor="start" font-weight="400">0.02</text><text x="142.0" y="83.0" font-size="11.5" fill="#64748b" text-anchor="end" font-weight="400">cosmetic</text><rect x="150" y="73" width="320" height="12" rx="6" fill="#f1f5f9"/><rect x="150" y="73" width="0.0" height="12" rx="6" fill="#94a3b8"/><text x="478.0" y="83.0" font-size="11" fill="#64748b" text-anchor="start" font-weight="400">0.00</text></svg><figcaption><code>H1_concern</code> 的返回分布（✓ 为标准答案，◀ 为 Jev 的选择，且与标准答案不同）</figcaption></figure><figure class="card tight"><svg class="chart" viewBox="0 0 520 94" role="img" aria-label="概率分布" style="max-width:624px;margin:0 auto" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif"><text x="142.0" y="17.0" font-size="11.5" fill="#1e293b" text-anchor="end" font-weight="600">security ✓</text><rect x="150" y="7" width="320" height="12" rx="6" fill="#f1f5f9"/><rect x="150" y="7" width="307.2" height="12" rx="6" fill="#0d9488"/><text x="478.0" y="17.0" font-size="11" fill="#64748b" text-anchor="start" font-weight="400">0.96</text><text x="142.0" y="39.0" font-size="11.5" fill="#64748b" text-anchor="end" font-weight="400">correctness</text><rect x="150" y="29" width="320" height="12" rx="6" fill="#f1f5f9"/><rect x="150" y="29" width="12.8" height="12" rx="6" fill="#94a3b8"/><text x="478.0" y="39.0" font-size="11" fill="#64748b" text-anchor="start" font-weight="400">0.04</text><text x="142.0" y="61.0" font-size="11.5" fill="#64748b" text-anchor="end" font-weight="400">cosmetic</text><rect x="150" y="51" width="320" height="12" rx="6" fill="#f1f5f9"/><rect x="150" y="51" width="0.0" height="12" rx="6" fill="#94a3b8"/><text x="478.0" y="61.0" font-size="11" fill="#64748b" text-anchor="start" font-weight="400">0.00</text><text x="142.0" y="83.0" font-size="11.5" fill="#64748b" text-anchor="end" font-weight="400">none</text><rect x="150" y="73" width="320" height="12" rx="6" fill="#f1f5f9"/><rect x="150" y="73" width="0.0" height="12" rx="6" fill="#94a3b8"/><text x="478.0" y="83.0" font-size="11" fill="#64748b" text-anchor="start" font-weight="400">0.00</text></svg><figcaption><code>H3_concern</code> 的返回分布（✓ 为标准答案，◀ 为 Jev 的选择，且与标准答案不同）</figcaption></figure></div></section><section><div class="section-head"><div><div class="eyebrow">输出</div><h2>Jev 的原始返回</h2></div></div><h3 style="margin-top:16px"><span class="mono small">jev-code-review:pr</span> · “小清理”PR 中的越界与失败放行</h3><div class="table-wrap"><table><thead><tr><th>问题</th><th>类型</th><th>返回的分布（非零项，从高到低）</th><th>Jev 给的值</th><th>CLI 判定的状态</th></tr></thead><tbody><tr><td class="mono small">H1_concern</td><td><span class="tag">choice</span></td><td class="small"><code>correctness</code> 0.81 · <code>none</code> 0.17 · <code>security</code> 0.02</td><td><code>correctness</code></td><td><span class="ok-text">selected</span></td></tr><tr><td class="mono small">H1_severity</td><td><span class="tag">score</span></td><td class="small"><code>2</code> 0.68 · <code>0</code> 0.24 · <code>1</code> 0.08</td><td>1.44（加权等级）</td><td><span class="muted">scored</span></td></tr><tr><td class="mono small">H2_concern</td><td><span class="tag">choice</span></td><td class="small"><code>cosmetic</code> 1.00</td><td><code>cosmetic</code></td><td><span class="ok-text">selected</span></td></tr><tr><td class="mono small">H2_severity</td><td><span class="tag">score</span></td><td class="small"><code>0</code> 0.81 · <code>1</code> 0.19</td><td>0.2（加权等级）</td><td><span class="muted">scored</span></td></tr><tr><td class="mono small">H3_concern</td><td><span class="tag">choice</span></td><td class="small"><code>security</code> 0.96 · <code>correctness</code> 0.04</td><td><code>security</code></td><td><span class="ok-text">selected</span></td></tr><tr><td class="mono small">H3_severity</td><td><span class="tag">score</span></td><td class="small"><code>2</code> 1.00</td><td>2（加权等级）</td><td><span class="muted">scored</span></td></tr><tr><td class="mono small">tests_prove_safe</td><td><span class="tag">noul</span></td><td class="small">是（true）的概率 0.05</td><td>false</td><td><span class="ok-text">selected</span></td></tr></tbody></table></div><p class="small muted" style="margin-top:8px">原始返回里每道题只有这些字段：<code>choice: choice、confidence、probabilities、type</code>；<code>noul: noul、type</code>；<code>score: confidence、legend、probabilities、score、type</code>，没有理由或解释。状态不是 Jev 返回的，而是 jev CLI 按规则算的：最高概率不低于 0.8、比第二名高出至少 0.15 才算 selected，选中 none、unknown、ask_user 这类复核标签的一律转复核，score 题标为 scored。</p></section><h3 style="margin-top:22px">v1 冒烟基线（同技能，较简单的用例）</h3><div class="table-wrap"><table><thead><tr><th>v1 用例</th><th>通过</th><th>未达标问题</th></tr></thead><tbody><tr><td class="mono small">jev-code-review</td><td class="num">4/4</td><td class="small">—</td></tr></tbody></table></div><div class="pager"><a href="agent-checkpoint.html"><div class="card"><div class="small muted">← 上一个场景</div><b>Agent 执行检查点</b></div></a><a href="context.html" style="text-align:right"><div class="card"><div class="small muted">下一个场景 →</div><b>长会话上下文压缩</b></div></a></div><div class="footer">数据来源：<code>validation/v2/live-v2-20261012.jsonl</code>、<code>validation/v2/live-v2-grid-planned-20261012.jsonl</code>、v1 基线 <code>validation/live-20261012.jsonl</code>。模型 typesafe/jev-1.13-20260917，经 OpenRouter 调用。测试材料全部是为本报告专门编写的合成内容。页面由 <code>validation/v2/build_report.py</code> 根据原始调用记录生成，数字没有经过手工改动。</div></main>
 </body>
 </html>

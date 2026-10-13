@@ -129,6 +129,34 @@ class Data:
             out[LOOP_SKILL[scen]] = out.get(LOOP_SKILL[scen], 0) + len(turns)
         return out
 
+    def requests_for(self, skill):
+        """Every Jev call of one skill as (label, request, report, provenance), in run order.
+        Static requests are the manifest copies that were sent. Loop requests were not stored by
+        the runner; they come from llm-requests.json, which replays each loop against the
+        recorded responses. In ui_settings that replay kept a live reference to the host's action
+        list, so actions_taken is restored from the recorded host_action of earlier turns."""
+        out = []
+        for cid, r in self.results.items():
+            if r['skill'] == skill:
+                out.append((cid, self.cases[cid]['request'], r['report'], 'manifest'))
+        replay = None
+        for scen, turns in self.turns.items():
+            if LOOP_SKILL[scen] != skill:
+                continue
+            if replay is None:
+                replay = {i['id']: i['request'] for i in json.loads((V2 / 'llm-requests.json').read_text())}
+            done = []
+            for t in turns:
+                req = json.loads(json.dumps(replay[f'{scen}:turn{t["turn"]}']))
+                prov = 'replay'
+                if scen == 'ui_settings':
+                    req['state']['actions_taken'] = list(done)
+                    prov = 'replay+host_action'
+                    if t['host_action'].startswith('clicked '):
+                        done.append(t['host_action'])
+                out.append((f'{scen}:turn{t["turn"]}', req, t['report'], prov))
+        return out
+
     def skill_table(self, exclude=('grid',)):
         """Per-skill tallies; the lenient unplanned grid run is a control, reported separately."""
         table = {}

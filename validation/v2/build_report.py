@@ -3,6 +3,7 @@
 Run: python3 validation/v2/build_report.py   (offline; reads JSONL, writes report/)
 """
 from decimal import Decimal
+import json
 import re
 import shutil
 import sys
@@ -363,67 +364,176 @@ FIND_SYMBOLS = {'webhook_signature': 'def verify_signature', 'backoff_delay': 'd
                 'refund_cap': 'refund exceeds remaining charge'}
 
 
-def find_code_input(d, cid):
-    """The request exactly as sent, shown twice: an abridged skeleton (file bodies reduced to their
-    first line, repeated criteria collapsed) and the verbatim JSON in a collapsible block."""
-    import json
-    req = d.cases[cid]['request']
-    qs = req['questions']
-    first_q = next(iter(qs))
-    shared = all(q['criteria'] == qs[first_q]['criteria'] for q in qs.values())
-    def brief(src):
-        first = src.splitlines()[0].strip()
-        doc = first.startswith('"""') and first.endswith('"""') and len(first) > 6
-        return f'<{len(src.splitlines())} 行源码，' + (f'模块说明：{first[3:-3]}>' if doc else f'首行：{first}>')
-    files = {p: brief(src) for p, src in req['state']['files'].items()}
-    skeleton = {'model': req['model'], 'state': {**req['state'], 'files': files},
-                'questions': {qid: {'type': q['type'], 'instructions': q['instructions'],
-                                    'criteria': q['criteria'] if qid == first_q or not shared else f'<与 {first_q} 相同的 {len(q["criteria"])} 个候选>'}
-                              for qid, q in qs.items()}}
-    full = json.dumps(req, ensure_ascii=False, indent=2)
-    usage = d.results[cid]['report']['response']['usage']
-    return (f'<p>调用方先读出仓库里全部 {len(files)} 个文件的完整源码，放进 <code>state.files</code>，再问 {len(qs)} 道 choice 题。'
-            f'每道题的候选是这 {len(files)} 个文件路径，外加一个 <code>none</code>。候选描述只是“Inspect 某文件”，本身不带信息，'
-            'Jev 能依据的只有源码和题目。请求里没有标准答案。</p>'
-            f'<pre><code>{e(json.dumps(skeleton, ensure_ascii=False, indent=2))}</code></pre>'
-            f'<p class="small muted" style="margin-top:8px">上面是精简后的结构：每个文件只保留行数和模块说明，'
-            + (f'重复的候选只列一次。' if shared else '')
-            + f'实际发送的是完整源码，输入共 {usage["input_tokens"]:,} 个 token。请求由 <code>validation/v2/cases_v2.py</code> 的 '
-            '<code>find_code_cases()</code> 生成。</p>'
-            f'<details style="margin-top:10px"><summary class="small">展开完整的原始请求（逐字，与发送内容一致）</summary>'
-            f'<pre><code>{e(full)}</code></pre></details>')
+def abridge(value, limit=220):
+    """Shorten long strings/lists for the readable skeleton; the verbatim request is shown separately."""
+    if isinstance(value, dict):
+        return {k: abridge(v, limit) for k, v in value.items()}
+    if isinstance(value, list):
+        if len(value) > 8:
+            return [abridge(v, limit) for v in value[:3]] + [f'<另有 {len(value) - 3} 项>']
+        return [abridge(v, limit) for v in value]
+    if isinstance(value, str) and len(value) > limit:
+        lines = value.splitlines() or [value]
+        first = lines[0].strip()
+        if first.startswith('"""') and first.endswith('"""') and len(first) > 6:
+            return f'<{len(lines)} 行源码，模块说明：{first[3:-3]}>'
+        head = first if len(first) <= 80 else first[:80] + '…'
+        return f'<{len(lines)} 行、{len(value)} 字符，开头：{head}>'
+    return value
 
 
-def find_code_output(d, cid):
-    """Candidate x question probability matrix from the raw answers, plus how status was derived."""
-    rep = d.results[cid]['report']
-    answers = rep['response']['answers']
+def request_skeleton(req):
+    """Abridged state; a question whose criteria equal an earlier question's is collapsed."""
+    qs, seen, questions = req['questions'], {}, {}
+    for qid, q in qs.items():
+        key = json.dumps(q.get('criteria'), ensure_ascii=False, sort_keys=True)
+        out = {k: v for k, v in q.items() if k != 'criteria'}
+        if 'criteria' in q:
+            if key in seen and isinstance(q['criteria'], dict):
+                out['criteria'] = f'<与 {seen[key]} 相同的 {len(q["criteria"])} 个候选>'
+            else:
+                out['criteria'] = q['criteria']
+                seen.setdefault(key, qid)
+        questions[qid] = out
+    return {'model': req['model'], 'state': abridge(req['state']), 'questions': questions}
+
+
+PROVENANCE = {
+    'manifest': '请求取自运行记录第一行 manifest 中保存的原文，与发送内容逐字一致。',
+    'replay': '闭环运行时没有单独保存每回合的请求。这里的请求来自 <code>llm-requests.json</code>：'
+              '按调用记录逐回合回放闭环，并用 Jev 自带的校验器确认每回合的候选标签与当时的返回一致。',
+    'replay+host_action': '闭环运行时没有单独保存每步的请求。这里的请求来自 <code>llm-requests.json</code> 的回放，'
+                          '其中 <code>actions_taken</code> 按调用记录里前几步实际执行的操作（host_action）还原，原因见页面末尾的说明。',
+}
+
+
+def call_details(d, label, req, rep, open_=False):
+    title = d.cases.get(label, {}).get('title', '')
+    usage = rep['response']['usage']
+    head = f'<b class="mono small">{e(label)}</b>' + (f' · {e(title)}' if title else '') + f' · 输入 {usage["input_tokens"]:,} tokens'
+    return (f'<details{" open" if open_ else ""} style="margin-top:10px"><summary>{head}</summary>'
+            f'<pre><code>{e(json.dumps(request_skeleton(req), ensure_ascii=False, indent=2))}</code></pre>'
+            f'<details style="margin:6px 0 4px 14px"><summary class="small">展开完整的原始请求（逐字）</summary>'
+            f'<pre><code>{e(json.dumps(req, ensure_ascii=False, indent=2))}</code></pre></details></details>')
+
+
+def dist_text(a):
+    """Non-zero part of one raw answer, highest first."""
+    if a['type'] == 'noul':
+        return f'是（true）的概率 {a["noul"]:.2f}'
+    items = sorted(((k, p) for k, p in a['probabilities'].items() if p), key=lambda kv: -kv[1])
+    return ' · '.join(f'<code>{e(k)}</code> {p:.2f}' for k, p in items)
+
+
+def answer_value(a):
+    if a['type'] == 'choice':
+        return f'<code>{e(a["choice"])}</code>'
+    if a['type'] == 'noul':
+        return fmt_value(a['noul'] >= 0.5)
+    return f'{a["score"]:g}（加权等级）'
+
+
+def output_table(rep, req):
+    """Matrix when every question shares one small candidate set; otherwise one row per question."""
+    answers, decisions = rep['response']['answers'], rep['decisions']
     qids = list(answers)
-    cands = list(d.cases[cid]['request']['questions'][qids[0]]['criteria'])
-    head = ''.join(f'<th class="num mono small">{e(q)}</th>' for q in qids)
-    body = ''
-    for c in cands:
-        cells = ''
-        for q in qids:
-            p = answers[q]['probabilities'].get(c, 0)
-            chosen = answers[q]['choice'] == c
-            cells += (f'<td class="num"><b class="ok-text">{p:.2f}</b></td>' if chosen
-                      else f'<td class="num {"muted" if p == 0 else ""}">{p:.2f}</td>')
-        body += f'<tr><td class="mono small">{e(c)}</td>{cells}</tr>'
-    status = ''.join(f'<td>{status_text(rep["decisions"][q]["status"])}</td>' for q in qids)
-    body += f'<tr><td class="small"><b>CLI 判定的状态</b></td>{status}</tr>'
-    fields = sorted({k for a in answers.values() for k in a})
-    others = [(q, c, p) for q in qids for c, p in answers[q]['probabilities'].items() if p and c != answers[q]['choice']]
-    pol = rep['policy']
-    review_hits = [q for q in qids if rep['decisions'][q]['value'] in pol['review_labels']]
-    return (f'<div class="table-wrap"><table><thead><tr><th>候选</th>{head}</tr></thead><tbody>{body}</tbody></table></div>'
-            f'<p class="small muted" style="margin-top:8px">绿色加粗的是 Jev 选中的候选。每道题的原始返回只有 '
-            + '、'.join(f'<code>{e(f)}</code>' for f in fields) + ' 这几个字段，没有理由或解释。'
-            + ('选中项以外的非零概率只有：' + '；'.join(f'{e(q)} 上的 <code>{e(c)}</code> {p:.2f}' for q, c, p in others) + '。' if others else '')
-            + f'状态不是 Jev 返回的，而是 jev CLI 按规则算出来的：最高概率不低于 {pol["min_probability"]}、比第二名高出至少 {pol["min_margin"]} 才算 selected，'
-            f'选中 none、unknown 这类复核标签的一律转复核。'
-            + (f'{e("、".join(review_hits))} 选中的是复核标签，所以概率虽高，仍是 needs_review。' if review_hits else '')
-            + '</p>')
+    crits = [json.dumps(req['questions'][q].get('criteria'), sort_keys=True) for q in qids]
+    cands = req['questions'][qids[0]].get('criteria')
+    if (len(set(crits)) == 1 and isinstance(cands, dict) and 1 < len(qids) <= 6 and len(cands) <= 10
+            and all(answers[q]['type'] == 'choice' for q in qids)):
+        head = ''.join(f'<th class="num mono small">{e(q)}</th>' for q in qids)
+        body = ''
+        for c in cands:
+            cells = ''
+            for q in qids:
+                p = answers[q]['probabilities'].get(c, 0)
+                cells += (f'<td class="num"><b class="ok-text">{p:.2f}</b></td>' if answers[q]['choice'] == c
+                          else f'<td class="num {"muted" if p == 0 else ""}">{p:.2f}</td>')
+            body += f'<tr><td class="mono small">{e(c)}</td>{cells}</tr>'
+        body += '<tr><td class="small"><b>CLI 判定的状态</b></td>' + ''.join(
+            f'<td>{status_text(decisions[q]["status"])}</td>' for q in qids) + '</tr>'
+        return (f'<div class="table-wrap"><table><thead><tr><th>候选</th>{head}</tr></thead><tbody>{body}</tbody></table></div>'
+                '<p class="small muted" style="margin-top:6px">绿色加粗的是 Jev 选中的候选。</p>')
+    rows = ''.join(f'<tr><td class="mono small">{e(q)}</td><td><span class="tag">{answers[q]["type"]}</span></td>'
+                   f'<td class="small">{dist_text(answers[q])}</td><td>{answer_value(answers[q])}</td>'
+                   f'<td>{status_text(decisions[q]["status"])}</td></tr>' for q in qids)
+    return ('<div class="table-wrap"><table><thead><tr><th>问题</th><th>类型</th><th>返回的分布（非零项，从高到低）</th>'
+            f'<th>Jev 给的值</th><th>CLI 判定的状态</th></tr></thead><tbody>{rows}</tbody></table></div>')
+
+
+def loop_output_table(calls):
+    rows = ''
+    for label, req, rep, _ in calls:
+        for q, a in rep['response']['answers'].items():
+            rows += (f'<tr><td class="mono small">{e(label.split(":")[1])}</td><td class="small">{dist_text(a)}</td>'
+                     f'<td>{answer_value(a)}</td><td>{status_text(rep["decisions"][q]["status"])}</td></tr>')
+    return ('<div class="table-wrap"><table><thead><tr><th>回合</th><th>返回的分布（非零项，从高到低）</th><th>Jev 选择</th>'
+            f'<th>CLI 判定的状态</th></tr></thead><tbody>{rows}</tbody></table></div>')
+
+
+def io_note(calls):
+    fields = sorted({f'{a["type"]}: ' + '、'.join(sorted(a)) for _, _, rep, _ in calls for a in rep['response']['answers'].values()})
+    pol = calls[0][2]['policy']
+    return ('<p class="small muted" style="margin-top:8px">原始返回里每道题只有这些字段：'
+            + '；'.join(f'<code>{e(f)}</code>' for f in fields) + '，没有理由或解释。'
+            f'状态不是 Jev 返回的，而是 jev CLI 按规则算的：最高概率不低于 {pol["min_probability"]}、比第二名高出至少 {pol["min_margin"]} 才算 selected，'
+            '选中 none、unknown、ask_user 这类复核标签的一律转复核，score 题标为 scored。</p>')
+
+
+def setup_io(d):
+    names = {'openrouter': 'OPENROUTER_API_KEY', 'typesafe': 'TYPESAFE_API_KEY'}
+    blocks = []
+    for r in d.setup:
+        env = [names[k] + '=<占位值>' for k, v in r['report']['available'].items() if v] or ['（两个密钥变量都没有设置）']
+        blocks.append(f'<details{" open" if not blocks else ""} style="margin-top:10px"><summary><b class="mono small">{e(r["variant"])}</b>'
+                      f' · 环境：{e("，".join(env))} · 退出码 {r["exit"]}</summary>'
+                      f'<pre><code>{e(json.dumps(r["report"], ensure_ascii=False, indent=2))}</code></pre></details>')
+    return (sec('输入与输出：jev-decide setup', '<p>setup 不调用 Jev，它的输入是环境变量，输出是一份 JSON 报告。验证脚本在三种合成环境下各运行一次，'
+                '环境里只保留 PATH、HOME、LANG，再按需加上一个密钥变量，值是占位字符串，不是真实密钥。下面是三份报告的原文，'
+                '可以看到里面只有“是否存在”的布尔值，没有出现占位值。</p>' + ''.join(blocks), '输入输出'))
+
+
+def io_sections(d, s):
+    """(input section, output section) for a scenario, rendered from the run records."""
+    if s['slug'] == 'setup':
+        return setup_io(d), ''
+    calls = d.requests_for(s['skill'])
+    provs = sorted({p for *_, p in calls})
+    intro = (f'<p>本场景共 {len(calls)} 次调用。每次调用先给出精简后的结构：长文本只保留开头或模块说明，与前面某题相同的候选只列一次。'
+             '展开后可以看到完整的原始请求。请求里没有标准答案。</p>'
+             + ''.join(f'<p class="small muted">{PROVENANCE[p]}</p>' for p in provs))
+    groups = {}
+    for c in calls:
+        groups.setdefault(c[0].split(':turn')[0] if ':turn' in c[0] else 'static', []).append(c)
+    inp, out = intro, ''
+    for g, cs in groups.items():
+        if g == 'static':
+            inp += ''.join(call_details(d, *c[:3], open_=(i == 0)) for i, c in enumerate(cs))
+            out += ''.join(f'<h3 style="margin-top:16px"><span class="mono small">{e(c[0])}</span>'
+                           + (f' · {e(d.cases[c[0]]["title"])}' if c[0] in d.cases else '') + '</h3>' + output_table(c[2], c[1]) for c in cs)
+        else:
+            name = LOOP_NAME.get(g, g)
+            inp += f'<h3 style="margin-top:16px">{e(name)}：{len(cs)} 个回合</h3>' + call_details(d, *cs[0][:3], open_=True)
+            if len(cs) > 1:
+                inp += (f'<details style="margin-top:8px"><summary class="small">其余 {len(cs) - 1} 个回合的请求</summary>'
+                        + ''.join(call_details(d, *c[:3]) for c in cs[1:]) + '</details>')
+            out += f'<h3 style="margin-top:16px">{e(name)}</h3>' + (output_table(cs[0][2], cs[0][1]) if g == 'ui_checkout' else loop_output_table(cs))
+    return sec('发给 Jev 的输入', inp, '输入'), sec('Jev 的原始返回', out + io_note(calls), '输出')
+
+
+LOOP_NAME = {'npc': 'NPC 店主', 'grid': '网格变体 A（Jev 独自规划）', 'grid_planned': '网格变体 B（规划器给路线）',
+             'ui_settings': '设置页', 'ui_checkout': '结算页'}
+
+
+def ui_replay_note(s):
+    """Disclosure for the ui_settings replay defect found while building the input section."""
+    if s['slug'] != 'ui':
+        return ''
+    return sec('关于设置页请求的说明', '<div class="callout warn"><b>回放请求里的 actions_taken 曾被后续步骤改写。</b>'
+               '闭环代码把调用方的操作列表本身放进了请求，没有复制。真实调用不受影响：每次发送前请求都已序列化成 JSON，'
+               'Jev 当时看到的第 1 步是空列表，第 2 步只有勾选那一次点击。但 <code>llm-requests.json</code> 是回放后再保存的，'
+               '保存时列表已经追加了后面的点击，第 1、2 步都写成了“已勾选并已保存”。本页展示的请求按调用记录里的 host_action 还原了这一字段。'
+               '代码已改为放入列表的副本，并补了一个离线回归测试。成本对比页里其他模型这两步的作答，看到的是改写后的输入。</div>', '说明')
 
 
 def custom_find_code(d):
@@ -437,9 +547,7 @@ def custom_find_code(d):
         verify.append(f'<tr><td class="mono small">{qid}</td><td class="mono small">{e(path)}</td><td class="mono small">{e(symbol)}</td>'
                       f'<td class="{"ok-text" if ok else "bad-text"}">{"第 " + ", ".join(map(str, lines)) + " 行" if ok else "未找到"}</td></tr>')
     val = d.decision(cid, 'reset_email_body')['value']
-    return (sec('发给 Jev 的输入', find_code_input(d, cid), '输入') +
-            sec('定位结果', result_table(d, [cid])) +
-            sec('Jev 的原始返回：每道题的完整分布', find_code_output(d, cid), '输出') +
+    return (sec('定位结果', result_table(d, [cid])) +
             sec('调用方打开文件核对符号', '<div class="table-wrap"><table><thead><tr><th>问题</th><th>Jev 选中文件</th><th>核对符号</th><th>结果</th></tr></thead>'
                 f'<tbody>{"".join(verify)}</tbody></table></div><div class="callout ok"><b>不存在的功能没有被编造。</b>'
                 f'问到密码重置邮件正文时，Jev 返回 <code>{e(val)}</code>，并进入复核。templates.py 里确实只有 order_shipped 和 payment_receipt 两个模板。</div>', '调用方'))
@@ -662,7 +770,9 @@ def scenario_page(d, s):
         design = sec('问题设计', question_table(d, s['cases'][:1] if s['slug'] in ('triage', 'redteam') else s['cases']) +
                      ('<p class="small muted" style="margin-top:8px">同类批次/样本使用相同的问题模板，此处只展示第一个。</p>'
                       if s['slug'] in ('triage', 'redteam') else ''), '判断设计')
-    body = (head + '<main class="wrap">' + intro_sections(s, trigger_section(d, s)) + result_section(d, s) + design + CUSTOM[s['slug']](d) +
+    io_in, io_out = io_sections(d, s)
+    body = (head + '<main class="wrap">' + intro_sections(s, trigger_section(d, s)) + result_section(d, s) + design + io_in +
+            CUSTOM[s['slug']](d) + io_out + ui_replay_note(s) +
             v1_baseline(d, s['skill']) + pager(s['slug']) + footer(d) + '</main>')
     return page(s['title'], body, s['slug'], depth=1)
 
