@@ -363,10 +363,72 @@ FIND_SYMBOLS = {'webhook_signature': 'def verify_signature', 'backoff_delay': 'd
                 'refund_cap': 'refund exceeds remaining charge'}
 
 
+def find_code_input(d, cid):
+    """The request exactly as sent, shown twice: an abridged skeleton (file bodies reduced to their
+    first line, repeated criteria collapsed) and the verbatim JSON in a collapsible block."""
+    import json
+    req = d.cases[cid]['request']
+    qs = req['questions']
+    first_q = next(iter(qs))
+    shared = all(q['criteria'] == qs[first_q]['criteria'] for q in qs.values())
+    def brief(src):
+        first = src.splitlines()[0].strip()
+        doc = first.startswith('"""') and first.endswith('"""') and len(first) > 6
+        return f'<{len(src.splitlines())} 行源码，' + (f'模块说明：{first[3:-3]}>' if doc else f'首行：{first}>')
+    files = {p: brief(src) for p, src in req['state']['files'].items()}
+    skeleton = {'model': req['model'], 'state': {**req['state'], 'files': files},
+                'questions': {qid: {'type': q['type'], 'instructions': q['instructions'],
+                                    'criteria': q['criteria'] if qid == first_q or not shared else f'<与 {first_q} 相同的 {len(q["criteria"])} 个候选>'}
+                              for qid, q in qs.items()}}
+    full = json.dumps(req, ensure_ascii=False, indent=2)
+    usage = d.results[cid]['report']['response']['usage']
+    return (f'<p>调用方先读出仓库里全部 {len(files)} 个文件的完整源码，放进 <code>state.files</code>，再问 {len(qs)} 道 choice 题。'
+            f'每道题的候选是这 {len(files)} 个文件路径，外加一个 <code>none</code>。候选描述只是“Inspect 某文件”，本身不带信息，'
+            'Jev 能依据的只有源码和题目。请求里没有标准答案。</p>'
+            f'<pre><code>{e(json.dumps(skeleton, ensure_ascii=False, indent=2))}</code></pre>'
+            f'<p class="small muted" style="margin-top:8px">上面是精简后的结构：每个文件只保留行数和模块说明，'
+            + (f'重复的候选只列一次。' if shared else '')
+            + f'实际发送的是完整源码，输入共 {usage["input_tokens"]:,} 个 token。请求由 <code>validation/v2/cases_v2.py</code> 的 '
+            '<code>find_code_cases()</code> 生成。</p>'
+            f'<details style="margin-top:10px"><summary class="small">展开完整的原始请求（逐字，与发送内容一致）</summary>'
+            f'<pre><code>{e(full)}</code></pre></details>')
+
+
+def find_code_output(d, cid):
+    """Candidate x question probability matrix from the raw answers, plus how status was derived."""
+    rep = d.results[cid]['report']
+    answers = rep['response']['answers']
+    qids = list(answers)
+    cands = list(d.cases[cid]['request']['questions'][qids[0]]['criteria'])
+    head = ''.join(f'<th class="num mono small">{e(q)}</th>' for q in qids)
+    body = ''
+    for c in cands:
+        cells = ''
+        for q in qids:
+            p = answers[q]['probabilities'].get(c, 0)
+            chosen = answers[q]['choice'] == c
+            cells += (f'<td class="num"><b class="ok-text">{p:.2f}</b></td>' if chosen
+                      else f'<td class="num {"muted" if p == 0 else ""}">{p:.2f}</td>')
+        body += f'<tr><td class="mono small">{e(c)}</td>{cells}</tr>'
+    status = ''.join(f'<td>{status_text(rep["decisions"][q]["status"])}</td>' for q in qids)
+    body += f'<tr><td class="small"><b>CLI 判定的状态</b></td>{status}</tr>'
+    fields = sorted({k for a in answers.values() for k in a})
+    others = [(q, c, p) for q in qids for c, p in answers[q]['probabilities'].items() if p and c != answers[q]['choice']]
+    pol = rep['policy']
+    review_hits = [q for q in qids if rep['decisions'][q]['value'] in pol['review_labels']]
+    return (f'<div class="table-wrap"><table><thead><tr><th>候选</th>{head}</tr></thead><tbody>{body}</tbody></table></div>'
+            f'<p class="small muted" style="margin-top:8px">绿色加粗的是 Jev 选中的候选。每道题的原始返回只有 '
+            + '、'.join(f'<code>{e(f)}</code>' for f in fields) + ' 这几个字段，没有理由或解释。'
+            + ('选中项以外的非零概率只有：' + '；'.join(f'{e(q)} 上的 <code>{e(c)}</code> {p:.2f}' for q, c, p in others) + '。' if others else '')
+            + f'状态不是 Jev 返回的，而是 jev CLI 按规则算出来的：最高概率不低于 {pol["min_probability"]}、比第二名高出至少 {pol["min_margin"]} 才算 selected，'
+            f'选中 none、unknown 这类复核标签的一律转复核。'
+            + (f'{e("、".join(review_hits))} 选中的是复核标签，所以概率虽高，仍是 needs_review。' if review_hits else '')
+            + '</p>')
+
+
 def custom_find_code(d):
     cid = 'jev-find-code:minishop'
     files = d.cases[cid]['request']['state']['files']
-    tree = ''.join(f'<tr><td class="mono small">{e(p)}</td><td class="num">{len(src.splitlines())} 行</td></tr>' for p, src in files.items())
     verify = []
     for qid, symbol in FIND_SYMBOLS.items():
         path = d.decision(cid, qid)['value']
@@ -375,8 +437,9 @@ def custom_find_code(d):
         verify.append(f'<tr><td class="mono small">{qid}</td><td class="mono small">{e(path)}</td><td class="mono small">{e(symbol)}</td>'
                       f'<td class="{"ok-text" if ok else "bad-text"}">{"第 " + ", ".join(map(str, lines)) + " 行" if ok else "未找到"}</td></tr>')
     val = d.decision(cid, 'reset_email_body')['value']
-    return (sec('候选文件（调用方已读全部源码）', f'<div class="table-wrap"><table><thead><tr><th>路径</th><th>规模</th></tr></thead><tbody>{tree}</tbody></table></div>', '证据') +
+    return (sec('发给 Jev 的输入', find_code_input(d, cid), '输入') +
             sec('定位结果', result_table(d, [cid])) +
+            sec('Jev 的原始返回：每道题的完整分布', find_code_output(d, cid), '输出') +
             sec('调用方打开文件核对符号', '<div class="table-wrap"><table><thead><tr><th>问题</th><th>Jev 选中文件</th><th>核对符号</th><th>结果</th></tr></thead>'
                 f'<tbody>{"".join(verify)}</tbody></table></div><div class="callout ok"><b>不存在的功能没有被编造。</b>'
                 f'问到密码重置邮件正文时，Jev 返回 <code>{e(val)}</code>，并进入复核。templates.py 里确实只有 order_shipped 和 payment_receipt 两个模板。</div>', '调用方'))
