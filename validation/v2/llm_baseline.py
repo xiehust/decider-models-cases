@@ -103,6 +103,29 @@ def prepare():
 
 SKILL_OF = {'npc': 'jev-simulation', 'grid': 'jev-simulation', 'grid_planned': 'jev-simulation',
             'ui_settings': 'jev-ui', 'ui_checkout': 'jev-ui'}
+UI_FIX_FILE = V2 / 'llm-requests-ui-fix-20261013.json'
+
+
+def prepare_ui_fix():
+    """Corrected ui_settings requests without re-running the browser loop. The replay behind
+    llm-requests.json saved each request with a live reference to the host's action list, so later
+    clicks leaked into earlier turns. Rebuild actions_taken from the recorded host_action of the
+    preceding turns; Jev's validator must still accept the recorded response for every turn."""
+    from run import JEV
+    items = {i['id']: i for i in load_items()}
+    rows = [json.loads(l) for l in (V2 / 'live-v2-20261012.jsonl').read_text().splitlines()]
+    turns = sorted((r for r in rows if r.get('kind') == 'loop_turn' and r['scenario'] == 'ui_settings'), key=lambda r: r['turn'])
+    done, fixed = [], []
+    for row in turns:
+        iid = f'ui_settings:turn{row["turn"]}'
+        item = json.loads(json.dumps(items[iid]))
+        item['request']['state']['actions_taken'] = list(done)
+        JEV.build_report(item['request'], row['report']['response'])  # raises if labels differ
+        if row['host_action'].startswith('clicked '):
+            done.append(row['host_action'])
+        if item['request'] != items[iid]['request']:
+            fixed.append(item)
+    return fixed
 
 
 def grade_for(scenario, row):
@@ -255,13 +278,19 @@ def cost_of(usage, backend='opus'):
     spec = BACKENDS[backend]
     return (usage['inputTokens'] * Decimal(spec['in']) + usage['outputTokens'] * Decimal(spec['out'])) / Decimal(10 ** 6)
 # --- run -----------------------------------------------------------------------------
-def load_items():
-    return json.loads(REQUESTS_FILE.read_text())
+def load_items(path=None, ids=None):
+    items = json.loads((path or REQUESTS_FILE).read_text())
+    if ids:
+        missing = set(ids) - {i['id'] for i in items}
+        if missing:
+            raise SystemExit(f'unknown request ids: {sorted(missing)}')
+        items = [i for i in items if i['id'] in ids]
+    return items
 
 
-def run(styles, output, backend='opus', concurrency=CONCURRENCY):
+def run(styles, output, backend='opus', concurrency=CONCURRENCY, requests=None, ids=None):
     spec = BACKENDS[backend]
-    items = load_items()
+    items = load_items(requests, ids)
     planned = len(items) * len(styles)
     if planned > MAX_CALLS:
         raise SystemExit(f'{planned} calls exceed the fixed bound {MAX_CALLS}')
@@ -295,7 +324,8 @@ def run(styles, output, backend='opus', concurrency=CONCURRENCY):
         record({'kind': 'manifest', 'backend': backend, 'model_id': spec['model'], 'api': spec['api'],
                 'region': REGION, 'styles': styles, 'instance': spec.get('instance'), 'endpoint': spec.get('url'),
                 'price_in_per_m': spec['in'], 'price_out_per_m': spec['out'], 'jev_price_in_per_m': '0.042',
-                'requests': len(items), 'max_calls': MAX_CALLS, 'concurrency': concurrency,
+                'requests': len(items), 'requests_file': str((requests or REQUESTS_FILE).name), 'ids': [i['id'] for i in items] if ids else None,
+                'max_calls': MAX_CALLS, 'concurrency': concurrency,
                 'spend_stop_usd': str(SPEND_STOP_USD), 'retries': 0, 'system_prompts': {s: SYSTEM.format(style=STYLES[s]) for s in styles},
                 'started_at_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())})
         for style in styles:
@@ -314,6 +344,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='cmd', required=True)
     sub.add_parser('prepare')
+    sub.add_parser('prepare-ui-fix', help='write corrected ui_settings requests to ' + UI_FIX_FILE.name)
     probe = sub.add_parser('probe')
     probe.add_argument('--id', default='jev:recovery')
     probe.add_argument('--style', default='reasoned', choices=STYLES)
@@ -324,7 +355,16 @@ def main():
     r.add_argument('--output', type=Path, required=True)
     r.add_argument('--concurrency', type=int, default=CONCURRENCY,
                    help='Use 1 for endpoints that are not safe under concurrent requests')
+    r.add_argument('--requests', type=Path, default=None, help='request file (default llm-requests.json)')
+    r.add_argument('--ids', nargs='+', default=None, help='only these request ids')
     args = parser.parse_args()
+    if args.cmd == 'prepare-ui-fix':
+        fixed = prepare_ui_fix()
+        with UI_FIX_FILE.open('x', encoding='utf-8') as f:
+            json.dump(fixed, f, ensure_ascii=False)
+        print(json.dumps({'written': UI_FIX_FILE.name, 'ids': [i['id'] for i in fixed],
+                          'actions_taken': {i['id']: i['request']['state']['actions_taken'] for i in fixed}}, ensure_ascii=False))
+        return
     if args.cmd == 'prepare':
         items = prepare()
         with REQUESTS_FILE.open('x', encoding='utf-8') as f:
@@ -338,7 +378,7 @@ def main():
         print(json.dumps({**res, 'answers': answers, 'parse_error': perr, 'graded': grade(item, answers) if answers else None,
                           'cost_usd': str(cost_of(res['usage'], args.backend))}, ensure_ascii=False, indent=1))
     else:
-        run(args.styles, args.output, args.backend, args.concurrency)
+        run(args.styles, args.output, args.backend, args.concurrency, args.requests, args.ids)
 
 
 if __name__ == '__main__':

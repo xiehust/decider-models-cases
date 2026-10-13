@@ -533,7 +533,8 @@ def ui_replay_note(s):
                '闭环代码把调用方的操作列表本身放进了请求，没有复制。真实调用不受影响：每次发送前请求都已序列化成 JSON，'
                'Jev 当时看到的第 1 步是空列表，第 2 步只有勾选那一次点击。但 <code>llm-requests.json</code> 是回放后再保存的，'
                '保存时列表已经追加了后面的点击，第 1、2 步都写成了“已勾选并已保存”。本页展示的请求按调用记录里的 host_action 还原了这一字段。'
-               '代码已改为放入列表的副本，并补了一个离线回归测试。成本对比页里其他模型这两步的作答，看到的是改写后的输入。</div>', '说明')
+               '代码已改为放入列表的副本，并补了一个离线回归测试。成本对比页里三个 LLM 的这两步已用修正后的输入重跑，'
+               'Strands Decider 2B 还没有重跑，详见成本对比页。</div>', '说明')
 
 
 def custom_find_code(d):
@@ -995,6 +996,7 @@ LLM 成本按给定单价折算，自托管模型按 {e(dd.instance["type"])} �
     choice / noul 题答错的判断里，有 {dd.review["wrong_rev"]} 个已被它自己送去复核，直接选定却答错的有 {len(dd.review["wrong_sel"])} 个。服务端在并发时不安全，本组是串行测得的结果。</div>
 </div>
 <p class="small muted" style="margin-top:8px">按每 1 万个判断线性外推的费用（估算，自托管按本批次机时折算，不含空闲时段）：{e(per10k)}。</p>
+{"" if getattr(dd, "rerun", None) else '<p class="small muted">浏览器设置页有 2 个请求的输入曾被改写，三个 LLM 已用修正后的输入重跑；Strands Decider 2B 还没有重跑，它的数字仍来自旧输入，详见成本对比页。</p>'}
 </div></section>'''
 
 

@@ -15,9 +15,12 @@ import report_charts as C
 V2 = Path(__file__).resolve().parent
 LLM_FILE = V2 / 'llm-baseline-20261012.jsonl'
 MODELS = {  # key -> receipt file and display label; prices are read from each run's manifest
-    'opus': {'file': V2 / 'llm-baseline-20261012.jsonl', 'label': 'Claude Opus 5.5', 'api': 'Converse'},
-    'haiku': {'file': V2 / 'llm-baseline-haiku-20261012.jsonl', 'label': 'Claude Haiku 5.5', 'api': 'Converse'},
-    'gpt6luna': {'file': V2 / 'llm-baseline-gpt6luna-20261012.jsonl', 'label': 'GPT-6 Luna', 'api': 'Responses API'},
+    'opus': {'file': V2 / 'llm-baseline-20261012.jsonl', 'label': 'Claude Opus 5.5', 'api': 'Converse',
+             'rerun': V2 / 'llm-baseline-opus-uifix-20261013.jsonl'},
+    'haiku': {'file': V2 / 'llm-baseline-haiku-20261012.jsonl', 'label': 'Claude Haiku 5.5', 'api': 'Converse',
+              'rerun': V2 / 'llm-baseline-haiku-uifix-20261013.jsonl'},
+    'gpt6luna': {'file': V2 / 'llm-baseline-gpt6luna-20261012.jsonl', 'label': 'GPT-6 Luna', 'api': 'Responses API',
+                 'rerun': V2 / 'llm-baseline-gpt6luna-uifix-20261013.jsonl'},
 }
 # The receipts also hold a 'reasoned' run (answer + one-sentence reason); the report compares
 # only the answer-only run, which matches what Jev returns.
@@ -50,8 +53,8 @@ class ModelRun:
         self.p_in = Decimal(self.manifest.get('price_in_per_m', '4')) / 10 ** 6
         self.p_out = Decimal(self.manifest.get('price_out_per_m', '20')) / 10 ** 6
         self.t = {}
-        for s in self.all_styles:  # every style is reconciled against the file total below
-            rs = [r for r in self.llm if r['style'] == s]
+
+        def totals(rs, wall):
             i, o = sum(r['usage']['inputTokens'] for r in rs), sum(r['usage']['outputTokens'] for r in rs)
             cost = sum(Decimal(r['cost_usd']) for r in rs)
             assert cost == i * self.p_in + o * self.p_out
@@ -60,21 +63,41 @@ class ModelRun:
             norm = [v for r in rs if not r['id'].startswith('grid:') for v in r['graded'].values()]
             n_norm = sum(len(items[r['id']]['request']['questions']) if items[r['id']]['grade']['kind'] == 'expected' else 1
                          for r in rs if not r['id'].startswith('grid:'))
-            self.t[s] = {'n': len(rs), 'in': i, 'out': o, 'cost_in': i * self.p_in, 'cost_out': o * self.p_out,
-                         'cost': cost, 'correct': sum(graded), 'answered': len(graded),
-                         'correct_norm': sum(norm), 'total_norm': n_norm,
-                         'filtered': [r['id'] for r in rs if r['stop_reason'] != 'end_turn'],
-                         'thinking': sum(r['has_reasoning'] for r in rs),
-                         'reasoning_tokens': sum(r['usage'].get('reasoningTokens') or 0 for r in rs),
-                         'out_think': [r['usage']['outputTokens'] for r in rs if r['has_reasoning']],
-                         'out_plain': [r['usage']['outputTokens'] for r in rs if not r['has_reasoning']],
-                         'wrong': [(r['id'], q) for r in rs for q, v in r['graded'].items() if not v],
-                         # Client-measured round trip, same basis as Jev's CLI elapsed_seconds.
-                         'lat': statistics.median(walls), 'p90': walls[int(0.9 * (len(walls) - 1))],
-                         'lat_server': statistics.median(r['latency_ms'] for r in rs) / 1000, 'wall': self.walls[s]}
+            return {'n': len(rs), 'in': i, 'out': o, 'cost_in': i * self.p_in, 'cost_out': o * self.p_out,
+                    'cost': cost, 'correct': sum(graded), 'answered': len(graded),
+                    'correct_norm': sum(norm), 'total_norm': n_norm,
+                    'filtered': [r['id'] for r in rs if r['stop_reason'] != 'end_turn'],
+                    'thinking': sum(r['has_reasoning'] for r in rs),
+                    'reasoning_tokens': sum(r['usage'].get('reasoningTokens') or 0 for r in rs),
+                    'out_think': [r['usage']['outputTokens'] for r in rs if r['has_reasoning']],
+                    'out_plain': [r['usage']['outputTokens'] for r in rs if not r['has_reasoning']],
+                    'wrong': [(r['id'], q) for r in rs for q, v in r['graded'].items() if not v],
+                    # Client-measured round trip, same basis as Jev's CLI elapsed_seconds.
+                    'lat': statistics.median(walls), 'p90': walls[int(0.9 * (len(walls) - 1))],
+                    'lat_server': statistics.median(r['latency_ms'] for r in rs) / 1000, 'wall': wall}
+        for s in self.all_styles:  # every style is reconciled against the file total below
+            self.t[s] = totals([r for r in self.llm if r['style'] == s], self.walls[s])
         assert sum(self.t[s]['cost'] for s in self.all_styles) == Decimal(self.summary['cost_usd'])
-        self.t = {REPORT_STYLE: self.t[REPORT_STYLE]}
         self.llm = [r for r in self.llm if r['style'] == REPORT_STYLE]
+        self.rerun = None
+        if spec.get('rerun') and spec['rerun'].exists():
+            # Requests whose original input was wrong were re-run with corrected input; the rerun
+            # rows replace the originals. Each file is reconciled against its own summary.
+            rr = [json.loads(l) for l in spec['rerun'].read_text().splitlines()]
+            assert not [r for r in rr if r['kind'] in ('error', 'skipped')]
+            new = [r for r in rr if r['kind'] == 'llm_result' and r['style'] == REPORT_STYLE]
+            assert sum(Decimal(r['cost_usd']) for r in rr if r['kind'] == 'llm_result') == Decimal(
+                next(r for r in rr if r['kind'] == 'summary')['cost_usd'])
+            assert Decimal(rr[0]['price_in_per_m']) == Decimal(self.manifest['price_in_per_m'])
+            ids = {r['id'] for r in new}
+            old = [r for r in self.llm if r['id'] in ids]
+            self.llm = [r for r in self.llm if r['id'] not in ids] + new
+            assert {r['id'] for r in self.llm} == set(items) and len(self.llm) == len(items)
+            self.rerun = {'file': spec['rerun'].name, 'ids': sorted(ids), 'manifest': rr[0],
+                          'old_cost': sum(Decimal(r['cost_usd']) for r in old), 'new_cost': sum(Decimal(r['cost_usd']) for r in new),
+                          'old_wrong': [(r['id'], q) for r in old for q, v in r['graded'].items() if not v],
+                          'new_wrong': [(r['id'], q) for r in new for q, v in r['graded'].items() if not v]}
+        self.t = {REPORT_STYLE: totals(self.llm, self.walls[REPORT_STYLE])}
 
 
 class SelfHosted:
@@ -244,6 +267,26 @@ SKILL_LABEL = {'jev': 'Agent 检查点', 'jev-code-review': '代码评审', 'jev
 MODEL_COLOR = {'opus': C.RED, 'haiku': C.VIOLET, 'gpt6luna': C.BLUE}
 DECIDER_COLOR = '#ea580c'
 DECIDER_NAME = 'Strands Decider 2B（自托管）'
+
+
+def rerun_note(c):
+    """What was re-run, why, and the before/after it changed, all from the two receipt files."""
+    runs = [r for r in c.runs.values() if r.rerun]
+    if not runs:
+        return ''
+    ids = runs[0].rerun['ids']
+    parts = []
+    for r in runs:
+        x = r.rerun
+        fixed = sorted(set(x['old_wrong']) - set(x['new_wrong']))
+        parts.append(f'{r.label} 费用由 {usd(x["old_cost"])} 变为 {usd(x["new_cost"])}'
+                     + (f'，{"、".join(f"{i} · {q}" for i, q in fixed)} 由答错变为答对' if fixed else '，答案不变'))
+    pending = '' if getattr(c.decider, 'rerun', None) else (
+        f'{DECIDER_NAME} 的这 2 个请求还没有重跑，下面它的数字仍来自旧输入。')
+    return (f'浏览器设置页的 {e("、".join(ids))} 原先保存的请求里，actions_taken 被后续步骤改写，提前写进了“已点保存”。'
+            'Jev 的真实调用不受影响，但三个 LLM 和 Decider 看到的都是这份错误的输入。修正后用 <code>llm_baseline.py prepare-ui-fix</code> 生成正确的请求，'
+            f'只对这 2 个请求各重跑一次，结果记录在 <code>{e(runs[0].rerun["file"].replace(runs[0].key, "<模型>"))}</code>，'
+            '并替换原来的结果；原调用记录保持不变。' + '；'.join(parts) + '。' + pending)
 
 
 def decider_section(c, d):
@@ -468,6 +511,7 @@ def cost_body(d, sec, footer):
         （<code>/openai/v1/responses</code>，用实例角色做 SigV4 签名，设 <code>store: false</code>，Bedrock 不保留数据）。区域是 {e(c.manifest["region"])}，全部使用 global 推理配置文件。</li>
     <li><b>输出格式：</b>要求 LLM 只返回答案，不附理由，和 Jev 一样每个问题给一个值。</li>
     <li><b>边界：</b>每个 LLM 调用 {c.runs["opus"].t["terse"]["n"]} 次，并发 4，不重试，三个模型都没有出现调用错误。</li>
+    <li><b>重跑的 2 个请求：</b>{rerun_note(c)}</li>
     <li><b>耗时口径：</b>所有方案都取客户端实测的单次往返时间，Jev 用 CLI 返回记录里的 elapsed_seconds，LLM 用调用前后的墙钟时间。
         各方案的中位数与 Bedrock 服务端记录的耗时最多相差 {max(abs(x["lat"] - x["lat_server"]) for _, _, _, x in V):.2f} 秒。</li>
   </ul></div>
