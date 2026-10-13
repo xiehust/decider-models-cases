@@ -2,7 +2,27 @@
 # 在当前 VPC 启动一台无公网 IP 的 GPU 实例（默认 g6.2xlarge），带有界容量重试。
 # 幂等：每次尝试前先查同名 Name 标签的 pending/running 实例，避免超时后重复创建。
 # 输出最后一行：LAUNCHED <instance-id> <private-ip> <az>
+#
+# 用法：launch.sh [--选项 值 | --选项=值]...   （命令行优先于同名环境变量）
+#   --instance-type T   机型，默认 g6.2xlarge          --name N        Name 标签与 SG 名，默认 strands-decider-g6
+#   --volume-gb G       gp3 根卷 GiB，默认 150          --volume-iops I / --volume-throughput M  默认 3000 / 125 MiB/s
+#   --region R  --vpc-id V  --vpc-cidr C  --subnets "S1 S2"  --sg-id SG  --admin-sg SG
+#   --key-name K  --ssh-pubkey F  --ami-id A  --ami-name GLOB  --api-port P  --rounds N  --sleep-s S
+# 选项名即环境变量名的小写连字符形式（--instance-type 对应 INSTANCE_TYPE）。
 set -uo pipefail
+
+OPTS="REGION VPC_ID VPC_CIDR NAME INSTANCE_TYPE KEY_NAME SSH_PUBKEY ADMIN_SG SUBNETS SG_ID AMI_ID AMI_NAME
+  API_PORT VOLUME_GB VOLUME_IOPS VOLUME_THROUGHPUT ROUNDS SLEEP_S"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help) sed -n '2,/^set /p' "$0" | sed -e '$d' -e 's/^# \{0,1\}//'; exit 0 ;;
+    --*=*) k=${1%%=*}; v=${1#*=}; shift ;;
+    --*) [ $# -ge 2 ] || { echo "missing value for $1" >&2; exit 2; }; k=$1; v=$2; shift 2 ;;
+    *) echo "unknown argument: $1 (see --help)" >&2; exit 2 ;;
+  esac
+  var=$(printf '%s' "${k#--}" | tr 'a-z-' 'A-Z_')
+  case " $(echo $OPTS) " in *" $var "*) printf -v "$var" '%s' "$v" ;; *) echo "unknown option: $k (see --help)" >&2; exit 2 ;; esac
+done
 
 REGION=${REGION:-us-west-2}
 VPC_ID=${VPC_ID:-vpc-0edf3a4e323c23b22}
@@ -16,6 +36,8 @@ ADMIN_SG=${ADMIN_SG:-sg-0e3131bad226a169c}          # 管理机所在 SG，仅�
 SUBNETS=${SUBNETS:-"subnet-032b21959bdb16c4f subnet-0049c68761e287ca0 subnet-09b36d4db52839142 subnet-074b6fef6b8100535"}
 API_PORT=${API_PORT:-8000}
 VOLUME_GB=${VOLUME_GB:-150}
+VOLUME_IOPS=${VOLUME_IOPS:-3000}             # gp3 基线；大模型冷启动读权重受吞吐限制
+VOLUME_THROUGHPUT=${VOLUME_THROUGHPUT:-125}  # MiB/s，gp3 上限 1000
 ROUNDS=${ROUNDS:-15}
 SLEEP_S=${SLEEP_S:-90}
 AMI_NAME=${AMI_NAME:-"Deep Learning OSS Nvidia Driver AMI GPU PyTorch 2.12 (Ubuntu 24.04)*"}
@@ -61,7 +83,7 @@ for round in $(seq 1 "$ROUNDS"); do
     E=$(existing); if [ -n "$E" ]; then echo "LAUNCHED $E"; exit 0; fi
     OUT=$(aws ec2 run-instances --image-id "$AMI_ID" --instance-type "$INSTANCE_TYPE" --key-name "$KEY_NAME" \
       --network-interfaces "DeviceIndex=0,SubnetId=$SUB,Groups=$SG_ID,AssociatePublicIpAddress=false" \
-      --block-device-mappings "DeviceName=/dev/sda1,Ebs={VolumeSize=$VOLUME_GB,VolumeType=gp3,DeleteOnTermination=true}" \
+      --block-device-mappings "DeviceName=/dev/sda1,Ebs={VolumeSize=$VOLUME_GB,VolumeType=gp3,Iops=$VOLUME_IOPS,Throughput=$VOLUME_THROUGHPUT,DeleteOnTermination=true}" \
       --metadata-options HttpTokens=required,HttpEndpoint=enabled \
       --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$NAME}]" \
         "ResourceType=volume,Tags=[{Key=Name,Value=$NAME}]" \

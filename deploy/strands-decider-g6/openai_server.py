@@ -34,11 +34,15 @@ from strands_decider.schema import SystemOneRequest
 from strands_decider.server import create_app, get_engine
 
 CHECKPOINT = os.environ.get("DECIDER_CHECKPOINT", "StrandsAgents/strands-decider-2B-qwen3.5-v1-2610")
-MODEL_NAME = os.environ.get("DECIDER_MODEL_NAME", "strands-decider-2B-qwen3.5-v1-2610")
+MODEL_NAME = os.environ.get("DECIDER_MODEL_NAME") or CHECKPOINT.rstrip("/").rsplit("/", 1)[-1]
 API_KEY = os.environ.get("DECIDER_API_KEY") or None  # optional bearer key
 DEVICE = os.environ.get("DECIDER_DEVICE", "cuda")
+# Batch caps are forwarded only when set: strands-decider 0.1.0's create_app has no such parameters.
+_batch = {k: int(os.environ[e]) for k, e in (("max_batch", "DECIDER_MAX_BATCH"),
+                                             ("max_batch_tokens", "DECIDER_MAX_BATCH_TOKENS"))
+          if os.environ.get(e)}
 
-app = create_app(CHECKPOINT, device=DEVICE, model_name=MODEL_NAME)
+app = create_app(CHECKPOINT, device=DEVICE, model_name=MODEL_NAME, **_batch)
 _lock = threading.Lock()  # one GPU engine; serialise calls from the threadpool
 _created = int(time.time())
 
