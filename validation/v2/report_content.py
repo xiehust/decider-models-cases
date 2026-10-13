@@ -3,7 +3,7 @@
 SCENARIOS = [
     {
         'slug': 'agent-checkpoint', 'skill': 'jev', 'icon': '🧭', 'title': 'Agent 执行检查点',
-        'one_liner': '在三个容易出错的节点让 Jev 核对一次：命令反复失败之后，计划偏离需求的时候，向用户报告完成之前。',
+        'one_liner': 'Agent 最容易在三个时刻出错：命令反复失败、计划偏离需求、准备向用户报告完成。本场景在这三处各请 Jev 核对一次。',
         'cases': ['jev:recovery', 'jev:drift', 'jev:completion'],
         'background': [
             '编码 Agent 执行长任务时，有几种失误很常见：一条命令失败后原样重试，计划越做越偏离用户的要求，'
