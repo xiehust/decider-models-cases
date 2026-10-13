@@ -116,6 +116,34 @@ class SelfHosted:
         self.wall = Decimal(str(next(r for r in rows if r['kind'] == 'style_wall')['wall_seconds']))
         inst = self.manifest['instance']
         self.instance = inst
+        self.rerun = None
+        rerun_path = V2 / 'llm-baseline-decider-uifix-20261013.jsonl'
+        control_path = V2 / 'llm-baseline-decider-control-20261013.jsonl'
+        if rerun_path.exists() and control_path.exists():
+            # The original instance was stopped; the rerun ran on a redeployed instance of the same
+            # type and model ID. Four unaffected requests were re-sent there as a control: their raw
+            # outputs must equal the originals exactly before any rerun row may replace one.
+            old_by_id = {r['id']: r for r in self.llm}
+            ctrl = [json.loads(l) for l in control_path.read_text().splitlines()]
+            ctrl_res = [r for r in ctrl if r['kind'] == 'llm_result']
+            assert ctrl_res and all(r['raw_answers'] == old_by_id[r['id']]['raw_answers'] for r in ctrl_res)
+            rr = [json.loads(l) for l in rerun_path.read_text().splitlines()]
+            assert not [r for r in rr + ctrl if r['kind'] in ('error', 'skipped')]
+            assert rr[0]['instance']['type'] == inst['type'] and rr[0]['instance']['usd_per_hour'] == inst['usd_per_hour']
+            assert rr[0]['model_id'] == self.manifest['model_id'] and rr[0]['concurrency'] == 1
+            new = [r for r in rr if r['kind'] == 'llm_result']
+            ids = {r['id'] for r in new}
+            old = [old_by_id[i] for i in sorted(ids)]
+            # Serial batch time: swap the superseded calls' measured time for the rerun's.
+            old_s = sum(Decimal(str(r['wall_seconds'])) for r in old)
+            new_s = sum(Decimal(str(r['wall_seconds'])) for r in new)
+            self.wall = self.wall - old_s + new_s
+            self.llm = [r for r in self.llm if r['id'] not in ids] + new
+            assert {r['id'] for r in self.llm} == set(items) and len(self.llm) == len(items)
+            self.rerun = {'ids': sorted(ids), 'instance': rr[0]['instance'], 'old_s': old_s, 'new_s': new_s,
+                          'control_ids': sorted(r['id'] for r in ctrl_res),
+                          'old_wrong': [(r['id'], q) for r in old for q, v in r['graded'].items() if not v],
+                          'new_wrong': [(r['id'], q) for r in new for q, v in r['graded'].items() if not v]}
         self.rate = Decimal(inst['usd_per_hour'])
         self.cost = self.rate * self.wall / 3600
         self.per_day = self.rate * 24
@@ -281,8 +309,17 @@ def rerun_note(c):
         fixed = sorted(set(x['old_wrong']) - set(x['new_wrong']))
         parts.append(f'{r.label} 费用由 {usd(x["old_cost"])} 变为 {usd(x["new_cost"])}'
                      + (f'，{"、".join(f"{i} · {q}" for i, q in fixed)} 由答错变为答对' if fixed else '，答案不变'))
-    pending = '' if getattr(c.decider, 'rerun', None) else (
-        f'{DECIDER_NAME} 的这 2 个请求还没有重跑，下面它的数字仍来自旧输入。')
+    pending = ''
+    dr = getattr(c.decider, 'rerun', None)
+    if dr:
+        fixed = sorted(set(dr['old_wrong']) - set(dr['new_wrong']))
+        pending = (f'{DECIDER_NAME} 原来那台实例已经停止，这 2 个请求是在重新部署的同型号实例（{e(dr["instance"]["type"])}，'
+                   f'{e(dr["instance"]["id"])}，模型 ID 相同）上串行重跑的。为确认两台机器上的模型一致，另把 {len(dr["control_ids"])} 个未受影响的请求'
+                   f'（{e("、".join(dr["control_ids"]))}）在新实例上重发了一遍，返回的概率与原记录逐项相同。机时按批次串行用时计，'
+                   f'用重跑实测的 {dr["new_s"]} 秒替换原来这 2 个请求的 {dr["old_s"]} 秒'
+                   + (f'，{"、".join(f"{i} · {q}" for i, q in fixed)} 由答错变为答对。' if fixed else '，答案不变。'))
+    else:
+        pending = f'{DECIDER_NAME} 的这 2 个请求还没有重跑，下面它的数字仍来自旧输入。'
     return (f'浏览器设置页的 {e("、".join(ids))} 原先保存的请求里，actions_taken 被后续步骤改写，提前写进了“已点保存”。'
             'Jev 的真实调用不受影响，但三个 LLM 和 Decider 看到的都是这份错误的输入。修正后用 <code>llm_baseline.py prepare-ui-fix</code> 生成正确的请求，'
             f'只对这 2 个请求各重跑一次，结果记录在 <code>{e(runs[0].rerun["file"].replace(runs[0].key, "<模型>"))}</code>，'
