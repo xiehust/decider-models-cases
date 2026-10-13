@@ -19,8 +19,9 @@ MODELS = {  # key -> receipt file and display label; prices are read from each r
     'haiku': {'file': V2 / 'llm-baseline-haiku-20261012.jsonl', 'label': 'Claude Haiku 5.5', 'api': 'Converse'},
     'gpt6luna': {'file': V2 / 'llm-baseline-gpt6luna-20261012.jsonl', 'label': 'GPT-6 Luna', 'api': 'Responses API'},
 }
-STYLE_NAME = {'reasoned': 'LLM · 答案+一句理由', 'terse': 'LLM · 只输出答案'}
-STYLE_SHORT = {'reasoned': '答案+理由', 'terse': '只答案'}
+# The receipts also hold a 'reasoned' run (answer + one-sentence reason); the report compares
+# only the answer-only run, which matches what Jev returns.
+REPORT_STYLE = 'terse'
 
 
 def e(v):
@@ -43,11 +44,13 @@ class ModelRun:
         self.llm = [r for r in rows if r['kind'] == 'llm_result']
         assert not [r for r in rows if r['kind'] in ('error', 'skipped')]
         assert {r['id'] for r in self.llm} == set(items)
-        self.styles = self.manifest['styles']
+        self.all_styles = self.manifest['styles']
+        assert REPORT_STYLE in self.all_styles
+        self.styles = [REPORT_STYLE]
         self.p_in = Decimal(self.manifest.get('price_in_per_m', '4')) / 10 ** 6
         self.p_out = Decimal(self.manifest.get('price_out_per_m', '20')) / 10 ** 6
         self.t = {}
-        for s in self.styles:
+        for s in self.all_styles:  # every style is reconciled against the file total below
             rs = [r for r in self.llm if r['style'] == s]
             i, o = sum(r['usage']['inputTokens'] for r in rs), sum(r['usage']['outputTokens'] for r in rs)
             cost = sum(Decimal(r['cost_usd']) for r in rs)
@@ -69,7 +72,9 @@ class ModelRun:
                          # Client-measured round trip, same basis as Jev's CLI elapsed_seconds.
                          'lat': statistics.median(walls), 'p90': walls[int(0.9 * (len(walls) - 1))],
                          'lat_server': statistics.median(r['latency_ms'] for r in rs) / 1000, 'wall': self.walls[s]}
-        assert sum(self.t[s]['cost'] for s in self.styles) == Decimal(self.summary['cost_usd'])
+        assert sum(self.t[s]['cost'] for s in self.all_styles) == Decimal(self.summary['cost_usd'])
+        self.t = {REPORT_STYLE: self.t[REPORT_STYLE]}
+        self.llm = [r for r in self.llm if r['style'] == REPORT_STYLE]
 
 
 class SelfHosted:
@@ -236,8 +241,7 @@ SKILL_LABEL = {'jev': 'Agent 检查点', 'jev-code-review': '代码评审', 'jev
                'jev-ui': '浏览器 UI', 'jev-redteam': '红队评估'}
 
 
-VARIANT_COLOR = {('opus', 'reasoned'): C.RED, ('opus', 'terse'): '#f87171', ('haiku', 'reasoned'): C.VIOLET,
-                 ('haiku', 'terse'): '#a78bfa', ('gpt6luna', 'reasoned'): C.BLUE, ('gpt6luna', 'terse'): '#60a5fa'}
+MODEL_COLOR = {'opus': C.RED, 'haiku': C.VIOLET, 'gpt6luna': C.BLUE}
 DECIDER_COLOR = '#ea580c'
 DECIDER_NAME = 'Strands Decider 2B（自托管）'
 
@@ -302,7 +306,7 @@ def variants(c):
 
 
 def vname(run, s):
-    return f'{run.label} · {STYLE_SHORT[s]}'
+    return run.label
 
 
 def fmt_x(ratio):
@@ -331,16 +335,10 @@ def cost_body(d, sec, footer):
     overview_pass, overview_total = sum(j['passed'] for j in overview), len(overview)
     xr = {(k, s): x['cost'] / c.jev_cost for k, s, _, x in V}
 
-    def rng(k, field, fmt):
-        vals = [c.runs[k].t[s][field] for s in c.runs[k].styles]
-        return fmt(min(vals)), fmt(max(vals))
-
     kpis = [(usd(c.jev_cost, 4), f'Jev · {n} 次调用', f'输入 {c.jev_in:,} tokens × $0.042/M，输出免费')]
-    for k, run in c.runs.items():
-        lo, hi = rng(k, 'cost', lambda v: usd(v, 4))
-        xs = [xr[(k, s)] for s in run.styles]
-        kpis.append((f'{lo}～{hi}', f'{run.label}（${run.manifest["price_in_per_m"]} / ${run.manifest["price_out_per_m"]} 每百万）',
-                     f'是 Jev 的 {min(xs):.1f}～{max(xs):.1f} 倍'))
+    for k, s, run, x in V:
+        kpis.append((usd(x['cost'], 4), f'{run.label}（${run.manifest["price_in_per_m"]} / ${run.manifest["price_out_per_m"]} 每百万）',
+                     f'是 Jev 的 {xr[(k, s)]:.1f} 倍'))
     lats = [x['lat'] for _, _, _, x in V]
     kpis.append((f'{c.jev_lat:.2f}s', 'Jev 单次中位耗时', f'LLM 为 {min(lats):.1f}～{max(lats):.1f} 秒'))
     kpis.append((usd(c.decider.cost, 4), DECIDER_NAME, f'按 {c.decider.instance["type"]} 机时折算，是 Jev 的 {c.decider.cost / c.jev_cost:.1f} 倍，'
@@ -372,17 +370,17 @@ def cost_body(d, sec, footer):
 
     dec_bar = (DECIDER_NAME + '（机时）', float(c.decider.cost), DECIDER_COLOR, f'  {c.decider.cost / c.jev_cost:.1f}×')
     all_bars = C.hbars([('Jev', float(c.jev_cost), C.TEAL, ''), dec_bar] +
-                       [(vname(run, s), float(x['cost']), VARIANT_COLOR[(k, s)], f'  {xr[(k, s)]:.1f}×')
+                       [(vname(run, s), float(x['cost']), MODEL_COLOR[k], f'  {xr[(k, s)]:.1f}×')
                         for k, s, run, x in sorted(V, key=lambda v: v[3]['cost'])],
                        width=820, label_w=230, fmt=lambda v: f'${v:.4f}')
     cheap = [v for v in V if v[0] != 'opus']
     zoom = C.hbars([('Jev', float(c.jev_cost), C.TEAL, ''), dec_bar] +
-                   [(vname(run, s), float(x['cost']), VARIANT_COLOR[(k, s)], f'  {xr[(k, s)]:.1f}×')
+                   [(vname(run, s), float(x['cost']), MODEL_COLOR[k], f'  {xr[(k, s)]:.1f}×')
                     for k, s, run, x in sorted(cheap, key=lambda v: v[3]['cost'])],
                    width=820, label_w=230, fmt=lambda v: f'${v:.4f}')
-    tok_in = C.hbars([('Jev', c.jev_in, C.TEAL, '')] + [(vname(run, s), x['in'], VARIANT_COLOR[(k, s)], '') for k, s, run, x in V],
+    tok_in = C.hbars([('Jev', c.jev_in, C.TEAL, '')] + [(vname(run, s), x['in'], MODEL_COLOR[k], '') for k, s, run, x in V],
                      width=820, label_w=230, fmt=lambda v: f'{v:,}')
-    tok_out = C.hbars([('Jev（不计费）', c.jev_out, C.SLATE, '')] + [(vname(run, s), x['out'], VARIANT_COLOR[(k, s)], '') for k, s, run, x in V],
+    tok_out = C.hbars([('Jev（不计费）', c.jev_out, C.SLATE, '')] + [(vname(run, s), x['out'], MODEL_COLOR[k], '') for k, s, run, x in V],
                       width=820, label_w=230, fmt=lambda v: f'{v:,}')
     comp = C.stacked([(vname(run, s), [('输入', float(x['cost_in']), C.BLUE), ('输出', float(x['cost_out']), C.VIOLET)]) for k, s, run, x in V]
                      + [('Jev', [('输入', float(c.jev_cost), C.TEAL)])], width=820, label_w=230)
@@ -393,9 +391,8 @@ def cost_body(d, sec, footer):
                     + ''.join(f'<td class="num">{usd(per[k][sk]["terse"])}<span class="muted small"> · {fmt_x(per[k][sk]["terse"] / per[k][sk]["jev"])}</span></td>'
                               for k in c.runs) + '</tr>' for sk in skills)
     skill_table = ('<div class="table-wrap"><table><thead><tr><th>场景</th><th>调用</th><th>Jev</th>'
-                   + ''.join(f'<th>{e(run.label)}<br>只答案</th>' for run in c.runs.values()) + '</tr></thead>'
-                   f'<tbody>{srows}</tbody></table></div><p class="small muted" style="margin-top:8px">为了表格好读，这里只列“只输出答案”这一档，也就是各模型的成本下限。'
-                   '“答案+理由”的总额见上表。</p>')
+                   + ''.join(f'<th>{e(run.label)}</th>' for run in c.runs.values()) + '</tr></thead>'
+                   f'<tbody>{srows}</tbody></table></div><p class="small muted" style="margin-top:8px">每格是该场景的费用，后面是相对 Jev 的倍数。</p>')
 
     scale_rows = ([('Jev', c.jev_cost), (DECIDER_NAME + '（按本批次机时，不含空闲）', c.decider.cost)]
                   + [(vname(run, s), x['cost']) for k, s, run, x in V])
@@ -442,7 +439,7 @@ def cost_body(d, sec, footer):
     casc_rows = []
     for k, run in c.runs.items():
         cs = c.cascade('terse', k)
-        casc_rows.append(f'<tr><td>Jev → {e(run.label)} · 只答案</td><td class="num">{cs["escalated"]}</td><td class="num">{usd(cs["cost"], 4)}</td>'
+        casc_rows.append(f'<tr><td>Jev → {e(run.label)}</td><td class="num">{cs["escalated"]}</td><td class="num">{usd(cs["cost"], 4)}</td>'
                          f'<td class="num">{cs["cost"] / c.jev_cost:.1f}×</td><td class="num">{cs["correct"]}/{cs["total"]}</td></tr>')
     casc_table = ('<div class="table-wrap"><table><thead><tr><th>组合（估算）</th><th>转交 LLM 的请求</th><th>费用</th><th>相对纯 Jev</th><th>答对</th></tr></thead>'
                   f'<tbody>{"".join(casc_rows)}</tbody></table></div><p class="small muted" style="margin-top:8px">先全部交给 Jev，只把含 needs_review 决策的请求再交给 LLM。'
@@ -469,8 +466,8 @@ def cost_body(d, sec, footer):
         Strands Decider 2B 是决策模型，直接接收与 Jev 相同的原生请求，不用提示。</li>
     <li><b>接口：</b>两个 Claude 模型走 Bedrock Runtime 的 Converse 接口，GPT-6 Luna 走 Bedrock Runtime 上的 OpenAI Responses API
         （<code>/openai/v1/responses</code>，用实例角色做 SigV4 签名，设 <code>store: false</code>，Bedrock 不保留数据）。区域是 {e(c.manifest["region"])}，全部使用 global 推理配置文件。</li>
-    <li><b>两种输出风格：</b>“答案+一句理由”接近 Agent 自己判断时的常见写法，“只输出答案”则是 LLM 的成本下限。</li>
-    <li><b>边界：</b>每个 LLM 调用 {c.runs["opus"].summary["calls"]} 次，并发 4，不重试，三个模型都没有出现调用错误。</li>
+    <li><b>输出格式：</b>要求 LLM 只返回答案，不附理由，和 Jev 一样每个问题给一个值。</li>
+    <li><b>边界：</b>每个 LLM 调用 {c.runs["opus"].t["terse"]["n"]} 次，并发 4，不重试，三个模型都没有出现调用错误。</li>
     <li><b>耗时口径：</b>所有方案都取客户端实测的单次往返时间，Jev 用 CLI 返回记录里的 elapsed_seconds，LLM 用调用前后的墙钟时间。
         各方案的中位数与 Bedrock 服务端记录的耗时最多相差 {max(abs(x["lat"] - x["lat_server"]) for _, _, _, x in V):.2f} 秒。</li>
   </ul></div>
@@ -484,11 +481,11 @@ def cost_body(d, sec, footer):
 
     caveats = '''<ul class="clean small">
   <li>价格采用你给定的数字，没有考虑 Bedrock 实际牌价，也没有计入批量和缓存折扣。系统提示很短，没有使用提示缓存。</li>
-  <li>每个请求每种风格只跑了一次，没有测随机波动。GPT-6 Luna 在两种风格下答错的题并不完全相同，可见单次结果有波动。</li>
+  <li>每个请求只跑了一次，没有测随机波动。</li>
   <li>准确率来自同一个作者编写的小样本，只反映这些用例上的表现，不能推广成普遍结论。</li>
-  <li>LLM 给的理由和 Jev 给的概率分布用途不同。理由可以给人看，概率分布可以直接设门槛做自动复核，纯成本对比没有计入这一差别。</li>
+  <li>LLM 只给答案，Jev 还给出概率分布，可以直接设门槛做自动复核，纯成本对比没有计入这一差别。</li>
   <li>原始调用记录在 <code>validation/v2/llm-baseline-20261012.jsonl</code>（Opus）、<code>llm-baseline-haiku-20261012.jsonl</code> 和 <code>llm-baseline-gpt6luna-20261012.jsonl</code>，
-      重建的请求在 <code>llm-requests.json</code>，脚本是 <code>llm_baseline.py</code>。</li>
+      重建的请求在 <code>llm-requests.json</code>，脚本是 <code>llm_baseline.py</code>。记录文件里另有一组要求附一句理由的调用（style 为 reasoned），本报告没有采用。</li>
 </ul>'''
 
     g = c.runs['gpt6luna'].t
@@ -501,21 +498,20 @@ def cost_body(d, sec, footer):
             sk = SKILL_LABEL.get(c.items[cid]['skill'], c.items[cid]['skill'])
             counts[sk] = counts.get(sk, 0) + 1
         return '、'.join(f'{k} {v} 个' for k, v in sorted(counts.items(), key=lambda kv: -kv[1]))
-    g_wrong = sorted(set(g['terse']['wrong']) | set(g['reasoned']['wrong']))
-    h_wrong = sorted(set(h['terse']['wrong']) | set(h['reasoned']['wrong']))
-    o_filtered = sorted(set(o['terse']['filtered']) | set(o['reasoned']['filtered']))
+    g_wrong = sorted(g['terse']['wrong'])
+    h_wrong = sorted(h['terse']['wrong'])
+    o_filtered = sorted(o['terse']['filtered'])
     jev_other = [w for w in jev_wrong if not w[0].startswith('grid:')]
     ui_done = [r for r in c.runs['gpt6luna'].llm if r['id'] == 'ui_settings:turn2' and r['answers'] and r['answers'].get('next') == 'done']
     findings = f'''<div class="grid g2">
-  <div class="callout ok"><b>最便宜的 LLM 也要花 Jev 的 {min(xr.values()):.1f} 倍。</b>GPT-6 Luna 只答案 {usd(g["terse"]["cost"], 4)}，Haiku 5.5 只答案 {usd(h["terse"]["cost"], 4)}，
+  <div class="callout ok"><b>最便宜的 LLM 也要花 Jev 的 {min(xr.values()):.1f} 倍。</b>GPT-6 Luna {usd(g["terse"]["cost"], 4)}，Haiku 5.5 {usd(h["terse"]["cost"], 4)}，
     Jev 是 {usd(c.jev_cost, 4)}。两者单价相同，GPT-6 Luna 却比 Haiku 便宜约 {1 - g["terse"]["cost"] / h["terse"]["cost"]:.0%}，因为它计得的输入 tokens 少约
     {1 - g["terse"]["in"] / h["terse"]["in"]:.0%}，输出也更短。</div>
-  <div class="callout ok"><b>Haiku 5.5 的准确率最高。</b>两种风格分别答对 {h["terse"]["correct"]}/{h["terse"]["answered"]} 和 {h["reasoned"]["correct"]}/{h["reasoned"]["answered"]}，
+  <div class="callout ok"><b>Haiku 5.5 的准确率最高。</b>答对 {h["terse"]["correct"]}/{h["terse"]["answered"]}，
     没有请求被过滤，答错的是 {e("、".join(judgment_name(d, *w) for w in h_wrong)) or "无"}。Opus 5.5 能作答的判断全部答对，但有 {len(o_filtered)} 个请求
     （{e("、".join(o_filtered))}）被内容过滤。</div>
-  <div class="callout warn"><b>三个 LLM 里，GPT-6 Luna 最快、最便宜，错得也最多。</b>两种风格分别答对 {g["terse"]["correct"]}/{jev_total} 和 {g["reasoned"]["correct"]}/{jev_total}，
-    合计答错的判断分布在{by_skill(g_wrong)}。{"UI 第 2 步它只勾选了复选框，还没点保存，就判定任务已完成（done）。" if ui_done else ""}
-    两种风格错的题也不完全相同。</div>
+  <div class="callout warn"><b>三个 LLM 里，GPT-6 Luna 最快、最便宜，错得也最多。</b>答对 {g["terse"]["correct"]}/{jev_total}，
+    答错的判断分布在{by_skill(g_wrong)}。{"UI 第 2 步它只勾选了复选框，还没点保存，就判定任务已完成（done）。" if ui_done else ""}</div>
   <div class="callout note"><b>Jev 的错题和 LLM 不在一处。</b>Jev 主要错在网格独自规划（{grid_wrong} 个回合），其余 {len(jev_other)} 个是
     {e("、".join(judgment_name(d, *w) for w in jev_other))}，这些题 LLM 基本都答对了。下文的组合方案先交给 Jev、再把需复核的请求转给 Haiku，
     费用约为纯 Jev 的 {c.cascade("terse", "haiku")["cost"] / c.jev_cost:.1f} 倍。</div>

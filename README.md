@@ -44,11 +44,11 @@ v2 一共调用 Jev 76 次（模型 `typesafe/jev-1.13-20260917`），API 返回
 |---|---:|---:|---:|
 | Jev | $0.0025 | 0.19 秒 | 126 / 114 |
 | Strands Decider 2B（自托管，按机时） | $0.0030 | 0.11 秒 | 98 / 92 |
-| GPT-6 Luna（$0.10/$0.50 每百万 tokens） | $0.0079～0.0095 | 1.13～1.26 秒 | 139～140 / 110 |
-| Claude Haiku 5.5（$0.10/$0.50） | $0.0140～0.0187 | 1.81～2.15 秒 | 146 / 116 |
-| Claude Opus 5.5（$4/$20） | $0.40～0.59 | 3.38～4.74 秒 | 145 / 115，另有 2 个被内容过滤 |
+| GPT-6 Luna（$0.10/$0.50 每百万 tokens） | $0.0079 | 1.13 秒 | 140 / 110 |
+| Claude Haiku 5.5（$0.10/$0.50） | $0.0140 | 1.81 秒 | 146 / 116 |
+| Claude Opus 5.5（$4/$20） | $0.40 | 3.38 秒 | 145 / 115，另有 2 个被内容过滤 |
 
-LLM 的两个数字分别对应“只输出答案”和“答案加一句理由”两种写法。几点值得先看：
+LLM 和 Jev 一样只输出答案，不附理由。几点值得先看：
 
 - 在选项明确、证据齐全的问题上，Jev 很可靠，最高概率不低于 0.95 的判断全部答对。缺少依据时它会给出 none 或 unknown，
   不会硬猜。
@@ -97,12 +97,14 @@ python3 validation/v2/run_v2.py --live --followup --output validation/v2/live-ne
 `llm-requests.json` 已经提交，就是 Jev 当时看到的 76 个请求，可以直接复用。
 
 ```bash
-python3 validation/v2/llm_baseline.py run --backend opus     --output validation/v2/opus-new.jsonl
-python3 validation/v2/llm_baseline.py run --backend haiku    --output validation/v2/haiku-new.jsonl
-python3 validation/v2/llm_baseline.py run --backend gpt6luna --output validation/v2/luna-new.jsonl
+python3 validation/v2/llm_baseline.py run --backend opus     --styles terse --output validation/v2/opus-new.jsonl
+python3 validation/v2/llm_baseline.py run --backend haiku    --styles terse --output validation/v2/haiku-new.jsonl
+python3 validation/v2/llm_baseline.py run --backend gpt6luna --styles terse --output validation/v2/luna-new.jsonl
 python3 validation/v2/llm_baseline.py run --backend decider --styles native --concurrency 1 \
     --output validation/v2/decider-new.jsonl
 ```
+
+脚本默认会把每个请求再按“答案加一句理由”跑一遍，报告只用 `terse`（只输出答案），所以上面加了 `--styles terse`。
 
 Strands Decider 2B 的地址写在 `llm_baseline.py` 的 `BACKENDS` 里，是本次测试所在 VPC 的内网 IP，换环境时要改。
 它的服务端在并发请求下不安全，必须用 `--concurrency 1`。部署方法见 `deploy/strands-decider-g6/README.md`。

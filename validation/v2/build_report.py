@@ -665,7 +665,7 @@ python3 validation/v2/build_report.py</code></pre></div></section>
 
 def cost_teaser(d):
     """Overview section: cost × accuracy scatter (two accuracy bases) plus an aligned metric strip."""
-    from report_cost import CostData, variants, vname, VARIANT_COLOR, DECIDER_COLOR, DECIDER_NAME
+    from report_cost import CostData, variants, vname, MODEL_COLOR, DECIDER_COLOR, DECIDER_NAME
     c = CostData(d)
     V = variants(c)
     jev_full, total_full = c.jev_correct()
@@ -680,7 +680,7 @@ def cost_teaser(d):
     for k, s, run, x in V:
         rows.append({'name': vname(run, s), 'key': k, 'style': s, 'label_name': run.label, 'cost': float(x['cost']),
                      'lat': x['lat'], 'p90': x['p90'], 'acc_full': x['correct'], 'acc_norm': x['correct_norm'],
-                     'color': VARIANT_COLOR[(k, s)] if s == 'terse' else VARIANT_COLOR[(k, 'reasoned')],
+                     'color': MODEL_COLOR[k],
                      'flag': bool(x['filtered']),
                      'note': f'{len(x["filtered"])} 个请求被内容过滤，按答错计' if x['filtered'] else ''})
     model_color = {'jev': C.TEAL, 'decider': DECIDER_COLOR, 'opus': C.RED, 'haiku': C.VIOLET, 'gpt6luna': C.BLUE}
@@ -689,10 +689,10 @@ def cost_teaser(d):
         pts = []
         for r in rows:
             p = {'name': r['name'], 'cost': r['cost'], 'acc': r[field], 'total': total, 'lat': r['lat'],
-                 'color': model_color[r['key']], 'filled': r['style'] != 'reasoned', 'group': r['key'], 'note': r['note']}
+                 'color': model_color[r['key']], 'filled': True, 'group': r['key'], 'note': r['note']}
             if r['key'] == 'jev':
                 p['label'] = 'Jev'
-            elif r['key'] == 'decider' or r['style'] == 'reasoned':
+            else:
                 p['label'] = r['label_name'] + (' ⚠' if r['flag'] else '')
             pts.append(p)
         return pts
@@ -731,7 +731,7 @@ def cost_teaser(d):
     legend = ('<div class="small muted" style="display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:6px">'
               + ''.join(f'<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:{col};margin-right:5px"></span>{e(name)}</span>'
                         for name, col in [('Jev', C.TEAL), (DECIDER_NAME, DECIDER_COLOR), ('Claude Opus 5.5', C.RED), ('Claude Haiku 5.5', C.VIOLET), ('GPT-6 Luna', C.BLUE)])
-              + '<span>实心 = 只输出答案，空心 = 答案加一句理由（两点用线相连）</span><span>圆越大 = 中位耗时越长</span>'
+              + '<span>圆越大 = 中位耗时越长</span>'
               '<span>绿色虚线 = 帕累托前沿（同等或更低成本下准确率最高）</span><span>⚠ = 有请求被内容过滤，按答错计</span></div>')
     return f'''<section><div class="card"><div class="section-head"><div><div class="eyebrow">模型对比</div>
 <h2>Jev、自托管决策模型与三个 LLM：成本、耗时、准确率</h2></div><a href="cost.html" class="small">查看完整成本对比 →</a></div>
