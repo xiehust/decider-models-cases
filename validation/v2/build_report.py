@@ -23,7 +23,7 @@ BY_SLUG = {s['slug']: s for s in SCENARIOS}
 BY_SKILL = {s['skill']: s for s in SCENARIOS}
 NAV = {'agent-checkpoint': '检查点', 'code-review': '代码评审', 'context': '上下文', 'documents': '文档',
        'find-code': '找代码', 'route': '路由', 'triage': '分诊', 'simulation': '仿真', 'ui': '浏览器 UI',
-       'redteam': '红队', 'setup': '接入'}
+       'redteam': '红队'}
 
 
 def e(value):
@@ -207,9 +207,6 @@ def skill_description(skill):
 def trigger_how(d, s):
     """How this run actually invoked the skill, from receipts and the runner (not from prose)."""
     calls = d.calls_by_skill().get(s['skill'], 0)
-    if s['slug'] == 'setup':
-        return (f'验证脚本在三种合成环境下各运行一次 <code>jev-decide setup</code>，共 {len(d.setup)} 次，'
-                '只检查环境变量是否存在，不联网，也不调用 Jev。')
     if s['slug'] in ('simulation', 'ui'):
         unit = '每个回合' if s['slug'] == 'simulation' else '每走一步'
         return (f'闭环由验证脚本驱动，{unit}构造一次请求，经 <code>jev-decide decide - --provider openrouter</code> 真实调用，'
@@ -239,15 +236,12 @@ def result_section(d, s):
     """Fourth intro card: receipt-derived result line, the scenario's core conclusion and the
     production advice (previously a closing card), so the outcome is visible before the detail."""
     passed, total, review = scenario_stats(d, s)
-    if s['slug'] == 'setup':
-        lines = [f'{passed}/{total} 种凭据环境下的 setup 报告符合预期。']
-    else:
-        lines = [f'{passed}/{total} 个判断符合标准答案，{review} 个进入 needs_review。']
-        misses = [j for j in d.all_judgments() if j['skill'] == s['skill'] and j['case'] != 'grid' and not j['passed']]
-        lines.append('未达标：' + '、'.join(f'{j["case"]} · {j["question"]}' for j in misses) + '。' if misses else '没有未达标的判断。')
-        grid = [j for j in d.all_judgments() if j['case'] == 'grid' and j['skill'] == s['skill']]
-        if grid:
-            lines.append(f'另有网格变体 A（误用对照组）{sum(j["value_ok"] for j in grid)}/{len(grid)} 个回合走的是最优步，不计入上面的数字。')
+    lines = [f'{passed}/{total} 个判断符合标准答案，{review} 个进入 needs_review。']
+    misses = [j for j in d.all_judgments() if j['skill'] == s['skill'] and j['case'] != 'grid' and not j['passed']]
+    lines.append('未达标：' + '、'.join(f'{j["case"]} · {j["question"]}' for j in misses) + '。' if misses else '没有未达标的判断。')
+    grid = [j for j in d.all_judgments() if j['case'] == 'grid' and j['skill'] == s['skill']]
+    if grid:
+        lines.append(f'另有网格变体 A（误用对照组）{sum(j["value_ok"] for j in grid)}/{len(grid)} 个回合走的是最优步，不计入上面的数字。')
     facts = ''.join(f'<li>{e(x)}</li>' for x in lines)
     advice = ''.join(f'<li>{e(a)}</li>' for a in s['advice'])
     return f'''
@@ -480,23 +474,8 @@ def io_note(calls):
             '选中 none、unknown、ask_user 这类复核标签的一律转复核，score 题标为 scored。</p>')
 
 
-def setup_io(d):
-    names = {'openrouter': 'OPENROUTER_API_KEY', 'typesafe': 'TYPESAFE_API_KEY'}
-    blocks = []
-    for r in d.setup:
-        env = [names[k] + '=<占位值>' for k, v in r['report']['available'].items() if v] or ['（两个密钥变量都没有设置）']
-        blocks.append(f'<details{" open" if not blocks else ""} style="margin-top:10px"><summary><b class="mono small">{e(r["variant"])}</b>'
-                      f' · 环境：{e("，".join(env))} · 退出码 {r["exit"]}</summary>'
-                      f'<pre><code>{e(json.dumps(r["report"], ensure_ascii=False, indent=2))}</code></pre></details>')
-    return (sec('输入与输出：jev-decide setup', '<p>setup 不调用 Jev，它的输入是环境变量，输出是一份 JSON 报告。验证脚本在三种合成环境下各运行一次，'
-                '环境里只保留 PATH、HOME、LANG，再按需加上一个密钥变量，值是占位字符串，不是真实密钥。下面是三份报告的原文，'
-                '可以看到里面只有“是否存在”的布尔值，没有出现占位值。</p>' + ''.join(blocks), '输入输出'))
-
-
 def io_sections(d, s):
     """(input section, output section) for a scenario, rendered from the run records."""
-    if s['slug'] == 'setup':
-        return setup_io(d), ''
     calls = d.requests_for(s['skill'])
     provs = sorted({p for *_, p in calls})
     intro = (f'<p>本场景共 {len(calls)} 次调用。每次调用先给出精简后的结构：长文本只保留开头或模块说明，与前面某题相同的候选只列一次。'
@@ -725,32 +704,13 @@ def custom_redteam(d):
             sec('缺证据样本的分布', distribution_figures(d, 'jev-redteam:R5', ['outcome', 'evidence']), '图示'))
 
 
-def custom_setup(d):
-    rows = []
-    for r in d.setup:
-        rep = r['report']
-        rows.append(f'<tr><td class="mono">{e(r["variant"])}</td><td class="mono">{e(rep["available"])}</td><td class="mono">{e(rep["recommended_provider"])}</td>'
-                    f'<td>{fmt_value(rep["requires_user_choice"])}</td><td>{fmt_value(rep["jev_called"])}</td>'
-                    f'<td class="{"bad-text" if r["value_leaked"] else "ok-text"}">{"泄漏" if r["value_leaked"] else "未回显"}</td></tr>')
-    table = ('<div class="table-wrap"><table><thead><tr><th>环境</th><th>检测到的凭据</th><th>推荐</th><th>需用户选择</th><th>联网调用</th><th>占位值</th></tr></thead>'
-             f'<tbody>{"".join(rows)}</tbody></table></div>')
-    live = (f'<div class="callout ok"><b>真实路线已打通。</b>本次 {d.usage["calls"]} 次真实调用全部经 OpenRouter 完成，返回模型 '
-            f'<code>{e(", ".join(d.usage["models"]))}</code>，没有出现认证、额度或协议错误。运行器没有重试，也没有切换服务商。'
-            'TypeSafe 直连路线本次只做了存在性检查，没有真实调用。</div>')
-    return sec('三种环境下的 setup 报告', table + live)
-
-
 CUSTOM = {'agent-checkpoint': custom_agent, 'code-review': custom_review, 'context': custom_context,
           'documents': custom_documents, 'find-code': custom_find_code, 'route': custom_route,
           'triage': custom_triage, 'simulation': custom_simulation, 'ui': custom_ui,
-          'redteam': custom_redteam, 'setup': custom_setup}
+          'redteam': custom_redteam}
 
 
 def scenario_stats(d, s):
-    if s['slug'] == 'setup':
-        n = len(d.setup)
-        ok = sum(not r['value_leaked'] and r['report']['jev_called'] is False for r in d.setup)
-        return ok, n, 0
     row = d.skill_table().get(s['skill'], {'passed': 0, 'total': 0, 'review': 0})
     return row['passed'], row['total'], row['review']
 
@@ -806,7 +766,7 @@ def index_page(d):
     fills = {'top_n': top['n'], 'score_miss': score_miss, 'grid_a_turns': a['turns'], 'grid_b_turns': b['turns'],
              'lat_median': f'{u["latency_median"]:.2f}', 'calls': u['calls'], 'cost': f'{u["cost"]:.6f}'}
     kpis = [
-        (f'{len(SCENARIOS)}', '个应用场景', f'覆盖全部 {len(SCENARIOS)} 个已安装的 Jev 技能'),
+        (f'{len(SCENARIOS)}', '个应用场景', f'覆盖 jev-setup 以外的 {len(SCENARIOS)} 个 Jev 技能'),
         (f'{u["calls"]}', '次真实 Jev 调用', f'另有 v1 基线 {u1["calls"]} 次，无重试，无错误'),
         (f'{passed}/{total}', '判断符合标准答案', f'{review} 个进入 needs_review，不含误用对照组'),
         (f'{u["latency_median"]:.2f}s', '单次调用中位耗时', f'P90 {u["latency_p90"]:.2f}s · 最大 {u["latency_max"]:.2f}s'),
@@ -831,7 +791,7 @@ def index_page(d):
   <div class="eyebrow">Jev Application Scenarios · Validation Report</div>
   <h1>Jev 应用场景验证报告</h1>
   <p class="lead">这份报告记录了 2026 年 10 月 12 日对 Jev 做的一轮验证。Jev 是一个类型化判断模型，给它候选项、是非题或评分等级，
-  它返回带概率的答案，但不写文字。报告为本机安装的 {len(SCENARIOS)} 个 Jev 技能各编写了一组接近真实业务、埋有陷阱的场景，
+  它返回带概率的答案，但不写文字。本机安装了 11 个 Jev 技能，除去只负责接入配置的 jev-setup，报告为其余 {len(SCENARIOS)} 个技能各编写了一组接近真实业务、埋有陷阱的场景，
   经 OpenRouter 真实调用后，再用测试、浏览器 DOM、规则引擎和原文比对这类确定性手段逐一核对结果。
   下文的“调用方”指调用 Jev 并实际执行动作的 Agent 或程序。</p>
   <div class="meta"><span>运行日期 <b>2026-10-12</b></span><span>模型 <b>{e(", ".join(u["models"]))}</b></span>

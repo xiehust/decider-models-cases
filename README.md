@@ -1,8 +1,9 @@
 # Jev 应用场景验证
 
 这个仓库记录了 2026 年 10 月 12 日对 Jev 做的一轮场景验证。Jev 是一个类型化判断模型，
-给它候选项、是非题或评分等级，它返回带概率的答案，本身不写文字。仓库为
-[jev-skill](https://github.com/wuyoscar/jev-skill) v0.2.0 的 11 个技能各编写了一组接近真实业务、埋有陷阱的场景，
+给它候选项、是非题或评分等级，它返回带概率的答案，本身不写文字。
+[jev-skill](https://github.com/wuyoscar/jev-skill) v0.2.0 共有 11 个技能，除去只负责接入配置的 jev-setup，
+仓库为其余 10 个各编写了一组接近真实业务、埋有陷阱的场景，
 经 OpenRouter 真实调用后，再用测试套件、浏览器 DOM、规则引擎和原文比对逐一核对结果。
 之后又把同一批请求交给 Bedrock 上的 Claude Opus 5.5、Claude Haiku 5.5、GPT-6 Luna，
 以及同 VPC 自托管的 Strands Decider 2B，比较成本、耗时和准确率。
@@ -61,7 +62,7 @@ LLM 和 Jev 一样只输出答案，不附理由。几点值得先看：
 ## 查看报告
 
 直接用浏览器打开 `report/index.html` 即可。页面是纯静态 HTML 和内联 SVG，不加载外部资源，也不含脚本。
-总览页之外有 11 个场景页（`report/scenarios/`）和一个成本对比页（`report/cost.html`）。
+总览页之外有 10 个场景页（`report/scenarios/`）和一个成本对比页（`report/cost.html`）。
 
 ## 复现
 
