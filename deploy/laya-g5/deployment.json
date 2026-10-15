@@ -1,0 +1,73 @@
+{
+  "recorded_at_utc": "2026-10-15T01:31:59.026066+00:00",
+  "region": "ap-northeast-1",
+  "code_commit": "432312b36714d8889eba405507b37eda25257d9c",
+  "environment": {
+    "torch": "2.14.1+cu130",
+    "transformers": "5.19.0",
+    "laya": "0.4.7",
+    "cuda": "13.0",
+    "gpu": "NVIDIA A10G",
+    "device": "cuda",
+    "revision": "1720e3e3357cfe1e281542e223f8273b0890ca34",
+    "amp_dtype": "torch.bfloat16",
+    "config": {
+      "encoder": "jhu-clsp/mmBERT-base",
+      "head_layers": 2,
+      "max_len": 1024,
+      "head_max_len": 256,
+      "max_prefixes": 6,
+      "act_costs": {
+        "escalate": 0.5
+      },
+      "cost_wrong_act": 3.0,
+      "amp_dtype": "bf16",
+      "model_name": "rl-agent",
+      "temperature": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "temperature_by_options": {},
+      "training": {
+        "updates": 15987,
+        "epochs_completed": 4,
+        "hours": 4.97,
+        "world_size": 1,
+        "fine_tuned_from_checkpoint": false
+      }
+    },
+    "parameters": 321908995
+  },
+  "instance": {
+    "id": "i-0b93cd55e444dca0f",
+    "type": "g5.2xlarge",
+    "market": "on-demand",
+    "az": "ap-northeast-1a",
+    "private_ip": "172.31.32.153",
+    "public_ip": "54.248.147.234",
+    "usd_per_hour": "1.7577600000",
+    "source": "AWS Pricing API, ap-northeast-1, Linux, Shared, On-Demand; effective 2026-10-01"
+  },
+  "health": {
+    "status": "ok",
+    "loaded": [
+      "multilingual"
+    ],
+    "revisions": {
+      "multilingual": "1720e3e3357cfe1e281542e223f8273b0890ca34"
+    },
+    "device": "cuda",
+    "device_is_preference": false,
+    "checkpoint_devices": {
+      "multilingual": "cuda"
+    },
+    "cpu_fallbacks": {
+      "multilingual": {
+        "count": 0,
+        "last_reason": null
+      }
+    }
+  },
+  "timing_scope": "HTTP loopback on the Tokyo GPU host"
+}

@@ -1,0 +1,6 @@
+NVIDIA A10G, 23028 MiB, 595.91.07
+Python 3.13.16
+MainPID=2441
+ExecMainStartTimestamp=Thu 2026-10-15 01:30:57 UTC
+ActiveState=active
+SubState=running

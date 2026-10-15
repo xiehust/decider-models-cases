@@ -1,0 +1,7349 @@
+{
+  "model": "convaiinnovations/laya-multilingual",
+  "revision": "1720e3e3357cfe1e281542e223f8273b0890ca34",
+  "max_len": 8192,
+  "summary": {
+    "256": {
+      "questions": 147,
+      "max_sequence_tokens": 1538,
+      "state_truncated": 0,
+      "instruction_truncated": 0,
+      "options_truncated": 0,
+      "options_collapsed": 0
+    },
+    "1024": {
+      "questions": 147,
+      "max_sequence_tokens": 1538,
+      "state_truncated": 0,
+      "instruction_truncated": 0,
+      "options_truncated": 0,
+      "options_collapsed": 0
+    }
+  },
+  "questions": [
+    {
+      "id": "jev:recovery",
+      "question": "next",
+      "head_max_len": 256,
+      "sequence_tokens": 358,
+      "state": {
+        "state_tokens": 288,
+        "state_tokens_used": 288,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev:recovery",
+      "question": "next",
+      "head_max_len": 1024,
+      "sequence_tokens": 358,
+      "state": {
+        "state_tokens": 288,
+        "state_tokens_used": 288,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev:recovery",
+      "question": "repeat_informative",
+      "head_max_len": 256,
+      "sequence_tokens": 332,
+      "state": {
+        "state_tokens": 288,
+        "state_tokens_used": 288,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 22,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev:recovery",
+      "question": "repeat_informative",
+      "head_max_len": 1024,
+      "sequence_tokens": 332,
+      "state": {
+        "state_tokens": 288,
+        "state_tokens_used": 288,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 22,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev:recovery",
+      "question": "violates_rule",
+      "head_max_len": 256,
+      "sequence_tokens": 327,
+      "state": {
+        "state_tokens": 288,
+        "state_tokens_used": 288,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 17,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev:recovery",
+      "question": "violates_rule",
+      "head_max_len": 1024,
+      "sequence_tokens": 327,
+      "state": {
+        "state_tokens": 288,
+        "state_tokens_used": 288,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 17,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev:drift",
+      "question": "drifted",
+      "head_max_len": 256,
+      "sequence_tokens": 226,
+      "state": {
+        "state_tokens": 183,
+        "state_tokens_used": 183,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 21,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev:drift",
+      "question": "drifted",
+      "head_max_len": 1024,
+      "sequence_tokens": 226,
+      "state": {
+        "state_tokens": 183,
+        "state_tokens_used": 183,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 21,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev:drift",
+      "question": "next",
+      "head_max_len": 256,
+      "sequence_tokens": 230,
+      "state": {
+        "state_tokens": 183,
+        "state_tokens_used": 183,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev:drift",
+      "question": "next",
+      "head_max_len": 1024,
+      "sequence_tokens": 230,
+      "state": {
+        "state_tokens": 183,
+        "state_tokens_used": 183,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev:drift",
+      "question": "scope_risk",
+      "head_max_len": 256,
+      "sequence_tokens": 245,
+      "state": {
+        "state_tokens": 183,
+        "state_tokens_used": 183,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 17,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev:drift",
+      "question": "scope_risk",
+      "head_max_len": 1024,
+      "sequence_tokens": 245,
+      "state": {
+        "state_tokens": 183,
+        "state_tokens_used": 183,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 17,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev:completion",
+      "question": "claim_supported",
+      "head_max_len": 256,
+      "sequence_tokens": 217,
+      "state": {
+        "state_tokens": 175,
+        "state_tokens_used": 175,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 20,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev:completion",
+      "question": "claim_supported",
+      "head_max_len": 1024,
+      "sequence_tokens": 217,
+      "state": {
+        "state_tokens": 175,
+        "state_tokens_used": 175,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 20,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev:completion",
+      "question": "next",
+      "head_max_len": 256,
+      "sequence_tokens": 217,
+      "state": {
+        "state_tokens": 175,
+        "state_tokens_used": 175,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 11,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev:completion",
+      "question": "next",
+      "head_max_len": 1024,
+      "sequence_tokens": 217,
+      "state": {
+        "state_tokens": 175,
+        "state_tokens_used": 175,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 11,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev:completion",
+      "question": "evidence",
+      "head_max_len": 256,
+      "sequence_tokens": 228,
+      "state": {
+        "state_tokens": 175,
+        "state_tokens_used": 175,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 11,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev:completion",
+      "question": "evidence",
+      "head_max_len": 1024,
+      "sequence_tokens": 228,
+      "state": {
+        "state_tokens": 175,
+        "state_tokens_used": 175,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 11,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-code-review:pr",
+      "question": "H1_concern",
+      "head_max_len": 256,
+      "sequence_tokens": 1452,
+      "state": {
+        "state_tokens": 1397,
+        "state_tokens_used": 1397,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 15,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-code-review:pr",
+      "question": "H1_concern",
+      "head_max_len": 1024,
+      "sequence_tokens": 1452,
+      "state": {
+        "state_tokens": 1397,
+        "state_tokens_used": 1397,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 15,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-code-review:pr",
+      "question": "H1_severity",
+      "head_max_len": 256,
+      "sequence_tokens": 1444,
+      "state": {
+        "state_tokens": 1397,
+        "state_tokens_used": 1397,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 13,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-code-review:pr",
+      "question": "H1_severity",
+      "head_max_len": 1024,
+      "sequence_tokens": 1444,
+      "state": {
+        "state_tokens": 1397,
+        "state_tokens_used": 1397,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 13,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-code-review:pr",
+      "question": "H2_concern",
+      "head_max_len": 256,
+      "sequence_tokens": 1452,
+      "state": {
+        "state_tokens": 1397,
+        "state_tokens_used": 1397,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 15,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-code-review:pr",
+      "question": "H2_concern",
+      "head_max_len": 1024,
+      "sequence_tokens": 1452,
+      "state": {
+        "state_tokens": 1397,
+        "state_tokens_used": 1397,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 15,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-code-review:pr",
+      "question": "H2_severity",
+      "head_max_len": 256,
+      "sequence_tokens": 1444,
+      "state": {
+        "state_tokens": 1397,
+        "state_tokens_used": 1397,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 13,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-code-review:pr",
+      "question": "H2_severity",
+      "head_max_len": 1024,
+      "sequence_tokens": 1444,
+      "state": {
+        "state_tokens": 1397,
+        "state_tokens_used": 1397,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 13,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-code-review:pr",
+      "question": "H3_concern",
+      "head_max_len": 256,
+      "sequence_tokens": 1452,
+      "state": {
+        "state_tokens": 1397,
+        "state_tokens_used": 1397,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 15,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-code-review:pr",
+      "question": "H3_concern",
+      "head_max_len": 1024,
+      "sequence_tokens": 1452,
+      "state": {
+        "state_tokens": 1397,
+        "state_tokens_used": 1397,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 15,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-code-review:pr",
+      "question": "H3_severity",
+      "head_max_len": 256,
+      "sequence_tokens": 1444,
+      "state": {
+        "state_tokens": 1397,
+        "state_tokens_used": 1397,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 13,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-code-review:pr",
+      "question": "H3_severity",
+      "head_max_len": 1024,
+      "sequence_tokens": 1444,
+      "state": {
+        "state_tokens": 1397,
+        "state_tokens_used": 1397,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 13,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-code-review:pr",
+      "question": "tests_prove_safe",
+      "head_max_len": 256,
+      "sequence_tokens": 1439,
+      "state": {
+        "state_tokens": 1397,
+        "state_tokens_used": 1397,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 20,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-code-review:pr",
+      "question": "tests_prove_safe",
+      "head_max_len": 1024,
+      "sequence_tokens": 1439,
+      "state": {
+        "state_tokens": 1397,
+        "state_tokens_used": 1397,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 20,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B1",
+      "head_max_len": 256,
+      "sequence_tokens": 438,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B1",
+      "head_max_len": 1024,
+      "sequence_tokens": 438,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B2",
+      "head_max_len": 256,
+      "sequence_tokens": 438,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B2",
+      "head_max_len": 1024,
+      "sequence_tokens": 438,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B3",
+      "head_max_len": 256,
+      "sequence_tokens": 438,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B3",
+      "head_max_len": 1024,
+      "sequence_tokens": 438,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B4",
+      "head_max_len": 256,
+      "sequence_tokens": 438,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B4",
+      "head_max_len": 1024,
+      "sequence_tokens": 438,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B5",
+      "head_max_len": 256,
+      "sequence_tokens": 438,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B5",
+      "head_max_len": 1024,
+      "sequence_tokens": 438,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B6",
+      "head_max_len": 256,
+      "sequence_tokens": 438,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B6",
+      "head_max_len": 1024,
+      "sequence_tokens": 438,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B7",
+      "head_max_len": 256,
+      "sequence_tokens": 438,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B7",
+      "head_max_len": 1024,
+      "sequence_tokens": 438,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B8",
+      "head_max_len": 256,
+      "sequence_tokens": 438,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B8",
+      "head_max_len": 1024,
+      "sequence_tokens": 438,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B2_B4_same",
+      "head_max_len": 256,
+      "sequence_tokens": 410,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 17,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-context:compaction",
+      "question": "B2_B4_same",
+      "head_max_len": 1024,
+      "sequence_tokens": 410,
+      "state": {
+        "state_tokens": 371,
+        "state_tokens_used": 371,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 17,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-documents:contract",
+      "question": "notice_period",
+      "head_max_len": 256,
+      "sequence_tokens": 433,
+      "state": {
+        "state_tokens": 336,
+        "state_tokens_used": 336,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 9,
+        "options_distinct": 9,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 17,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-documents:contract",
+      "question": "notice_period",
+      "head_max_len": 1024,
+      "sequence_tokens": 433,
+      "state": {
+        "state_tokens": 336,
+        "state_tokens_used": 336,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 9,
+        "options_distinct": 9,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 17,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-documents:contract",
+      "question": "post_termination_data",
+      "head_max_len": 256,
+      "sequence_tokens": 434,
+      "state": {
+        "state_tokens": 336,
+        "state_tokens_used": 336,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 9,
+        "options_distinct": 9,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-documents:contract",
+      "question": "post_termination_data",
+      "head_max_len": 1024,
+      "sequence_tokens": 434,
+      "state": {
+        "state_tokens": 336,
+        "state_tokens_used": 336,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 9,
+        "options_distinct": 9,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-documents:contract",
+      "question": "late_fee",
+      "head_max_len": 256,
+      "sequence_tokens": 442,
+      "state": {
+        "state_tokens": 336,
+        "state_tokens_used": 336,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 9,
+        "options_distinct": 9,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 26,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-documents:contract",
+      "question": "late_fee",
+      "head_max_len": 1024,
+      "sequence_tokens": 442,
+      "state": {
+        "state_tokens": 336,
+        "state_tokens_used": 336,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 9,
+        "options_distinct": 9,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 26,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-documents:contract",
+      "question": "claim_refund",
+      "head_max_len": 256,
+      "sequence_tokens": 400,
+      "state": {
+        "state_tokens": 336,
+        "state_tokens_used": 336,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 21,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-documents:contract",
+      "question": "claim_refund",
+      "head_max_len": 1024,
+      "sequence_tokens": 400,
+      "state": {
+        "state_tokens": 336,
+        "state_tokens_used": 336,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 21,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-documents:contract",
+      "question": "claim_location",
+      "head_max_len": 256,
+      "sequence_tokens": 391,
+      "state": {
+        "state_tokens": 336,
+        "state_tokens_used": 336,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 12,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-documents:contract",
+      "question": "claim_location",
+      "head_max_len": 1024,
+      "sequence_tokens": 391,
+      "state": {
+        "state_tokens": 336,
+        "state_tokens_used": 336,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 12,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-documents:contract",
+      "question": "claim_sla_credit",
+      "head_max_len": 256,
+      "sequence_tokens": 409,
+      "state": {
+        "state_tokens": 336,
+        "state_tokens_used": 336,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-documents:contract",
+      "question": "claim_sla_credit",
+      "head_max_len": 1024,
+      "sequence_tokens": 409,
+      "state": {
+        "state_tokens": 336,
+        "state_tokens_used": 336,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-find-code:minishop",
+      "question": "webhook_signature",
+      "head_max_len": 256,
+      "sequence_tokens": 1531,
+      "state": {
+        "state_tokens": 1376,
+        "state_tokens_used": 1376,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 8,
+        "options_distinct": 8,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 15,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-find-code:minishop",
+      "question": "webhook_signature",
+      "head_max_len": 1024,
+      "sequence_tokens": 1531,
+      "state": {
+        "state_tokens": 1376,
+        "state_tokens_used": 1376,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 8,
+        "options_distinct": 8,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 15,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-find-code:minishop",
+      "question": "backoff_delay",
+      "head_max_len": 256,
+      "sequence_tokens": 1529,
+      "state": {
+        "state_tokens": 1376,
+        "state_tokens_used": 1376,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 8,
+        "options_distinct": 8,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 13,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-find-code:minishop",
+      "question": "backoff_delay",
+      "head_max_len": 1024,
+      "sequence_tokens": 1529,
+      "state": {
+        "state_tokens": 1376,
+        "state_tokens_used": 1376,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 8,
+        "options_distinct": 8,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 13,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-find-code:minishop",
+      "question": "refund_cap",
+      "head_max_len": 256,
+      "sequence_tokens": 1530,
+      "state": {
+        "state_tokens": 1376,
+        "state_tokens_used": 1376,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 8,
+        "options_distinct": 8,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-find-code:minishop",
+      "question": "refund_cap",
+      "head_max_len": 1024,
+      "sequence_tokens": 1530,
+      "state": {
+        "state_tokens": 1376,
+        "state_tokens_used": 1376,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 8,
+        "options_distinct": 8,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-find-code:minishop",
+      "question": "reset_email_body",
+      "head_max_len": 256,
+      "sequence_tokens": 1538,
+      "state": {
+        "state_tokens": 1376,
+        "state_tokens_used": 1376,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 8,
+        "options_distinct": 8,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 22,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-find-code:minishop",
+      "question": "reset_email_body",
+      "head_max_len": 1024,
+      "sequence_tokens": 1538,
+      "state": {
+        "state_tokens": 1376,
+        "state_tokens_used": 1376,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 8,
+        "options_distinct": 8,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 22,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-route:routing",
+      "question": "T1",
+      "head_max_len": 256,
+      "sequence_tokens": 418,
+      "state": {
+        "state_tokens": 280,
+        "state_tokens_used": 280,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 5,
+        "options_distinct": 5,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-route:routing",
+      "question": "T1",
+      "head_max_len": 1024,
+      "sequence_tokens": 418,
+      "state": {
+        "state_tokens": 280,
+        "state_tokens_used": 280,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 5,
+        "options_distinct": 5,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-route:routing",
+      "question": "T2",
+      "head_max_len": 256,
+      "sequence_tokens": 418,
+      "state": {
+        "state_tokens": 280,
+        "state_tokens_used": 280,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 5,
+        "options_distinct": 5,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-route:routing",
+      "question": "T2",
+      "head_max_len": 1024,
+      "sequence_tokens": 418,
+      "state": {
+        "state_tokens": 280,
+        "state_tokens_used": 280,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 5,
+        "options_distinct": 5,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-route:routing",
+      "question": "T3",
+      "head_max_len": 256,
+      "sequence_tokens": 418,
+      "state": {
+        "state_tokens": 280,
+        "state_tokens_used": 280,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 5,
+        "options_distinct": 5,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-route:routing",
+      "question": "T3",
+      "head_max_len": 1024,
+      "sequence_tokens": 418,
+      "state": {
+        "state_tokens": 280,
+        "state_tokens_used": 280,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 5,
+        "options_distinct": 5,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-route:routing",
+      "question": "T4",
+      "head_max_len": 256,
+      "sequence_tokens": 418,
+      "state": {
+        "state_tokens": 280,
+        "state_tokens_used": 280,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 5,
+        "options_distinct": 5,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-route:routing",
+      "question": "T4",
+      "head_max_len": 1024,
+      "sequence_tokens": 418,
+      "state": {
+        "state_tokens": 280,
+        "state_tokens_used": 280,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 5,
+        "options_distinct": 5,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-route:routing",
+      "question": "T5",
+      "head_max_len": 256,
+      "sequence_tokens": 418,
+      "state": {
+        "state_tokens": 280,
+        "state_tokens_used": 280,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 5,
+        "options_distinct": 5,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-route:routing",
+      "question": "T5",
+      "head_max_len": 1024,
+      "sequence_tokens": 418,
+      "state": {
+        "state_tokens": 280,
+        "state_tokens_used": 280,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 5,
+        "options_distinct": 5,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K01_category",
+      "head_max_len": 256,
+      "sequence_tokens": 289,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K01_category",
+      "head_max_len": 1024,
+      "sequence_tokens": 289,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K01_refund",
+      "head_max_len": 256,
+      "sequence_tokens": 189,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K01_refund",
+      "head_max_len": 1024,
+      "sequence_tokens": 189,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K01_urgency",
+      "head_max_len": 256,
+      "sequence_tokens": 231,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K01_urgency",
+      "head_max_len": 1024,
+      "sequence_tokens": 231,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K02_category",
+      "head_max_len": 256,
+      "sequence_tokens": 289,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K02_category",
+      "head_max_len": 1024,
+      "sequence_tokens": 289,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K02_refund",
+      "head_max_len": 256,
+      "sequence_tokens": 189,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K02_refund",
+      "head_max_len": 1024,
+      "sequence_tokens": 189,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K02_urgency",
+      "head_max_len": 256,
+      "sequence_tokens": 231,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K02_urgency",
+      "head_max_len": 1024,
+      "sequence_tokens": 231,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K03_category",
+      "head_max_len": 256,
+      "sequence_tokens": 289,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K03_category",
+      "head_max_len": 1024,
+      "sequence_tokens": 289,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K03_refund",
+      "head_max_len": 256,
+      "sequence_tokens": 189,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K03_refund",
+      "head_max_len": 1024,
+      "sequence_tokens": 189,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K03_urgency",
+      "head_max_len": 256,
+      "sequence_tokens": 231,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K03_urgency",
+      "head_max_len": 1024,
+      "sequence_tokens": 231,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K04_category",
+      "head_max_len": 256,
+      "sequence_tokens": 289,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K04_category",
+      "head_max_len": 1024,
+      "sequence_tokens": 289,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K04_refund",
+      "head_max_len": 256,
+      "sequence_tokens": 189,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K04_refund",
+      "head_max_len": 1024,
+      "sequence_tokens": 189,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K04_urgency",
+      "head_max_len": 256,
+      "sequence_tokens": 231,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch1",
+      "question": "K04_urgency",
+      "head_max_len": 1024,
+      "sequence_tokens": 231,
+      "state": {
+        "state_tokens": 149,
+        "state_tokens_used": 149,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K05_category",
+      "head_max_len": 256,
+      "sequence_tokens": 286,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K05_category",
+      "head_max_len": 1024,
+      "sequence_tokens": 286,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K05_refund",
+      "head_max_len": 256,
+      "sequence_tokens": 186,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K05_refund",
+      "head_max_len": 1024,
+      "sequence_tokens": 186,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K05_urgency",
+      "head_max_len": 256,
+      "sequence_tokens": 228,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K05_urgency",
+      "head_max_len": 1024,
+      "sequence_tokens": 228,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K06_category",
+      "head_max_len": 256,
+      "sequence_tokens": 286,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K06_category",
+      "head_max_len": 1024,
+      "sequence_tokens": 286,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K06_refund",
+      "head_max_len": 256,
+      "sequence_tokens": 186,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K06_refund",
+      "head_max_len": 1024,
+      "sequence_tokens": 186,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K06_urgency",
+      "head_max_len": 256,
+      "sequence_tokens": 228,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K06_urgency",
+      "head_max_len": 1024,
+      "sequence_tokens": 228,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K07_category",
+      "head_max_len": 256,
+      "sequence_tokens": 286,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K07_category",
+      "head_max_len": 1024,
+      "sequence_tokens": 286,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K07_refund",
+      "head_max_len": 256,
+      "sequence_tokens": 186,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K07_refund",
+      "head_max_len": 1024,
+      "sequence_tokens": 186,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K07_urgency",
+      "head_max_len": 256,
+      "sequence_tokens": 228,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K07_urgency",
+      "head_max_len": 1024,
+      "sequence_tokens": 228,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K08_category",
+      "head_max_len": 256,
+      "sequence_tokens": 286,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K08_category",
+      "head_max_len": 1024,
+      "sequence_tokens": 286,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K08_refund",
+      "head_max_len": 256,
+      "sequence_tokens": 186,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K08_refund",
+      "head_max_len": 1024,
+      "sequence_tokens": 186,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K08_urgency",
+      "head_max_len": 256,
+      "sequence_tokens": 228,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch2",
+      "question": "K08_urgency",
+      "head_max_len": 1024,
+      "sequence_tokens": 228,
+      "state": {
+        "state_tokens": 146,
+        "state_tokens_used": 146,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K09_category",
+      "head_max_len": 256,
+      "sequence_tokens": 273,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K09_category",
+      "head_max_len": 1024,
+      "sequence_tokens": 273,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K09_refund",
+      "head_max_len": 256,
+      "sequence_tokens": 173,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K09_refund",
+      "head_max_len": 1024,
+      "sequence_tokens": 173,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K09_urgency",
+      "head_max_len": 256,
+      "sequence_tokens": 215,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K09_urgency",
+      "head_max_len": 1024,
+      "sequence_tokens": 215,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K10_category",
+      "head_max_len": 256,
+      "sequence_tokens": 273,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K10_category",
+      "head_max_len": 1024,
+      "sequence_tokens": 273,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K10_refund",
+      "head_max_len": 256,
+      "sequence_tokens": 173,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K10_refund",
+      "head_max_len": 1024,
+      "sequence_tokens": 173,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K10_urgency",
+      "head_max_len": 256,
+      "sequence_tokens": 215,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K10_urgency",
+      "head_max_len": 1024,
+      "sequence_tokens": 215,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K11_category",
+      "head_max_len": 256,
+      "sequence_tokens": 273,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K11_category",
+      "head_max_len": 1024,
+      "sequence_tokens": 273,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K11_refund",
+      "head_max_len": 256,
+      "sequence_tokens": 173,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K11_refund",
+      "head_max_len": 1024,
+      "sequence_tokens": 173,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K11_urgency",
+      "head_max_len": 256,
+      "sequence_tokens": 215,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K11_urgency",
+      "head_max_len": 1024,
+      "sequence_tokens": 215,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K12_category",
+      "head_max_len": 256,
+      "sequence_tokens": 273,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K12_category",
+      "head_max_len": 1024,
+      "sequence_tokens": 273,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 6,
+        "options_distinct": 6,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 28,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K12_refund",
+      "head_max_len": 256,
+      "sequence_tokens": 173,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K12_refund",
+      "head_max_len": 1024,
+      "sequence_tokens": 173,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 18,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K12_urgency",
+      "head_max_len": 256,
+      "sequence_tokens": 215,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-triage:batch3",
+      "question": "K12_urgency",
+      "head_max_len": 1024,
+      "sequence_tokens": 215,
+      "state": {
+        "state_tokens": 133,
+        "state_tokens_used": 133,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 25,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R1",
+      "question": "outcome",
+      "head_max_len": 256,
+      "sequence_tokens": 238,
+      "state": {
+        "state_tokens": 156,
+        "state_tokens_used": 156,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 36,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R1",
+      "question": "outcome",
+      "head_max_len": 1024,
+      "sequence_tokens": 238,
+      "state": {
+        "state_tokens": 156,
+        "state_tokens_used": 156,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 36,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R1",
+      "question": "evidence",
+      "head_max_len": 256,
+      "sequence_tokens": 224,
+      "state": {
+        "state_tokens": 156,
+        "state_tokens_used": 156,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 26,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R1",
+      "question": "evidence",
+      "head_max_len": 1024,
+      "sequence_tokens": 224,
+      "state": {
+        "state_tokens": 156,
+        "state_tokens_used": 156,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 26,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R2",
+      "question": "outcome",
+      "head_max_len": 256,
+      "sequence_tokens": 239,
+      "state": {
+        "state_tokens": 157,
+        "state_tokens_used": 157,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 36,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R2",
+      "question": "outcome",
+      "head_max_len": 1024,
+      "sequence_tokens": 239,
+      "state": {
+        "state_tokens": 157,
+        "state_tokens_used": 157,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 36,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R2",
+      "question": "evidence",
+      "head_max_len": 256,
+      "sequence_tokens": 225,
+      "state": {
+        "state_tokens": 157,
+        "state_tokens_used": 157,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 26,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R2",
+      "question": "evidence",
+      "head_max_len": 1024,
+      "sequence_tokens": 225,
+      "state": {
+        "state_tokens": 157,
+        "state_tokens_used": 157,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 26,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R3",
+      "question": "outcome",
+      "head_max_len": 256,
+      "sequence_tokens": 275,
+      "state": {
+        "state_tokens": 193,
+        "state_tokens_used": 193,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 36,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R3",
+      "question": "outcome",
+      "head_max_len": 1024,
+      "sequence_tokens": 275,
+      "state": {
+        "state_tokens": 193,
+        "state_tokens_used": 193,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 36,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R3",
+      "question": "evidence",
+      "head_max_len": 256,
+      "sequence_tokens": 261,
+      "state": {
+        "state_tokens": 193,
+        "state_tokens_used": 193,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 26,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R3",
+      "question": "evidence",
+      "head_max_len": 1024,
+      "sequence_tokens": 261,
+      "state": {
+        "state_tokens": 193,
+        "state_tokens_used": 193,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 26,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R4",
+      "question": "outcome",
+      "head_max_len": 256,
+      "sequence_tokens": 250,
+      "state": {
+        "state_tokens": 168,
+        "state_tokens_used": 168,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 36,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R4",
+      "question": "outcome",
+      "head_max_len": 1024,
+      "sequence_tokens": 250,
+      "state": {
+        "state_tokens": 168,
+        "state_tokens_used": 168,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 36,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R4",
+      "question": "evidence",
+      "head_max_len": 256,
+      "sequence_tokens": 236,
+      "state": {
+        "state_tokens": 168,
+        "state_tokens_used": 168,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 26,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R4",
+      "question": "evidence",
+      "head_max_len": 1024,
+      "sequence_tokens": 236,
+      "state": {
+        "state_tokens": 168,
+        "state_tokens_used": 168,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 26,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R5",
+      "question": "outcome",
+      "head_max_len": 256,
+      "sequence_tokens": 205,
+      "state": {
+        "state_tokens": 123,
+        "state_tokens_used": 123,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 36,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R5",
+      "question": "outcome",
+      "head_max_len": 1024,
+      "sequence_tokens": 205,
+      "state": {
+        "state_tokens": 123,
+        "state_tokens_used": 123,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 36,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R5",
+      "question": "evidence",
+      "head_max_len": 256,
+      "sequence_tokens": 191,
+      "state": {
+        "state_tokens": 123,
+        "state_tokens_used": 123,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 26,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "jev-redteam:R5",
+      "question": "evidence",
+      "head_max_len": 1024,
+      "sequence_tokens": 191,
+      "state": {
+        "state_tokens": 123,
+        "state_tokens_used": 123,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 26,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "npc:turn1",
+      "question": "npc_action",
+      "head_max_len": 256,
+      "sequence_tokens": 322,
+      "state": {
+        "state_tokens": 164,
+        "state_tokens_used": 164,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 16,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "npc:turn1",
+      "question": "npc_action",
+      "head_max_len": 1024,
+      "sequence_tokens": 322,
+      "state": {
+        "state_tokens": 164,
+        "state_tokens_used": 164,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 16,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "npc:turn2",
+      "question": "npc_action",
+      "head_max_len": 256,
+      "sequence_tokens": 350,
+      "state": {
+        "state_tokens": 192,
+        "state_tokens_used": 192,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 16,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "npc:turn2",
+      "question": "npc_action",
+      "head_max_len": 1024,
+      "sequence_tokens": 350,
+      "state": {
+        "state_tokens": 192,
+        "state_tokens_used": 192,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 16,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "npc:turn3",
+      "question": "npc_action",
+      "head_max_len": 256,
+      "sequence_tokens": 380,
+      "state": {
+        "state_tokens": 222,
+        "state_tokens_used": 222,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 16,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "npc:turn3",
+      "question": "npc_action",
+      "head_max_len": 1024,
+      "sequence_tokens": 380,
+      "state": {
+        "state_tokens": 222,
+        "state_tokens_used": 222,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 16,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "npc:turn4",
+      "question": "npc_action",
+      "head_max_len": 256,
+      "sequence_tokens": 386,
+      "state": {
+        "state_tokens": 228,
+        "state_tokens_used": 228,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 16,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "npc:turn4",
+      "question": "npc_action",
+      "head_max_len": 1024,
+      "sequence_tokens": 386,
+      "state": {
+        "state_tokens": 228,
+        "state_tokens_used": 228,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 16,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "npc:turn5",
+      "question": "npc_action",
+      "head_max_len": 256,
+      "sequence_tokens": 389,
+      "state": {
+        "state_tokens": 231,
+        "state_tokens_used": 231,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 16,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "npc:turn5",
+      "question": "npc_action",
+      "head_max_len": 1024,
+      "sequence_tokens": 389,
+      "state": {
+        "state_tokens": 231,
+        "state_tokens_used": 231,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 16,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "npc:turn6",
+      "question": "npc_action",
+      "head_max_len": 256,
+      "sequence_tokens": 388,
+      "state": {
+        "state_tokens": 230,
+        "state_tokens_used": 230,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 16,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "npc:turn6",
+      "question": "npc_action",
+      "head_max_len": 1024,
+      "sequence_tokens": 388,
+      "state": {
+        "state_tokens": 230,
+        "state_tokens_used": 230,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 16,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn1",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 231,
+      "state": {
+        "state_tokens": 172,
+        "state_tokens_used": 172,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn1",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 231,
+      "state": {
+        "state_tokens": 172,
+        "state_tokens_used": 172,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn2",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 237,
+      "state": {
+        "state_tokens": 178,
+        "state_tokens_used": 178,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn2",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 237,
+      "state": {
+        "state_tokens": 178,
+        "state_tokens_used": 178,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn3",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 259,
+      "state": {
+        "state_tokens": 184,
+        "state_tokens_used": 184,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn3",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 259,
+      "state": {
+        "state_tokens": 184,
+        "state_tokens_used": 184,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn4",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 249,
+      "state": {
+        "state_tokens": 190,
+        "state_tokens_used": 190,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn4",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 249,
+      "state": {
+        "state_tokens": 190,
+        "state_tokens_used": 190,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn5",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn5",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn6",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn6",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn7",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn7",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn8",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn8",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn9",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn9",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn10",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn10",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn11",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn11",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn12",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn12",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn13",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn13",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn14",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn14",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn15",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn15",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn16",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn16",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn17",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn17",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn18",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn18",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn19",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn19",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn20",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn20",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn21",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn21",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn22",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn22",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn23",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn23",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn24",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn24",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn25",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn25",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn26",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn26",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn27",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn27",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn28",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn28",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn29",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn29",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 255,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn30",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid:turn30",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 271,
+      "state": {
+        "state_tokens": 196,
+        "state_tokens_used": 196,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 14,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn1",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 394,
+      "state": {
+        "state_tokens": 319,
+        "state_tokens_used": 319,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn1",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 394,
+      "state": {
+        "state_tokens": 319,
+        "state_tokens_used": 319,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn2",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 408,
+      "state": {
+        "state_tokens": 317,
+        "state_tokens_used": 317,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn2",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 408,
+      "state": {
+        "state_tokens": 317,
+        "state_tokens_used": 317,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn3",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 405,
+      "state": {
+        "state_tokens": 314,
+        "state_tokens_used": 314,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn3",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 405,
+      "state": {
+        "state_tokens": 314,
+        "state_tokens_used": 314,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn4",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 402,
+      "state": {
+        "state_tokens": 311,
+        "state_tokens_used": 311,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn4",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 402,
+      "state": {
+        "state_tokens": 311,
+        "state_tokens_used": 311,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn5",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 414,
+      "state": {
+        "state_tokens": 307,
+        "state_tokens_used": 307,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 5,
+        "options_distinct": 5,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn5",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 414,
+      "state": {
+        "state_tokens": 307,
+        "state_tokens_used": 307,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 5,
+        "options_distinct": 5,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn6",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 389,
+      "state": {
+        "state_tokens": 298,
+        "state_tokens_used": 298,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn6",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 389,
+      "state": {
+        "state_tokens": 298,
+        "state_tokens_used": 298,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn7",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 380,
+      "state": {
+        "state_tokens": 289,
+        "state_tokens_used": 289,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn7",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 380,
+      "state": {
+        "state_tokens": 289,
+        "state_tokens_used": 289,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn8",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 371,
+      "state": {
+        "state_tokens": 280,
+        "state_tokens_used": 280,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn8",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 371,
+      "state": {
+        "state_tokens": 280,
+        "state_tokens_used": 280,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn9",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 362,
+      "state": {
+        "state_tokens": 271,
+        "state_tokens_used": 271,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn9",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 362,
+      "state": {
+        "state_tokens": 271,
+        "state_tokens_used": 271,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn10",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 337,
+      "state": {
+        "state_tokens": 262,
+        "state_tokens_used": 262,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn10",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 337,
+      "state": {
+        "state_tokens": 262,
+        "state_tokens_used": 262,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn11",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 334,
+      "state": {
+        "state_tokens": 248,
+        "state_tokens_used": 248,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn11",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 334,
+      "state": {
+        "state_tokens": 248,
+        "state_tokens_used": 248,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn12",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 400,
+      "state": {
+        "state_tokens": 325,
+        "state_tokens_used": 325,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn12",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 400,
+      "state": {
+        "state_tokens": 325,
+        "state_tokens_used": 325,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn13",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 407,
+      "state": {
+        "state_tokens": 316,
+        "state_tokens_used": 316,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn13",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 407,
+      "state": {
+        "state_tokens": 316,
+        "state_tokens_used": 316,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn14",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 382,
+      "state": {
+        "state_tokens": 307,
+        "state_tokens_used": 307,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn14",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 382,
+      "state": {
+        "state_tokens": 307,
+        "state_tokens_used": 307,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 3,
+        "options_distinct": 3,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn15",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 389,
+      "state": {
+        "state_tokens": 298,
+        "state_tokens_used": 298,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn15",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 389,
+      "state": {
+        "state_tokens": 298,
+        "state_tokens_used": 298,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn16",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 380,
+      "state": {
+        "state_tokens": 289,
+        "state_tokens_used": 289,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn16",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 380,
+      "state": {
+        "state_tokens": 289,
+        "state_tokens_used": 289,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn17",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 371,
+      "state": {
+        "state_tokens": 280,
+        "state_tokens_used": 280,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn17",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 371,
+      "state": {
+        "state_tokens": 280,
+        "state_tokens_used": 280,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn18",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 362,
+      "state": {
+        "state_tokens": 271,
+        "state_tokens_used": 271,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn18",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 362,
+      "state": {
+        "state_tokens": 271,
+        "state_tokens_used": 271,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn19",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 353,
+      "state": {
+        "state_tokens": 262,
+        "state_tokens_used": 262,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn19",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 353,
+      "state": {
+        "state_tokens": 262,
+        "state_tokens_used": 262,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn20",
+      "question": "action",
+      "head_max_len": 256,
+      "sequence_tokens": 333,
+      "state": {
+        "state_tokens": 248,
+        "state_tokens_used": 248,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "grid_planned:turn20",
+      "question": "action",
+      "head_max_len": 1024,
+      "sequence_tokens": 333,
+      "state": {
+        "state_tokens": 248,
+        "state_tokens_used": 248,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 30,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "ui_settings:turn1",
+      "question": "next",
+      "head_max_len": 256,
+      "sequence_tokens": 480,
+      "state": {
+        "state_tokens": 364,
+        "state_tokens_used": 364,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 12,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "ui_settings:turn1",
+      "question": "next",
+      "head_max_len": 1024,
+      "sequence_tokens": 480,
+      "state": {
+        "state_tokens": 364,
+        "state_tokens_used": 364,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 12,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "ui_settings:turn2",
+      "question": "next",
+      "head_max_len": 256,
+      "sequence_tokens": 495,
+      "state": {
+        "state_tokens": 375,
+        "state_tokens_used": 375,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 12,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "ui_settings:turn2",
+      "question": "next",
+      "head_max_len": 1024,
+      "sequence_tokens": 495,
+      "state": {
+        "state_tokens": 375,
+        "state_tokens_used": 375,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 12,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "ui_settings:turn3",
+      "question": "next",
+      "head_max_len": 256,
+      "sequence_tokens": 525,
+      "state": {
+        "state_tokens": 405,
+        "state_tokens_used": 405,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 12,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "ui_settings:turn3",
+      "question": "next",
+      "head_max_len": 1024,
+      "sequence_tokens": 525,
+      "state": {
+        "state_tokens": 405,
+        "state_tokens_used": 405,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 7,
+        "options_distinct": 7,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 12,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "ui_checkout:turn1",
+      "question": "total_ok",
+      "head_max_len": 256,
+      "sequence_tokens": 554,
+      "state": {
+        "state_tokens": 509,
+        "state_tokens_used": 509,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 23,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "ui_checkout:turn1",
+      "question": "total_ok",
+      "head_max_len": 1024,
+      "sequence_tokens": 554,
+      "state": {
+        "state_tokens": 509,
+        "state_tokens_used": 509,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 2,
+        "options_distinct": 2,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 23,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "ui_checkout:turn1",
+      "question": "next",
+      "head_max_len": 256,
+      "sequence_tokens": 586,
+      "state": {
+        "state_tokens": 509,
+        "state_tokens_used": 509,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 8,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "ui_checkout:turn1",
+      "question": "next",
+      "head_max_len": 1024,
+      "sequence_tokens": 586,
+      "state": {
+        "state_tokens": 509,
+        "state_tokens_used": 509,
+        "state_tokens_dropped": 0,
+        "truncated": false
+      },
+      "options": {
+        "options": 4,
+        "options_distinct": 4,
+        "tokens_per_option": null
+      },
+      "instruction_tokens": 8,
+      "instruction_tokens_dropped": 0,
+      "option_tokens_dropped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

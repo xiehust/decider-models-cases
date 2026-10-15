@@ -1,0 +1,25 @@
+{
+  "filters": {
+    "instanceType": "g5.2xlarge",
+    "location": "Asia Pacific (Tokyo)",
+    "operatingSystem": "Linux",
+    "tenancy": "Shared",
+    "preInstalledSw": "NA",
+    "capacitystatus": "Used"
+  },
+  "prices": [
+    {
+      "sku": "Y8CFMSJ9QDQZ92MB",
+      "effective": "2026-10-01T00:00:00Z",
+      "unit": "Hrs",
+      "endRange": "Inf",
+      "description": "$1.75776 per On Demand Linux g5.2xlarge Instance Hour",
+      "appliesTo": [],
+      "rateCode": "Y8CFMSJ9QDQZ92MB.JRTCKXETXF.6YS6EN2CT7",
+      "beginRange": "0",
+      "pricePerUnit": {
+        "USD": "1.7577600000"
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "kind": "offline_checks_not_model_results",
+  "existing_unittests": "19 passed",
+  "payload_no_oracle": true,
+  "error_stops_without_retry": true,
+  "requests": 76,
+  "corrected_ui_ids": [
+    "ui_settings:turn1",
+    "ui_settings:turn2"
+  ],
+  "requests_sha256": "13a36c9fca0eb467b6a1eee2d1ac7f676828bb0b04c73e69ac1b2e86b75cc927"
+}

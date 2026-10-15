@@ -1,0 +1,15 @@
+[
+  {
+    "sku": "6EVSM9MX8J6C6FZB",
+    "effective": "2026-10-01T00:00:00Z",
+    "unit": "Hrs",
+    "endRange": "Inf",
+    "description": "$1.459 per On Demand Linux g5.xlarge Instance Hour",
+    "appliesTo": [],
+    "rateCode": "6EVSM9MX8J6C6FZB.JRTCKXETXF.6YS6EN2CT7",
+    "beginRange": "0",
+    "pricePerUnit": {
+      "USD": "1.4590000000"
+    }
+  }
+]

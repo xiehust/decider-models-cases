@@ -14,7 +14,7 @@ V2 = Path(__file__).resolve().parent
 sys.path.insert(0, str(V2))
 sys.path.insert(0, str(V2.parent))
 import report_charts as C  # noqa: E402
-from report_content import SCENARIOS, FINDINGS  # noqa: E402
+from report_content import SCENARIOS  # noqa: E402
 from report_data import Data  # noqa: E402
 
 ROOT = V2.parent.parent
@@ -55,12 +55,12 @@ def page(title, body, active=None, depth=0):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{e(title)} · Jev 应用场景验证报告</title>
+<title>{e(title)} · Decider 决策模型评测报告</title>
 <link rel="stylesheet" href="{up}assets/style.css">
 </head>
 <body>
 <header class="topbar"><div class="inner">
-  <a class="brand" href="{up}index.html"><span class="logo">J</span>Jev 场景验证</a>
+  <a class="brand" href="{up}index.html"><span class="logo">D</span>Decider 模型评测</a>
   <nav class="nav">{''.join(links)}</nav>
 </div></header>
 {tidy_cjk_whitespace(body)}
@@ -70,9 +70,11 @@ def page(title, body, active=None, depth=0):
 
 
 def footer(d):
-    return (f'<div class="footer">数据来源：<code>validation/v2/live-v2-20261012.jsonl</code>、'
-            f'<code>validation/v2/live-v2-grid-planned-20261012.jsonl</code>、v1 基线 <code>validation/live-20261012.jsonl</code>。'
-            f'模型 {e(", ".join(d.usage["models"]))}，经 OpenRouter 调用。测试材料全部是为本报告专门编写的合成内容。'
+    return (f'<div class="footer">Decider 决策模型评测：Jev、Strands Decider 2B、Laya Multilingual；'
+            f'LLM 参照：Claude Opus 5.5、Claude Haiku 5.5、GPT-6 Luna。'
+            f'数据来自 <code>validation/v2/</code> 下的 <code>live-v2-*.jsonl</code>、'
+            f'<code>llm-baseline*.jsonl</code> 及 UI 修正回执；历史 v1 样例单独标注。'
+            f'测试材料全部是为本报告编写的合成内容。'
             f'页面由 <code>validation/v2/build_report.py</code> 根据原始调用记录生成，数字没有经过手工改动。</div>')
 
 
@@ -179,7 +181,7 @@ def v1_baseline(d, skill):
         miss = [c['question'] for c in r['checks'] if not c['passed']]
         body.append(f'<tr><td class="mono small">{e(r["id"])}</td><td class="num">{ok}/{len(r["checks"])}</td>'
                     f'<td class="small">{e("、".join(miss)) if miss else "—"}</td></tr>')
-    return ('<h3 style="margin-top:22px">v1 冒烟基线（同技能，较简单的用例）</h3><div class="table-wrap"><table><thead><tr>'
+    return ('<h3 style="margin-top:22px">原始 Jev v1 冒烟样例（历史补充证据）</h3><div class="table-wrap"><table><thead><tr>'
             '<th>v1 用例</th><th>通过</th><th>未达标问题</th></tr></thead>'
             f'<tbody>{"".join(body)}</tbody></table></div>')
 
@@ -190,10 +192,11 @@ def intro_sections(s, trigger=''):
     return f'''
 <section><div class="grid g2">
   <div class="card"><div class="eyebrow">场景介绍</div><h2>业务背景</h2>{bg}</div>
-  <div class="card"><div class="eyebrow">为什么用 Jev</div><h2>判断点</h2><p>{e(s["why"])}</p>
+  <div class="card"><div class="eyebrow">决策模型的用途</div><h2>判断点</h2><p>{e(s["why"])}</p>
     <h3 style="margin-top:14px">埋设的陷阱</h3><ul class="clean">{traps}</ul></div>
 </div></section>{trigger}
-<section><div class="card"><div class="eyebrow">工作流</div><h2>调用方与 Jev 的分工</h2>{C.flow(s["flow"])}</div></section>'''
+<section><div class="card"><div class="eyebrow">集成方式</div><h2>调用方与 Decider 模型的分工</h2>{C.flow(s["flow"])}
+<p class="small muted">图示说明职责划分；真实执行证据与同状态回放结果在下文分别标明。</p></div></section>'''
 
 
 def skill_description(skill):
@@ -221,7 +224,8 @@ def trigger_section(d, s):
     """Card: what in the skill's own SKILL.md makes this scenario a match, and how this run invoked it."""
     t = s['trigger']
     return f'''
-<section><div class="card"><div class="eyebrow">触发方式</div><h2>这个场景怎样触发 <span class="tag">{e(s["skill"])}</span></h2>
+<section id="skill-trigger" style="scroll-margin-top:78px"><div class="card"><div class="eyebrow">Skill 触发方式</div><h2>这个场景怎样触发 <span class="tag">{e(s["skill"])}</span></h2>
+  <p class="small muted">这里保留本场景对应的 Jev Skill 定义与原始调用方式，说明用例来源和接入方法。其他参评模型使用相同的 state / questions 进行判断对比。</p>
   <p class="small muted">Agent 启动时只读入每个技能的名称和 description，任务和 description 对得上，才加载完整的 SKILL.md 按其中的流程执行。
   本次测试跳过了自动匹配这一步，由验证脚本直接按技能流程构造请求。</p>
   <div class="grid g2">
@@ -245,7 +249,7 @@ def result_section(d, s):
     facts = ''.join(f'<li>{e(x)}</li>' for x in lines)
     advice = ''.join(f'<li>{e(a)}</li>' for a in s['advice'])
     return f'''
-<section><div class="card"><div class="eyebrow">测试结果与结论</div><h2>测试结果、核心结论与建议</h2>
+<section><div class="card"><div class="eyebrow">Jev 原场景验证</div><h2>Jev 严格验收、结论与建议</h2>
   <div class="grid g2">
     <div><h3>测试结果</h3><ul class="clean">{facts}</ul>
       <h3 style="margin-top:14px">核心结论</h3><p>{e(s["verdict"])}</p></div>
@@ -404,7 +408,7 @@ PROVENANCE = {
 def call_details(d, label, req, rep, open_=False):
     title = d.cases.get(label, {}).get('title', '')
     usage = rep['response']['usage']
-    head = f'<b class="mono small">{e(label)}</b>' + (f' · {e(title)}' if title else '') + f' · 输入 {usage["input_tokens"]:,} tokens'
+    head = f'<b class="mono small">{e(label)}</b>' + (f' · {e(title)}' if title else '') + f' · 原始 Jev 回执计数 {usage["input_tokens"]:,} input tokens'
     return (f'<details{" open" if open_ else ""} style="margin-top:10px"><summary>{head}</summary>'
             f'<pre><code>{e(json.dumps(request_skeleton(req), ensure_ascii=False, indent=2))}</code></pre>'
             f'<details style="margin:6px 0 4px 14px"><summary class="small">展开完整的原始请求（逐字）</summary>'
@@ -478,8 +482,9 @@ def io_sections(d, s):
     """(input section, output section) for a scenario, rendered from the run records."""
     calls = d.requests_for(s['skill'])
     provs = sorted({p for *_, p in calls})
-    intro = (f'<p>本场景共 {len(calls)} 次调用。每次调用先给出精简后的结构：长文本只保留开头或模块说明，与前面某题相同的候选只列一次。'
-             '展开后可以看到完整的原始请求。请求里没有标准答案。</p>'
+    intro = (f'<p>本场景共用 {len(calls)} 个请求。先展示精简结构，展开可查看完整原始输入。'
+             'state / questions 供所有参评模型使用；原始请求保留最初的 Jev 传输标识与分词计数，'
+             '其他模型使用各自接口适配。标准答案不随请求发出。</p>'
              + ''.join(f'<p class="small muted">{PROVENANCE[p]}</p>' for p in provs))
     groups = {}
     for c in calls:
@@ -497,7 +502,7 @@ def io_sections(d, s):
                 inp += (f'<details style="margin-top:8px"><summary class="small">其余 {len(cs) - 1} 个回合的请求</summary>'
                         + ''.join(call_details(d, *c[:3]) for c in cs[1:]) + '</details>')
             out += f'<h3 style="margin-top:16px">{e(name)}</h3>' + (output_table(cs[0][2], cs[0][1]) if g == 'ui_checkout' else loop_output_table(cs))
-    return sec('发给 Jev 的输入', inp, '输入'), sec('Jev 的原始返回', out + io_note(calls), '输出')
+    return sec('共用的 state / questions 与输入来源', inp, '输入'), sec('原始 Jev 返回与分布（历史记录）', out + io_note(calls), '输出')
 
 
 LOOP_NAME = {'npc': 'NPC 店主', 'grid': '网格变体 A（Jev 独自规划）', 'grid_planned': '网格变体 B（规划器给路线）',
@@ -715,16 +720,20 @@ def scenario_stats(d, s):
     return row['passed'], row['total'], row['review']
 
 
-def scenario_page(d, s):
-    passed, total, review = scenario_stats(d, s)
+def scenario_page(d, s, comparisons):
+    from report_scenario_models import scenario_comparison
+    ids = comparisons.ids_for(s["skill"])
+    total = comparisons.summary(ids)["jev"]["total"]
     head = f'''
 <div class="hero"><div class="wrap">
   <div class="crumb"><a href="../index.html">总览</a> / 场景 / {e(s["title"])}</div>
-  <div class="eyebrow">{e(s["skill"])}</div>
+  <div class="eyebrow">Decider 场景评测</div>
   <h1>{s["icon"]} {e(s["title"])}</h1>
   <p class="lead">{e(s["one_liner"])}</p>
-  <div class="meta"><span>{badge(passed, total, review)}</span><span>判断数 <b>{total}</b></span>
-  <span>模型 <b>{e(", ".join(d.usage["models"]))}</b></span><span>运行日期 <b>2026-10-12</b></span></div>
+  <div class="meta"><span>决策模型 <b>Jev / Strands / Laya</b></span><span>LLM 参照 <b>3 个</b></span>
+  <span>共用请求 <b>{len(ids)}</b></span><span>判断数 <b>{total}</b></span>
+  <span>评测日期 <b>2026-10-12—15</b></span></div>
+  <p class="small" style="margin-top:12px"><a href="#model-comparison">查看本场景的模型对比 →</a></p>
 </div></div>'''
     design = ''
     if s['cases']:
@@ -732,146 +741,34 @@ def scenario_page(d, s):
                      ('<p class="small muted" style="margin-top:8px">同类批次/样本使用相同的问题模板，此处只展示第一个。</p>'
                       if s['slug'] in ('triage', 'redteam') else ''), '判断设计')
     io_in, io_out = io_sections(d, s)
-    body = (head + '<main class="wrap">' + intro_sections(s, trigger_section(d, s)) + result_section(d, s) + design + io_in +
-            CUSTOM[s['slug']](d) + io_out + ui_replay_note(s) +
-            v1_baseline(d, s['skill']) + pager(s['slug']) + footer(d) + '</main>')
+    advice = sec('在本场景使用决策模型的建议',
+                 '<div class="card"><ul class="clean">' + ''.join(f'<li>{e(x)}</li>' for x in s['advice']) + '</ul></div>', '应用')
+    legacy = ('<section><details class="legacy-evidence"><summary><b>原始 Jev 实验与调用方核验</b> · 补充证据</summary>'
+              '<p class="small muted">以下记录最初的 Jev 实验、概率分布和宿主执行结果。'
+              '它们解释测试集如何产生，不作为其他模型已经完成闭环的证明。三种决策模型的横向结论以上方同题评测为准。</p>'
+              + result_section(d, s) + CUSTOM[s['slug']](d) + io_out
+              + v1_baseline(d, s['skill']) + '</details></section>')
+    body = (head + '<main class="wrap">' + intro_sections(s) + trigger_section(d, s) +
+            scenario_comparison(comparisons, d, s) +
+            advice + design + io_in + ui_replay_note(s) + legacy +
+            pager(s['slug']) + footer(d) + '</main>')
     return page(s['title'], body, s['slug'], depth=1)
 
 
 
 # --- index ---------------------------------------------------------------------------
-SKILL_ORDER = ['jev', 'jev-code-review', 'jev-context', 'jev-documents', 'jev-find-code', 'jev-route',
-               'jev-triage', 'jev-simulation', 'jev-ui', 'jev-redteam']
-
-FIT = [
-    ('大量独立的分类/打分', '工单、评论、记录分诊，每条 3～6 个问题', '非常适合', 'b-pass'),
-    ('从候选中选一个', '下一步动作、文件、条款 ID、路由、UI 控件', '非常适合', 'b-pass'),
-    ('核对主张与证据', '完成声明、合同主张、测试是否证明需求', '适合', 'b-pass'),
-    ('带分布的等级评分', '严重度、紧急度、证据强度', '适合，需读分布', 'b-warn'),
-    ('多步规划与搜索', '寻路、长链推理、任务拆解', '不适合，交给规划器', 'b-fail'),
-    ('生成文本', '写文章、写代码、写回复', '不适合，交给主模型', 'b-fail'),
-    ('精确计算与匹配', '求和、日期比较、正则匹配', '不需要，用代码', 'b-info'),
-]
-
-
-def index_page(d):
-    judg = [j for j in d.all_judgments() if j['case'] != 'grid']
-    passed, total = sum(j['passed'] for j in judg), len(judg)
-    review = sum(j['status'] == 'needs_review' for j in judg)
-    u, u1 = d.usage, d.usage_v1
-    cal = d.calibration(exclude=('grid',))
-    top = cal[-1]
-    score_miss = sum(1 for j in judg if not j['passed'] and j['kind'] == 'score')
-    a, b = d.loop_summaries['grid'], d.loop_summaries['grid_planned']
-    fills = {'top_n': top['n'], 'score_miss': score_miss, 'grid_a_turns': a['turns'], 'grid_b_turns': b['turns'],
-             'lat_median': f'{u["latency_median"]:.2f}', 'calls': u['calls'], 'cost': f'{u["cost"]:.6f}'}
-    kpis = [
-        (f'{len(SCENARIOS)}', '个应用场景', f'覆盖 jev-setup 以外的 {len(SCENARIOS)} 个 Jev 技能'),
-        (f'{u["calls"]}', '次真实 Jev 调用', f'另有 v1 基线 {u1["calls"]} 次，无重试，无错误'),
-        (f'{passed}/{total}', '判断符合标准答案', f'{review} 个进入 needs_review，不含误用对照组'),
-        (f'{u["latency_median"]:.2f}s', '单次调用中位耗时', f'P90 {u["latency_p90"]:.2f}s · 最大 {u["latency_max"]:.2f}s'),
-        (f'${u["cost"]:.4f}', 'API 返回的费用合计', f'输入 {u["input_tokens"]:,} / 输出 {u["output_tokens"]:,} tokens'),
-    ]
-    kpi_html = ''.join(f'<div class="card kpi"><div class="v">{v}</div><div class="l">{l}</div><div class="s">{s}</div></div>' for v, l, s in kpis)
-    table = d.skill_table()
-    bars = [(sk, table[sk]['passed'], table[sk]['total'], table[sk]['review']) for sk in SKILL_ORDER if sk in table]
-    cards = []
-    for s in SCENARIOS:
-        p, t, r = scenario_stats(d, s)
-        cards.append(f'<a class="card scn" href="scenarios/{s["slug"]}.html"><div class="top"><div class="icon">{s["icon"]}</div>{badge(p, t)}</div>'
-                     f'<h3>{e(s["title"])}</h3><p>{e(s["one_liner"])}</p><div class="foot"><span class="mono">{e(s["skill"])}</span>'
-                     f'<span>{t} 个判断 · 复核 {r}</span></div></a>')
-    findings = ''.join(f'<div class="callout {k}"><b>{e(t)}</b><br><span class="small">{e(x.format(**fills))}</span></div>' for k, t, x in FINDINGS)
-    fit_rows = ''.join(f'<tr><td>{e(a_)}</td><td class="small muted">{e(b_)}</td><td><span class="badge {c_}">{e(v_)}</span></td></tr>' for a_, b_, v_, c_ in FIT)
-    loop = C.flow([('1 · 框定', '目标·权限\n预算', 'host'), ('2 · 观察', '实际输出\n候选动作', 'host'),
-                   ('3 · 提问', 'choice / noul\n/ score', 'jev'), ('4 · 解读', '分布·复核\n门槛', 'check'),
-                   ('5 · 执行验证', '调用方执行一步\n读取结果', 'stop')])
-    body = f'''
-<div class="hero"><div class="wrap">
-  <div class="eyebrow">Jev Application Scenarios · Validation Report</div>
-  <h1>Jev 应用场景验证报告</h1>
-  <p class="lead">这份报告记录了 2026 年 10 月 12 日对 Jev 做的一轮验证。Jev 是一个类型化判断模型，给它候选项、是非题或评分等级，
-  它返回带概率的答案，但不写文字。本机安装了 11 个 Jev 技能，除去只负责接入配置的 jev-setup，报告为其余 {len(SCENARIOS)} 个技能各编写了一组接近真实业务、埋有陷阱的场景，
-  经 OpenRouter 真实调用后，再用测试、浏览器 DOM、规则引擎和原文比对这类确定性手段逐一核对结果。
-  下文的“调用方”指调用 Jev 并实际执行动作的 Agent 或程序。</p>
-  <div class="meta"><span>运行日期 <b>2026-10-12</b></span><span>模型 <b>{e(", ".join(u["models"]))}</b></span>
-  <span>服务 <b>OpenRouter Decisions API</b></span><span>技能版本 <b>jev-skill v0.2.0</b></span>
-  <span>浏览器 <b>Chromium 155（沙箱开启）</b></span></div>
-</div></div>
-<main class="wrap">
-<section style="margin-top:0"><div class="grid g5">{kpi_html}</div></section>
-{cost_teaser(d)}
-
-<section><div class="section-head"><div><div class="eyebrow">基础</div><h2>Jev 能回答的三种问题</h2></div></div>
-<div class="grid g3">
-  <div class="card prim"><span class="tag">choice</span><h3 style="margin-top:10px">从候选中选一个</h3>
-    <p class="small">返回每个候选的概率，用于下一步动作、路由、类别、条款 ID 这类选择。候选里<b>必须</b>留一个出口，比如 unknown、none 或 ask_user。</p></div>
-  <div class="card prim noul"><span class="tag">noul</span><h3 style="margin-top:10px">是 / 否</h3>
-    <p class="small">返回回答“是”的概率，适合判断某个说法是否成立、某个动作是否违反规则、两条记录是否相同。它很有把握地答 false，答案依然是 false。</p></div>
-  <div class="card prim score"><span class="tag">score</span><h3 style="margin-top:10px">按等级打分</h3>
-    <p class="small">返回各等级的概率，以及按概率加权的分值，分值可以是小数。常用于严重度、紧急度和证据强度。分值本身不是概率，要连同分布一起读。</p></div>
-</div></section>
-
-<section><div class="card"><div class="eyebrow">通用闭环</div><h2>每个场景都按同一个闭环运行</h2>{loop}
-<p class="small muted" style="margin-top:10px">Jev 只负责第 3 步。它返回 selected，只说明选出了一个标签，动作并没有因此获得批准，
-执行、权限、付款和删除始终由调用方负责。复核门槛采用 CLI 默认值：最高概率不低于 0.8，并且比第二名高出至少 0.15。
-unknown、none、ask_user 这类出口标签一律进入复核。</p></div></section>
-
-<section><div class="section-head"><div><div class="eyebrow">场景</div><h2>{len(SCENARIOS)} 个应用场景</h2></div>
-<span class="small muted">每张卡片对应一个场景页，内有场景介绍、问题设计、逐题结果和调用方的核验</span></div>
-<div class="grid g3">{"".join(cards)}</div></section>
-
-<section><div class="grid g2">
-  <div class="card"><div class="eyebrow">总体结果</div><h3>各技能符合标准答案的比例</h3>{C.skill_bars(bars, width=560)}
-    <p class="small muted" style="margin-top:8px">jev-simulation 只统计 NPC 和网格变体 B 的回合。网格变体 A 是误用对照组，单独列在右侧和仿真页面。</p></div>
-  <div class="card"><div class="eyebrow">校准</div><h3>按最高概率分段的答对率</h3>{C.calibration_chart(cal)}
-    <p class="small muted" style="margin-top:8px">只统计 choice 和 noul 题，noul 取 max(p, 1-p)，不含误用对照组。
-    最高概率不低于 0.95 的 {top["n"]} 个判断全部答对。低概率段的样本太少，看不出规律。</p></div>
-</div></section>
-
-<section><div class="grid g2">
-  <div class="card"><div class="eyebrow">性能</div><h3>单次调用耗时分布（{u["calls"]} 次）</h3>{C.histogram(u["latency"])}
-    <p class="small muted" style="margin-top:8px">耗时取自 CLI 返回记录里的 elapsed_seconds，即一次 API 往返的时间。16 个静态请求以并发 4 发出，整段墙钟时间
-    {d.summary_main["static_parallel_wall_seconds"]:.2f} 秒。这是单机一次实测的结果，不代表性能保证。</p></div>
-  <div class="card"><div class="eyebrow">对照</div><h3>误用对照：让 Jev 独自规划</h3>
-    {C.grid_map(__import__("loops_v2").GRID, [(a["path"], C.RED, "A"), (b["path"], C.TEAL, "B")], cell=44)}
-    <p class="small muted" style="margin:10px 0 0">红线是变体 A，Jev 独自规划，{a["turns"]} 个回合里只有 {a["optimal_moves"]} 步是最优步，没有送达，圆点表示停留次数。
-    绿线是变体 B，规划器给出路线，{b["turns"]} 个回合全部最优，顺利送达。<a href="scenarios/simulation.html">查看分析 →</a></p></div>
-</div></section>
-
-<section><div class="section-head"><div><div class="eyebrow">发现</div><h2>关键发现</h2></div></div>
-<div class="grid g2">{findings}</div></section>
-
-<section><div class="grid g2">
-  <div class="card"><div class="eyebrow">选型</div><h3>什么时候该用 Jev</h3>
-    <div class="table-wrap matrix"><table><thead><tr><th>任务形态</th><th>例子</th><th>结论</th></tr></thead><tbody>{fit_rows}</tbody></table></div></div>
-  <div class="card"><div class="eyebrow">方法</div><h3>验证方法与局限</h3><ul class="clean small">
-    <li>标准答案在调用之前就已写定，记在调用记录开头的 manifest 里，不会随请求发出。测试材料全部是专门编写的合成内容。</li>
-    <li>调用方的独立核验包括：实际运行测试套件和探针，读取浏览器 DOM，用规则引擎校验状态转换，按 ID 复制原文，以及确定性的红队判定器。</li>
-    <li>运行边界：最多 80 次调用，并发 4，不重试，不切换服务商，按 API 返回的费用累计到 0.02 美元即停止。这一轮没有触发停止条件。</li>
-    <li>未达标的结果原样保留，没有事后放宽区间。网格变体 B 是看到变体 A 失败之后才追加的，用来检验按技能文档推荐的方式使用
-        （规划器给路线、Jev 只选下一步）能否改善结果，不属于事先留出的测试。</li>
-    <li>样本量小，用例也出自同一个作者。这些结果只能说明场景跑得通、判断与标准答案一致，不能代表普遍的准确率。</li>
-  </ul></div>
-</div></section>
-
-<section><div class="card"><div class="eyebrow">复现</div><h3>如何重新运行</h3>
-<pre><code># 离线：构建全部用例并逐个 CLI dry-run，不联网
-python3 validation/v2/run_v2.py
-# 真实调用：会产生费用，需要 OPENROUTER_API_KEY，输出文件必须是新文件
-python3 -m http.server 8765 --bind 127.0.0.1 --directory validation &amp;
-python3 validation/v2/run_v2.py --live --output validation/v2/live-new.jsonl
-# 根据调用记录重新生成本报告
-python3 validation/v2/build_report.py</code></pre></div></section>
-{footer(d)}
-</main>'''
-    return page('总览', body)
+def index_page(d, comparisons):
+    from report_overview import overview_body
+    return page('总览', overview_body(d, comparisons, SCENARIOS, cost_teaser, footer))
 
 
 def cost_teaser(d):
     """Overview section: cost × accuracy scatter (two accuracy bases) plus an aligned metric strip."""
-    from report_cost import CostData, variants, vname, MODEL_COLOR, DECIDER_COLOR, DECIDER_NAME
-    c = CostData(d)
+    from report_cost import variants, vname, MODEL_COLOR, DECIDER_COLOR, DECIDER_NAME, model_overview
+    from report_laya import LAYA_NAME, LAYA_COLOR
+    from report_scenario_models import ScenarioModels, ranking_text, question_ids
+    comparison = ScenarioModels(d)
+    c = comparison.cost
     V = variants(c)
     jev_full, total_full = c.jev_correct()
     jev_norm, total_norm = c.jev_correct(exclude_grid=True)
@@ -882,13 +779,20 @@ def cost_teaser(d):
             {'name': DECIDER_NAME, 'key': 'decider', 'style': 'native', 'label_name': 'Decider 2B', 'cost': float(dd.cost),
              'lat': dd.lat, 'p90': dd.p90, 'acc_full': dd.correct, 'acc_norm': dd.correct_norm, 'color': DECIDER_COLOR,
              'flag': False, 'note': f'{dd.instance["type"]} ${dd.rate}/h × {dd.wall}s 机时折算，串行'}]
+    if c.laya:
+        l = c.laya
+        rows.append({'name': LAYA_NAME, 'key': 'laya', 'style': 'native', 'label_name': 'Laya',
+                     'cost': float(l.cost), 'lat': l.lat, 'p90': l.p90, 'acc_full': l.correct,
+                     'acc_norm': l.correct_norm, 'color': LAYA_COLOR, 'flag': False,
+                     'note': f'东京 {l.instance["type"]} ${l.rate}/h；时延为 GPU 主机本机 HTTP，网络路径与旧模型不同'})
     for k, s, run, x in V:
         rows.append({'name': vname(run, s), 'key': k, 'style': s, 'label_name': run.label, 'cost': float(x['cost']),
                      'lat': x['lat'], 'p90': x['p90'], 'acc_full': x['correct'], 'acc_norm': x['correct_norm'],
                      'color': MODEL_COLOR[k],
                      'flag': bool(x['filtered']),
                      'note': f'{len(x["filtered"])} 个请求被内容过滤，按答错计' if x['filtered'] else ''})
-    model_color = {'jev': C.TEAL, 'decider': DECIDER_COLOR, 'opus': C.RED, 'haiku': C.VIOLET, 'gpt6luna': C.BLUE}
+    model_color = {'jev': C.TEAL, 'decider': DECIDER_COLOR, 'laya': LAYA_COLOR,
+                   'opus': C.RED, 'haiku': C.VIOLET, 'gpt6luna': C.BLUE}
 
     def points(field, total):
         pts = []
@@ -914,46 +818,49 @@ def cost_teaser(d):
     per10k = ' · '.join(f'{r["name"]} ${r["cost"] / c.n_judg * 10_000:.2f}' for r in strip_rows)
     llm_rows = [r for r in rows if r['key'] in c.runs]
     cheapest_llm = min(llm_rows, key=lambda r: r['cost'])
+    cheapest = min(rows, key=lambda r: r['cost'])
     best_norm = max(llm_rows, key=lambda r: (r['acc_norm'], -r['cost']))
-    fastest_llm = min(llm_rows, key=lambda r: r['lat'])
-    below_jev = [r for r in rows if r['key'] != 'jev' and r['acc_norm'] < jev_norm and r['cost'] > float(c.jev_cost)]
-    below_note = (f'不含网格误用对照组时，{e("、".join(r["name"] for r in below_jev))} 的准确率低于 Jev，费用却更高。'
-                  if below_jev else '')
+    native_rank = comparison.ranking([cid for cid in comparison.items if not cid.startswith('grid:')])
+    native_scores = '；'.join(f'{r["label"]} {r["correct"]}/{r["total"]}' for r in native_rank)
     n_ctrl = total_full - total_norm
     ctrl = {r['name']: r['acc_full'] - r['acc_norm'] for r in rows}
-    worst = min(ctrl, key=ctrl.get)
     ctrl_scores = '，'.join(f'{r["name"]} {ctrl[r["name"]]}/{n_ctrl}' for r in sorted(rows, key=lambda r: r['cost']))
+    static_judgments = sum(len(question_ids(item)) for cid, item in c.items.items() if ':turn' not in cid)
+    loop_calls = sum(':turn' in cid for cid in c.items)
     basis_note = f'''<div class="callout note small" style="margin-top:12px"><b>两个准确率口径是怎么来的。</b>
-  全部 {total_full} 个判断里，{sum(len(it['request']['questions']) for cid, it in c.items.items() if it['grade']['kind'] == 'expected' and ':turn' not in cid)} 个来自 16 个静态场景请求，
-  另外 {sum(1 for cid in c.items if ':turn' in cid)} 个是闭环场景的回合判断，包括 NPC、网格变体 A、网格变体 B 和浏览器 UI。
-  <b>网格变体 A</b>的 {n_ctrl} 个回合是刻意设计的<b>误用对照组</b>。Jev 技能文档要求路线由规划器给出、Jev 只选下一步，
-  变体 A 却只给地图，让 Jev 独自规划。把这 {n_ctrl} 个回合去掉，就得到“不含网格误用对照组的 {total_norm} 个判断”，
+  全部 {total_full} 个判断里，{static_judgments} 个来自 16 个静态场景请求，
+  另外 {loop_calls} 个闭环回合请求贡献 {total_full - static_judgments} 个判断，包括 NPC、网格变体 A、网格变体 B 和浏览器 UI。
+  <b>网格变体 A</b>的 {n_ctrl} 个回合是刻意设计的<b>误用对照组</b>：只给地图、要求决策模型自己规划。
+  原始闭环由 Jev 驱动，其他模型重放相同状态。把这 {n_ctrl} 个回合去掉，就得到“不含网格误用对照组的 {total_norm} 个判断”，
   每个方案去掉的都是这同一批题，网格变体 B（规划器给路线）仍然保留。<br>
-  各方案在这 {n_ctrl} 个对照组回合上答对的数量：{e(ctrl_scores)}。答对最少的是 {e(worst)}。Jev 答对 {ctrl["Jev"]} 个，
-  所以它在两个口径下的准确率差得比较多，分别是 {jev_full / total_full:.1%} 和 {jev_norm / total_norm:.1%}。<br>
-  变体 A 是事先就设计好的对照组，但单列 {total_norm} 题口径这种统计方式，是看到 Jev 在变体 A 上失败之后才加上的，不属于事先定好的评测方案。
+  各方案在这 {n_ctrl} 个对照组回合上答对的数量：{e(ctrl_scores)}。两个口径对每个模型采取相同处理。<br>
+  变体 A 是事先设计好的对照组，单列 {total_norm} 题口径是在原始实验后追加的统计方式，不属于事先定好的评测方案。
   散点图右侧的副坐标，是把同一个答对数换算成占该口径总题数的百分比。</div>'''
     legend = ('<div class="small muted" style="display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:6px">'
               + ''.join(f'<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:{col};margin-right:5px"></span>{e(name)}</span>'
-                        for name, col in [('Jev', C.TEAL), (DECIDER_NAME, DECIDER_COLOR), ('Claude Opus 5.5', C.RED), ('Claude Haiku 5.5', C.VIOLET), ('GPT-6 Luna', C.BLUE)])
+                        for name, col in [('Jev', C.TEAL), (DECIDER_NAME, DECIDER_COLOR), ('Claude Opus 5.5', C.RED), ('Claude Haiku 5.5', C.VIOLET), ('GPT-6 Luna', C.BLUE)]
+                        + ([(LAYA_NAME, LAYA_COLOR)] if c.laya else []))
               + '<span>圆越大 = 中位耗时越长</span>'
               '<span>绿色虚线 = 帕累托前沿（同等或更低成本下准确率最高）</span><span>⚠ = 有请求被内容过滤，按答错计</span></div>')
     return f'''<section><div class="card"><div class="section-head"><div><div class="eyebrow">模型对比</div>
-<h2>Jev、自托管决策模型与三个 LLM：成本、耗时、准确率</h2></div><a href="cost.html" class="small">查看完整成本对比 →</a></div>
-<p class="small muted">同样 {len(c.items)} 个请求（{total_full} 个判断）分别交给 Jev、Bedrock 上的三个模型，以及同 VPC 自托管的 Strands Decider 2B。
-LLM 成本按给定单价折算，自托管模型按 {e(dd.instance["type"])} 的按需价 ${dd.rate}/小时乘以本批次的串行用时折算，不含空闲时段。
-耗时是客户端实测的单次往返时间，准确率按同一套标准答案逐题打分。鼠标悬停在图形上可以看到精确数值。</p>
+<h2>决策模型与 LLM 参照：成本、耗时、准确率</h2></div><a href="cost.html" class="small">查看完整成本对比 →</a></div>
+<p class="small muted">三种决策模型和三个 LLM 使用同样 {len(c.items)} 个请求（{total_full} 个判断）。
+API 费用沿用相应回执或给定单价，自托管费用按实际机型和地区的测试机时折算，不含空闲时段。
+图中耗时来自各自客户端，网络条件不同。鼠标悬停可看数值和测量条件。</p>
+{model_overview(c)}
 <div class="grid g2">{sc_full}{sc_norm}</div>{legend}{basis_note}
 <div style="height:18px"></div><div style="overflow-x:auto">{strip}</div>
 <div class="grid g2" style="margin-top:14px">
-  <div class="callout ok small"><b>最便宜：</b>Jev，{usd_s(c.jev_cost)}。LLM 里最便宜的是 {e(cheapest_llm["name"])}，{usd_s(cheapest_llm["cost"])}，
-    为 Jev 的 {cheapest_llm["cost"] / float(c.jev_cost):.1f} 倍。自托管 Decider 按机时折算是 {usd_s(dd.cost)}，为 Jev 的 {dd.cost / c.jev_cost:.1f} 倍。</div>
-  <div class="callout ok small"><b>最快：</b>{"Decider 2B" if dd.lat < c.jev_lat else "Jev"}，中位 {min(dd.lat, c.jev_lat):.2f} 秒，
-    其次是 {"Jev" if dd.lat < c.jev_lat else "Decider 2B"} 的 {max(dd.lat, c.jev_lat):.2f} 秒。LLM 中 {e(fastest_llm["name"])} 最快，{fastest_llm["lat"]:.2f} 秒。</div>
-  <div class="callout note small"><b>最准（不含网格误用对照组）：</b>{e(best_norm["name"])}，{best_norm["acc_norm"]}/{total_norm}（{best_norm["acc_norm"] / total_norm:.1%}），
-    Jev 为 {jev_norm}/{total_norm}（{jev_norm / total_norm:.1%}）。按全部 {total_full} 题计，Jev 是 {jev_full}/{total_full}（{jev_full / total_full:.1%}），差距主要来自让它独自规划的误用对照组。{below_note}</div>
-  <div class="callout warn small"><b>自托管 Decider 2B：</b>答对 {dd.correct}/{total_full}（{dd.correct / total_full:.1%}），不含对照组时为 {dd.correct_norm}/{total_norm}（{dd.correct_norm / total_norm:.1%}）。
-    choice / noul 题答错的判断里，有 {dd.review["wrong_rev"]} 个已被它自己送去复核，直接选定却答错的有 {len(dd.review["wrong_sel"])} 个。服务端在并发时不安全，本组是串行测得的结果。</div>
+  <div class="callout note small"><b>决策模型整体排名（{total_norm} 题）：</b>{e(ranking_text(native_rank))}。
+    {e(native_scores)}。选型表进一步按具体场景排序。</div>
+  <div class="callout note small"><b>费用：</b>本批最低为 {e(cheapest["name"])}，{usd_s(cheapest["cost"])}；
+    LLM 参照中最低为 {e(cheapest_llm["name"])}，{usd_s(cheapest_llm["cost"])}。费用排名不能代替质量排名。</div>
+  <div class="callout note small"><b>时延条件：</b>Jev 经 OpenRouter，中位 {c.jev_lat:.3f}s；
+    Strands 在同 VPC，中位 {dd.lat:.3f}s；Laya 在东京本机 HTTP，中位 {c.laya.lat:.4f}s。
+    这些记录不构成统一网络环境下的速度排名。</div>
+  <div class="callout note small"><b>LLM 质量参照：</b>{e(best_norm["name"])} 的常规判断答对数最高，
+    {best_norm["acc_norm"]}/{total_norm}（{best_norm["acc_norm"] / total_norm:.1%}）。
+    三个 LLM 的逐题输出与未作答原因在各场景页保留。</div>
 </div>
 <p class="small muted" style="margin-top:8px">按每 1 万个判断线性外推的费用（估算，自托管按本批次机时折算，不含空闲时段）：{e(per10k)}。</p>
 {"" if getattr(dd, "rerun", None) else '<p class="small muted">浏览器设置页有 2 个请求的输入曾被改写，三个 LLM 已用修正后的输入重跑；Strands Decider 2B 还没有重跑，它的数字仍来自旧输入，详见成本对比页。</p>'}
@@ -982,16 +889,18 @@ def crop_screenshot(src, dst, pad=28):
 
 def main():
     d = Data()
+    from report_scenario_models import ScenarioModels
+    comparisons = ScenarioModels(d)
     (OUT / 'scenarios').mkdir(parents=True, exist_ok=True)
     (OUT / 'assets' / 'img').mkdir(parents=True, exist_ok=True)
     shutil.copy(V2 / 'report_assets' / 'style.css', OUT / 'assets' / 'style.css')
     for png in sorted((V2 / 'artifacts').glob('*.png')):
         crop_screenshot(png, OUT / 'assets' / 'img' / png.name)
     for s in SCENARIOS:
-        (OUT / 'scenarios' / f'{s["slug"]}.html').write_text(scenario_page(d, s), encoding='utf-8')
+        (OUT / 'scenarios' / f'{s["slug"]}.html').write_text(scenario_page(d, s, comparisons), encoding='utf-8')
     from report_cost import cost_body
     (OUT / 'cost.html').write_text(page('成本对比', cost_body(d, sec, footer(d)), 'cost'), encoding='utf-8')
-    (OUT / 'index.html').write_text(index_page(d), encoding='utf-8')
+    (OUT / 'index.html').write_text(index_page(d, comparisons), encoding='utf-8')
     print(f'wrote {OUT}/index.html, cost.html and {len(SCENARIOS)} scenario pages')
 
 

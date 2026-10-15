@@ -1,4 +1,4 @@
-"""Cost comparison page: Jev vs. the same requests judged directly by LLMs on Bedrock Runtime.
+"""Cost comparison of decision models and LLM references on the same requests.
 
 All figures are computed from receipts:
   Jev  - validation/v2/live-v2-*.jsonl (usage.cost reported by OpenRouter)
@@ -11,6 +11,7 @@ from html import escape
 from pathlib import Path
 
 import report_charts as C
+from report_laya import LayaRun, LAYA_FILE, LAYA_NAME, LAYA_COLOR, laya_section, pending_section
 
 V2 = Path(__file__).resolve().parent
 LLM_FILE = V2 / 'llm-baseline-20261012.jsonl'
@@ -183,6 +184,7 @@ class CostData:
         self.items = {i['id']: i for i in json.loads((V2 / 'llm-requests.json').read_text())}
         self.runs = {k: ModelRun(k, spec, self.items) for k, spec in MODELS.items()}
         self.decider = SelfHosted(self.items)
+        self.laya = LayaRun(self.items) if LAYA_FILE.exists() else None
         opus = self.runs['opus']  # aliases kept for the single-model sections
         self.manifest, self.summary, self.walls, self.llm = opus.manifest, opus.summary, opus.walls, opus.llm
         self.jev = {}
@@ -288,13 +290,43 @@ class CostData:
         return {'escalated': len(escalate), 'cost': cost, 'correct': ok, 'total': total}
 # --- page ------------------------------------------------------------------------
 SKILL_LABEL = {'jev': 'Agent 检查点', 'jev-code-review': '代码评审', 'jev-context': '上下文压缩', 'jev-documents': '合同文档',
-               'jev-find-code': '定位代码', 'jev-route': '工具路由', 'jev-triage': '工单分诊', 'jev-simulation': '仿真（60 回合）',
+               'jev-find-code': '定位代码', 'jev-route': '工具路由', 'jev-triage': '工单分诊', 'jev-simulation': '仿真',
                'jev-ui': '浏览器 UI', 'jev-redteam': '红队评估'}
 
 
 MODEL_COLOR = {'opus': C.RED, 'haiku': C.VIOLET, 'gpt6luna': C.BLUE}
 DECIDER_COLOR = '#ea580c'
 DECIDER_NAME = 'Strands Decider 2B（自托管）'
+
+
+def model_overview(c, heading=True):
+    """Brief, shared introduction to the three decision models used in this report."""
+    if not c.laya:
+        return ''
+    env = c.laya.manifest['deployment']['environment']
+    params = env['parameters']
+    return f'''<div id="self-hosted-models" style="margin:18px 0;scroll-margin-top:88px">
+{"<h3>参评决策模型的基本情况</h3>" if heading else ""}
+<div class="table-wrap"><table><thead><tr><th>模型</th><th>参数规模</th><th>基础架构</th><th>本次部署</th></tr></thead>
+<tbody>
+<tr><td><b>Jev</b></td><td>本报告未核实参数规模</td>
+<td>托管的类型化决策 API；底层网络架构未在本次实验中验证。返回 choice / noul / score 及概率。</td>
+<td>经 OpenRouter 调用<br><code>typesafe/jev-1.13-20260917</code></td></tr>
+<tr><td><b>Strands Decider 2B</b></td><td>2B 级基座（约 20 亿参数），另加适配器和读出头</td>
+<td><code>Qwen3.5-2B-Base</code> 文本解码器 + LoRA 低秩适配器 + 决策读出头；对题目给定的候选项打分。</td>
+<td>美西 <code>us-west-2</code><br>{e(c.decider.instance["type"])} · 单张 NVIDIA A10G</td></tr>
+<tr><td><b>Laya Multilingual</b><br><span class="small muted">本次使用的多语言检查点</span></td>
+<td>约 {params / 1_000_000:.0f}M（{params / 100_000_000:.2f} 亿）<br><span class="small muted">完整推理模型实测 {params:,} 参数</span></td>
+<td><code>mmBERT-base</code> 双向编码器（22 层、隐藏维度 768）+ 2 层 Transformer 决策头；
+在选项标记处打分，单次前向计算返回结果，无需逐 token 解码。</td>
+<td>东京 <code>ap-northeast-1</code><br>{e(c.laya.instance["type"])} · 单张 NVIDIA A10G</td></tr>
+</tbody></table></div>
+<p class="small muted" style="margin-top:8px">三种模型都接收 state 和类型化问题，输出单选（choice）、是非概率（noul）、
+有序评分（score）及相应概率。Jev 使用托管 API；Strands Decider 与 Laya 使用 Apache-2.0 许可的公开权重。
+Strands 的 2B 指基座规格，Laya 的参数量包含编码器和决策头，统计口径有所不同。
+来源：<a href="https://huggingface.co/StrandsAgents/{e(c.decider.manifest['model_id'])}">Strands Decider 模型卡</a>、
+<a href="https://huggingface.co/convaiinnovations/laya-multilingual/blob/{e(env['revision'])}/README.md#architecture">Laya 模型卡</a>及本次加载记录。</p>
+</div>'''
 
 
 def rerun_note(c):
@@ -407,54 +439,61 @@ def by_skill_label(c, wrong):
 
 
 def cost_body(d, sec, footer):
-    c = CostData(d)
+    from report_scenario_models import ScenarioModels, DECISION_KEYS, ranking_text
+    comparisons = ScenarioModels(d)
+    c = comparisons.cost
+    all_stats = comparisons.summary(list(comparisons.items))
     n = len(c.items)
     jev_ok, jev_total = c.jev_correct()
     V = variants(c)
     overview = [j for j in d.all_judgments() if j['case'] != 'grid']
     overview_pass, overview_total = sum(j['passed'] for j in overview), len(overview)
-    xr = {(k, s): x['cost'] / c.jev_cost for k, s, _, x in V}
+    lowest_cost = min(row["cost"] for row in all_stats.values())
+    xr = {(k, s): x['cost'] / lowest_cost for k, s, _, x in V}
 
-    kpis = [(usd(c.jev_cost, 4), f'Jev · {n} 次调用', f'输入 {c.jev_in:,} tokens × $0.042/M，输出免费')]
-    for k, s, run, x in V:
-        kpis.append((usd(x['cost'], 4), f'{run.label}（${run.manifest["price_in_per_m"]} / ${run.manifest["price_out_per_m"]} 每百万）',
-                     f'是 Jev 的 {xr[(k, s)]:.1f} 倍'))
-    lats = [x['lat'] for _, _, _, x in V]
-    kpis.append((f'{c.jev_lat:.2f}s', 'Jev 单次中位耗时', f'LLM 为 {min(lats):.1f}～{max(lats):.1f} 秒'))
-    kpis.append((usd(c.decider.cost, 4), DECIDER_NAME, f'按 {c.decider.instance["type"]} 机时折算，是 Jev 的 {c.decider.cost / c.jev_cost:.1f} 倍，'
-                 f'中位 {c.decider.lat:.2f} 秒，答对 {c.decider.correct}/{c.decider.answered}'))
+    kpis = [(usd(row["cost"], 4), comparisons.models[key]["label"],
+             f'{"决策模型" if key in DECISION_KEYS else "LLM 参照"} · 常规判断 {row["normal_correct"]}/{row["normal_total"]}'
+             f' · 中位 {row["latency"]:.4f}s' + ('（东京本机 HTTP）' if key == "laya" else ''))
+            for key, row in all_stats.items()]
     kpi_html = ''.join(f'<div class="card kpi"><div class="v" style="font-size:24px">{v}</div><div class="l">{e(l)}</div>'
                        f'<div class="s">{e(s)}</div></div>' for v, l, s in kpis)
 
     head = ('<tr><th>方案</th><th>接口</th><th>输入 tokens</th><th>输出 tokens</th><th>输入费用</th><th>输出费用</th><th>总费用</th>'
-            '<th>相对 Jev</th><th>中位耗时</th><th>答对 / 作答</th></tr>')
+            '<th>相对最低费用</th><th>中位耗时</th><th>答对 / 总题数</th></tr>')
     trs = [f'<tr><td><b>Jev</b></td><td class="small">OpenRouter</td><td class="num">{c.jev_in:,}</td><td class="num">{c.jev_out:,}<span class="muted small">（不计费）</span></td>'
-           f'<td class="num">{usd(c.jev_cost)}</td><td class="num">$0</td><td class="num"><b>{usd(c.jev_cost)}</b></td><td class="num">1.0×</td>'
+           f'<td class="num">{usd(c.jev_cost)}</td><td class="num">$0</td><td class="num"><b>{usd(c.jev_cost)}</b></td><td class="num">{c.jev_cost/lowest_cost:.1f}×</td>'
            f'<td class="num">{c.jev_lat:.2f}s</td><td class="num">{jev_ok}/{jev_total}</td></tr>']
     dd = c.decider
     trs.append(f'<tr><td><b>{e(DECIDER_NAME)}</b></td><td class="small">/v1/systemone（{e(dd.instance["type"])}）</td><td class="num">{dd.inp:,}</td>'
                f'<td class="num">{dd.out:,}<span class="muted small">（不计费）</span></td><td class="num" colspan="2"><span class="small">机时 ${dd.rate}/h × {dd.wall}s</span></td>'
-               f'<td class="num"><b>{usd(dd.cost)}</b></td><td class="num">{dd.cost / c.jev_cost:.1f}×</td><td class="num">{dd.lat:.2f}s</td>'
+               f'<td class="num"><b>{usd(dd.cost)}</b></td><td class="num">{dd.cost / lowest_cost:.1f}×</td><td class="num">{dd.lat:.2f}s</td>'
                f'<td class="num">{dd.correct}/{dd.answered}<br><span class="muted small">串行（并发 {dd.concurrency}）</span></td></tr>')
+    if c.laya:
+        l = c.laya
+        trs.append(f'<tr><td><b>{LAYA_NAME}</b></td><td class="small">东京 /v1/systemone</td><td class="num">{l.inp:,}</td>'
+                   f'<td class="num">{l.out:,}</td><td colspan="2">按需机时 ${l.rate}/h × {l.wall:.4f}s</td>'
+                   f'<td class="num"><b>{usd(l.cost)}</b></td><td class="num">{l.cost/lowest_cost:.1f}×</td>'
+                   f'<td class="num">{l.lat:.4f}s（本机）</td><td class="num">{l.correct}/{l.answered}</td></tr>')
     for k, s, run, x in V:
         reasoning = f'<br><span class="muted small">其中推理 {x["reasoning_tokens"]:,}</span>' if x['reasoning_tokens'] else ''
         filt = f'<br><span class="warn-text small">{len(x["filtered"])} 个请求被过滤</span>' if x['filtered'] else ''
         trs.append(f'<tr><td><b>{e(vname(run, s))}</b></td><td class="small">{e(run.api)}</td><td class="num">{x["in"]:,}</td>'
                    f'<td class="num">{x["out"]:,}{reasoning}</td><td class="num">{usd(x["cost_in"])}</td><td class="num">{usd(x["cost_out"])}</td>'
                    f'<td class="num"><b>{usd(x["cost"])}</b></td><td class="num">{xr[(k, s)]:.1f}×</td><td class="num">{x["lat"]:.2f}s</td>'
-                   f'<td class="num">{x["correct"]}/{x["answered"]}{filt}</td></tr>')
+                   f'<td class="num">{x["correct"]}/{jev_total}{filt}</td></tr>')
     table = (f'<div class="table-wrap"><table><thead>{head}</thead><tbody>{"".join(trs)}</tbody></table></div>'
              '<p class="small muted" style="margin-top:8px">LLM 费用 = 输入 tokens × 输入单价 + 输出 tokens × 输出单价，token 数取自调用记录，单价是你给定的假设值。'
-             'Jev 的费用与 OpenRouter 返回的 usage.cost 逐笔一致。答对数按与 Jev 相同的标准答案逐题打分，共 '
+             'Jev 的费用与 OpenRouter 返回的 usage.cost 逐笔一致。全部方案按同一套标准答案逐题打分，未作答保留在分母中，共 '
              f'{jev_total} 个判断。</p>')
 
-    dec_bar = (DECIDER_NAME + '（机时）', float(c.decider.cost), DECIDER_COLOR, f'  {c.decider.cost / c.jev_cost:.1f}×')
-    all_bars = C.hbars([('Jev', float(c.jev_cost), C.TEAL, ''), dec_bar] +
+    dec_bar = (DECIDER_NAME + '（机时）', float(c.decider.cost), DECIDER_COLOR, f'  {c.decider.cost / lowest_cost:.1f}×')
+    laya_bars = [(LAYA_NAME + '（东京机时）', float(c.laya.cost), LAYA_COLOR, '')] if c.laya else []
+    all_bars = C.hbars([('Jev', float(c.jev_cost), C.TEAL, ''), dec_bar] + laya_bars +
                        [(vname(run, s), float(x['cost']), MODEL_COLOR[k], f'  {xr[(k, s)]:.1f}×')
                         for k, s, run, x in sorted(V, key=lambda v: v[3]['cost'])],
                        width=820, label_w=230, fmt=lambda v: f'${v:.4f}')
     cheap = [v for v in V if v[0] != 'opus']
-    zoom = C.hbars([('Jev', float(c.jev_cost), C.TEAL, ''), dec_bar] +
+    zoom = C.hbars([('Jev', float(c.jev_cost), C.TEAL, ''), dec_bar] + laya_bars +
                    [(vname(run, s), float(x['cost']), MODEL_COLOR[k], f'  {xr[(k, s)]:.1f}×')
                     for k, s, run, x in sorted(cheap, key=lambda v: v[3]['cost'])],
                    width=820, label_w=230, fmt=lambda v: f'${v:.4f}')
@@ -465,16 +504,20 @@ def cost_body(d, sec, footer):
     comp = C.stacked([(vname(run, s), [('输入', float(x['cost_in']), C.BLUE), ('输出', float(x['cost_out']), C.VIOLET)]) for k, s, run, x in V]
                      + [('Jev', [('输入', float(c.jev_cost), C.TEAL)])], width=820, label_w=230)
 
-    per = {k: c.per_skill(k) for k in c.runs}
-    skills = sorted(per['opus'], key=lambda sk: -per['opus'][sk]['terse'])
-    srows = ''.join(f'<tr><td>{e(SKILL_LABEL.get(sk, sk))}</td><td class="num">{per["opus"][sk]["n"]}</td><td class="num">{usd(per["opus"][sk]["jev"])}</td>'
-                    + ''.join(f'<td class="num">{usd(per[k][sk]["terse"])}<span class="muted small"> · {fmt_x(per[k][sk]["terse"] / per[k][sk]["jev"])}</span></td>'
-                              for k in c.runs) + '</tr>' for sk in skills)
-    skill_table = ('<div class="table-wrap"><table><thead><tr><th>场景</th><th>调用</th><th>Jev</th>'
-                   + ''.join(f'<th>{e(run.label)}</th>' for run in c.runs.values()) + '</tr></thead>'
-                   f'<tbody>{srows}</tbody></table></div><p class="small muted" style="margin-top:8px">每格是该场景的费用，后面是相对 Jev 的倍数。</p>')
+    from report_content import SCENARIOS
+    skill_rows = []
+    for scenario in SCENARIOS:
+        ids = comparisons.ids_for(scenario["skill"])
+        stats = comparisons.summary(ids)
+        skill_rows.append(f'<tr><th scope="row">{e(scenario["title"])}</th><td class="num">{len(ids)}</td>'
+                          + ''.join(f'<td class="num">{usd(stats[key]["cost"])}</td>' for key in comparisons.models) + '</tr>')
+    skill_table = ('<div class="table-wrap"><table><thead><tr><th>场景</th><th>请求</th>'
+                   + ''.join(f'<th>{e(model["label"])}</th>' for model in comparisons.models.values())
+                   + '</tr></thead><tbody>' + ''.join(skill_rows) + '</tbody></table></div>'
+                   '<p class="small muted">API 费用来自相应回执和单价；自托管费用按请求耗时占比分摊原批次机时。各场景合计与总览一致。</p>')
 
     scale_rows = ([('Jev', c.jev_cost), (DECIDER_NAME + '（按本批次机时，不含空闲）', c.decider.cost)]
+                  + ([(LAYA_NAME + '（东京批次机时，不含空闲）', c.laya.cost)] if c.laya else [])
                   + [(vname(run, s), x['cost']) for k, s, run, x in V])
     scale_table = ('<div class="table-wrap"><table><thead><tr><th>方案</th><th>每个判断</th><th>1 万个判断</th><th>100 万个判断</th></tr></thead><tbody>'
                    + ''.join(f'<tr><td>{e(name)}</td><td class="num">{usd(cost / c.n_judg, 7)}</td><td class="num">{usd(cost / c.n_judg * 10_000, 2)}</td>'
@@ -508,21 +551,28 @@ def cost_body(d, sec, footer):
                     f'<td class="small">共 {len(dd_wrong)} 个，分布在{e(by_skill_label(c, dd_wrong))}，其中 {c.decider.review["wrong_rev"]} 个已被它自己标为 needs_review'
                     '，明细见下文“自托管决策模型”一节</td></tr>')
     for k, s, run, x in V:
-        acc_rows.append(f'<tr><td><b>{e(vname(run, s))}</b></td><td class="num">{x["correct"]}/{x["answered"]}</td>'
+        acc_rows.append(f'<tr><td><b>{e(vname(run, s))}</b></td><td class="num">{x["correct"]}/{jev_total}</td>'
                         f'<td class="num">{jev_total - x["answered"]}</td><td class="small">{wrong_cell(x["wrong"])}'
                         + (f'<br><span class="warn-text">被过滤未作答：{e("、".join(x["filtered"]))}</span>' if x['filtered'] else '') + '</td></tr>')
-    acc_table = ('<div class="table-wrap"><table><thead><tr><th>方案</th><th>答对 / 作答</th><th>未作答</th><th>答错或未作答的判断</th></tr></thead>'
+    if c.laya:
+        acc_rows.append(f'<tr><td><b>{LAYA_NAME}</b></td><td class="num">{c.laya.correct}/{c.laya.answered}</td>'
+                        f'<td class="num">0</td><td>不含对照组：{c.laya.correct_norm}/117；全部错题见 Laya 专节。</td></tr>')
+    acc_table = ('<div class="table-wrap"><table><thead><tr><th>方案</th><th>答对 / 总题数</th><th>未作答</th><th>答错或未作答的判断</th></tr></thead>'
                  f'<tbody>{"".join(acc_rows)}</tbody></table></div>'
-                 f'<p class="small muted" style="margin-top:8px">Jev 的 {jev_ok}/{jev_total} 包含总览页单独列为对照组的网格变体 A，其中 {grid_wrong} 个回合不是最优步，'
-                 f'所以与总览页的 {overview_pass}/{overview_total} 口径不同。这里统一按标签是否与标准答案一致来计，不看复核状态。</p>')
+                 f'<p class="small muted" style="margin-top:8px">本表使用包含自主规划误用对照的 {jev_total} 题，'
+                 f'整体选型另看去掉同一批 30 题后的 {overview_total} 题。准确率按答案值计，复核状态单列，未作答计入分母。</p>')
 
     casc_rows = []
-    for k, run in c.runs.items():
-        cs = c.cascade('terse', k)
-        casc_rows.append(f'<tr><td>Jev → {e(run.label)}</td><td class="num">{cs["escalated"]}</td><td class="num">{usd(cs["cost"], 4)}</td>'
-                         f'<td class="num">{cs["cost"] / c.jev_cost:.1f}×</td><td class="num">{cs["correct"]}/{cs["total"]}</td></tr>')
-    casc_table = ('<div class="table-wrap"><table><thead><tr><th>组合（估算）</th><th>转交 LLM 的请求</th><th>费用</th><th>相对纯 Jev</th><th>答对</th></tr></thead>'
-                  f'<tbody>{"".join(casc_rows)}</tbody></table></div><p class="small muted" style="margin-top:8px">先全部交给 Jev，只把含 needs_review 决策的请求再交给 LLM。'
+    for key in DECISION_KEYS:
+        if key not in comparisons.models:
+            continue
+        for k, run in c.runs.items():
+            cs = comparisons.cascade(key, k)
+            casc_rows.append(f'<tr><td>{e(comparisons.models[key]["label"])} → {e(run.label)}</td>'
+                             f'<td class="num">{cs["escalated"]}</td><td class="num">{usd(cs["cost"], 4)}</td>'
+                             f'<td class="num">{cs["cost"] / all_stats[key]["cost"]:.1f}×</td><td class="num">{cs["correct"]}/{cs["total"]}</td></tr>')
+    casc_table = ('<div class="table-wrap"><table><thead><tr><th>组合（估算）</th><th>转交 LLM 的请求</th><th>费用</th><th>相对对应纯决策模型</th><th>答对</th></tr></thead>'
+                  f'<tbody>{"".join(casc_rows)}</tbody></table></div><p class="small muted" style="margin-top:8px">先调用相应决策模型，只把含 needs_review 的整条请求再交给 LLM。'
                   '这是用两组真实调用记录拼算出来的反事实结果，并没有实际按这条流程运行。被过滤的请求按答错计。</p>')
 
     think_rows = ''.join(
@@ -541,19 +591,25 @@ def cost_body(d, sec, footer):
                    'GPT-6 Luna（Responses API）在 usage.output_tokens_details 里单独报告推理 tokens。两者都计入输出 tokens 并按输出单价计费，已包含在上面的费用中。</p>')
     design = f'''<div class="grid g2">
   <div class="card"><h3>测试方法</h3><ul class="clean small">
-    <li><b>同样的用例：</b>{n} 个请求、{c.n_judg} 个判断，和 Jev 运行时看到的完全一致。60 个闭环回合按 Jev 当时的调用记录回放，在同样的状态下重建请求。</li>
+    <li><b>同样的用例：</b>{n} 个请求、{c.n_judg} 个判断，全部模型使用相同的 state / questions。
+        60 个闭环回合的状态来自原始 Jev 轨迹，其他模型重放这些状态，不宣称完成了新的闭环。</li>
     <li><b>同样的提示：</b>三个 LLM 使用同一份系统提示和同一份 JSON 输入（state、问题、候选），要求返回 JSON 答案。
-        Strands Decider 2B 是决策模型，直接接收与 Jev 相同的原生请求，不用提示。</li>
+        Strands Decider 2B 和 Laya 是决策模型，直接接收原生 state / questions。</li>
     <li><b>接口：</b>两个 Claude 模型走 Bedrock Runtime 的 Converse 接口，GPT-6 Luna 走 Bedrock Runtime 上的 OpenAI Responses API
         （<code>/openai/v1/responses</code>，用实例角色做 SigV4 签名，设 <code>store: false</code>，Bedrock 不保留数据）。区域是 {e(c.manifest["region"])}，全部使用 global 推理配置文件。</li>
-    <li><b>输出格式：</b>要求 LLM 只返回答案，不附理由，和 Jev 一样每个问题给一个值。</li>
+    <li><b>输出格式：</b>三个决策模型使用原生类型化输出；LLM 要求只返回答案，不附理由，每个问题给一个值。</li>
     <li><b>边界：</b>每个 LLM 调用 {c.runs["opus"].t["terse"]["n"]} 次，并发 4，不重试，三个模型都没有出现调用错误。</li>
     <li><b>重跑的 2 个请求：</b>{rerun_note(c)}</li>
     <li><b>耗时口径：</b>所有方案都取客户端实测的单次往返时间，Jev 用 CLI 返回记录里的 elapsed_seconds，LLM 用调用前后的墙钟时间。
         各方案的中位数与 Bedrock 服务端记录的耗时最多相差 {max(abs(x["lat"] - x["lat_server"]) for _, _, _, x in V):.2f} 秒。</li>
+    <li><b>Laya 的不同条件：</b>2026-10-15 在东京 GPU 主机本地 HTTP 串行测试，网络路径与先前测试不同。
+        g5.xlarge 无容量后，经确认使用 g5.2xlarge；硬件、价格和输入审计见 Laya 专节。
+        只重放历史状态，没有运行新的 Laya 驱动闭环。</li>
   </ul></div>
   <div class="card"><h3>计价与 token 口径</h3><ul class="clean small">
-    <li><b>单价（你给定）：</b>每百万输入 / 输出 tokens，Opus 5.5 是 $4 / $20，Haiku 5.5 和 GPT-6 Luna 都是 $0.10 / $0.50。Jev 每百万输入 $0.042，输出免费。本报告没有另行核实牌价。</li>
+    <li><b>API 单价：</b>每百万输入 / 输出 tokens，Opus 5.5 是 $4 / $20，Haiku 5.5 和 GPT-6 Luna 都是 $0.10 / $0.50，
+        这些 LLM 价格是给定假设。Jev 每百万输入 $0.042、输出免费，与本批费用回报一致。
+        自托管实例价格另由 AWS Pricing API 核实。</li>
     <li><b>token 取实测：</b>全部来自服务端返回的记录。各家分词器不同，同样的输入，Claude 计得的 tokens 是 Jev 的 {c.runs["haiku"].t["terse"]["in"] / c.jev_in:.2f} 倍，
         GPT-6 Luna 是 {c.runs["gpt6luna"].t["terse"]["in"] / c.jev_in:.2f} 倍。</li>
     <li><b>差距来源：</b>Haiku 和 GPT-6 Luna 的输入单价是 Jev 的 {Decimal("0.10") / Decimal("0.042"):.1f} 倍，此外还要为输出付费，思考 tokens 也算在输出里。Opus 的输入单价是 Jev 的
@@ -561,63 +617,59 @@ def cost_body(d, sec, footer):
   </ul></div></div>'''
 
     caveats = '''<ul class="clean small">
-  <li>价格采用你给定的数字，没有考虑 Bedrock 实际牌价，也没有计入批量和缓存折扣。系统提示很短，没有使用提示缓存。</li>
+  <li>LLM 价格采用给定假设，没有计入 Bedrock 实际牌价、批量和缓存折扣。自托管价格来源与机时口径单独列出。</li>
   <li>每个请求只跑了一次，没有测随机波动。</li>
   <li>准确率来自同一个作者编写的小样本，只反映这些用例上的表现，不能推广成普遍结论。</li>
-  <li>LLM 只给答案，Jev 还给出概率分布，可以直接设门槛做自动复核，纯成本对比没有计入这一差别。</li>
+  <li>LLM 参照只给答案，三种决策模型还返回概率。概率的可靠性需分别核验，不能只凭接口支持置信度就认为能安全自动放行。</li>
   <li>原始调用记录在 <code>validation/v2/llm-baseline-20261012.jsonl</code>（Opus）、<code>llm-baseline-haiku-20261012.jsonl</code> 和 <code>llm-baseline-gpt6luna-20261012.jsonl</code>，
       重建的请求在 <code>llm-requests.json</code>，脚本是 <code>llm_baseline.py</code>。记录文件里另有一组要求附一句理由的调用（style 为 reasoned），本报告没有采用。</li>
 </ul>'''
 
-    g = c.runs['gpt6luna'].t
-    h = c.runs['haiku'].t
-    o = c.runs['opus'].t
-
-    def by_skill(wrong):
-        counts = {}
-        for cid, _ in wrong:
-            sk = SKILL_LABEL.get(c.items[cid]['skill'], c.items[cid]['skill'])
-            counts[sk] = counts.get(sk, 0) + 1
-        return '、'.join(f'{k} {v} 个' for k, v in sorted(counts.items(), key=lambda kv: -kv[1]))
-    g_wrong = sorted(g['terse']['wrong'])
-    h_wrong = sorted(h['terse']['wrong'])
-    o_filtered = sorted(o['terse']['filtered'])
-    jev_other = [w for w in jev_wrong if not w[0].startswith('grid:')]
-    ui_done = [r for r in c.runs['gpt6luna'].llm if r['id'] == 'ui_settings:turn2' and r['answers'] and r['answers'].get('next') == 'done']
+    normal_ids = [cid for cid in comparisons.items if not cid.startswith("grid:")]
+    ranks = comparisons.ranking(normal_ids)
+    normal_results = '；'.join(f'{r["label"]} {r["correct"]}/{r["total"]}' for r in ranks)
+    fee_results = '；'.join(f'{comparisons.models[k]["label"]} {usd(all_stats[k]["cost"])}'
+                            for k in DECISION_KEYS if k in comparisons.models)
+    wrong_selected = []
+    for key in DECISION_KEYS:
+        if key not in comparisons.models:
+            continue
+        count = sum(not call["checks"][qid]["correct"] and decision["status"] == "selected"
+                    for call in comparisons.models[key]["calls"].values()
+                    for qid, decision in call["decisions"].items())
+        wrong_selected.append(f'{comparisons.models[key]["label"]} {count} 个')
+    haiku = c.runs["haiku"].t["terse"]
+    opus = c.runs["opus"].t["terse"]
     findings = f'''<div class="grid g2">
-  <div class="callout ok"><b>最便宜的 LLM 也要花 Jev 的 {min(xr.values()):.1f} 倍。</b>GPT-6 Luna {usd(g["terse"]["cost"], 4)}，Haiku 5.5 {usd(h["terse"]["cost"], 4)}，
-    Jev 是 {usd(c.jev_cost, 4)}。两者单价相同，GPT-6 Luna 却比 Haiku 便宜约 {1 - g["terse"]["cost"] / h["terse"]["cost"]:.0%}，因为它计得的输入 tokens 少约
-    {1 - g["terse"]["in"] / h["terse"]["in"]:.0%}，输出也更短。</div>
-  <div class="callout ok"><b>Haiku 5.5 的准确率最高。</b>答对 {h["terse"]["correct"]}/{h["terse"]["answered"]}，
-    没有请求被过滤，答错的是 {e("、".join(judgment_name(d, *w) for w in h_wrong)) or "无"}。Opus 5.5 能作答的判断全部答对，但有 {len(o_filtered)} 个请求
-    （{e("、".join(o_filtered))}）被内容过滤。</div>
-  <div class="callout warn"><b>三个 LLM 里，GPT-6 Luna 最快、最便宜，错得也最多。</b>答对 {g["terse"]["correct"]}/{jev_total}，
-    答错的判断分布在{by_skill(g_wrong)}。{"UI 第 2 步它只勾选了复选框，还没点保存，就判定任务已完成（done）。" if ui_done else ""}</div>
-  <div class="callout note"><b>Jev 的错题和 LLM 不在一处。</b>Jev 主要错在网格独自规划（{grid_wrong} 个回合），其余 {len(jev_other)} 个是
-    {e("、".join(judgment_name(d, *w) for w in jev_other))}，这些题 LLM 基本都答对了。下文的组合方案先交给 Jev、再把需复核的请求转给 Haiku，
-    费用约为纯 Jev 的 {c.cascade("terse", "haiku")["cost"] / c.jev_cost:.1f} 倍。</div>
-  <div class="callout warn"><b>自托管的 Strands Decider 2B 最快，在这批用例上却明显不准。</b>串行中位 {c.decider.lat:.2f} 秒，按 {c.decider.instance["type"]} 机时折算
-    {usd(c.decider.cost, 4)}，是 Jev 的 {c.decider.cost / c.jev_cost:.1f} 倍。它答对 {c.decider.correct}/{c.decider.answered}，不含网格误用对照组时为
-    {c.decider.correct_norm}/{c.runs["opus"].t["terse"]["total_norm"]}。在有复核状态的 choice / noul 题里，它答错的
-    {c.decider.review["wrong_rev"] + len(c.decider.review["wrong_sel"])} 个中有 {c.decider.review["wrong_rev"]} 个已被自己送去复核，直接选定却答错的只有
-    {len(c.decider.review["wrong_sel"])} 个。另有 {sum(not ok for *_, ok in c.decider.score_q)} 个评分题超出可接受区间。服务端在并发时不安全，只能串行。</div>
+  <div class="callout note"><b>三种决策模型的常规判断表现。</b><br>{e(normal_results)}。
+    排名为 {e(ranking_text(ranks))}；具体场景会出现并列或次序变化，见<a href="index.html#model-selection">选型表</a>。</div>
+  <div class="callout note"><b>三种决策模型的本批费用。</b><br>{e(fee_results)}。
+    本页倍数统一相对最低批次费用；自托管按机时估算，不包含部署、空闲等开销，时延的网络条件也不同。</div>
+  <div class="callout warn"><b>答案正确率与复核能力分别考察。</b><br>
+    完整 {jev_total} 题中的 choice / noul 判断，答错且直接选定：{e('；'.join(wrong_selected))}。
+    分数高低、概率高低和能否自动执行是不同的指标。</div>
+  <div class="callout note"><b>LLM 参照反映质量与费用的另一端。</b><br>
+    Haiku 5.5 答对 {haiku["correct"]}/{jev_total}；Opus 5.5 答对 {opus["correct"]}/{jev_total}，
+    {jev_total-opus["answered"]} 个判断因过滤未作答。三个 LLM 不参加决策模型场景排名。</div>
 </div>'''
 
     return (f'''<div class="hero"><div class="wrap">
   <div class="crumb"><a href="index.html">总览</a> / 成本对比</div>
   <div class="eyebrow">Cost Comparison</div>
-  <h1>💰 成本对比：Jev vs 直接用 LLM 判断</h1>
-  <p class="lead">本报告中 Jev 处理过的 {n} 个请求（{c.n_judg} 个判断），原样交给另外四个模型再判断一遍。
-  其中三个是 Bedrock Runtime 上的 LLM：Claude Opus 5.5、Claude Haiku 5.5（Converse 接口）和 GPT-6 Luna（Responses API），
-  另一个是同 VPC 自托管的决策模型 Strands Decider 2B。tokens 和耗时都是实测，费用按给定单价折算，自托管模型按机时折算，
+  <h1>💰 Decider 模型成本与质量对比</h1>
+  <p class="lead">Jev、Strands Decider 2B、Laya Multilingual 在同一批 {n} 个请求（{c.n_judg} 个判断）上评测。
+  三个 Bedrock LLM 作为质量和费用参照：Claude Opus 5.5、Claude Haiku 5.5（Converse）和 GPT-6 Luna（Responses API）。
+  tokens 和耗时来自真实回执；API 模型按相应计价口径、自托管模型按机时折算，
   准确率用同一套标准答案打分。</p>
   <div class="meta">{"".join(f"<span>{e(run.label)} <b>{e(run.manifest['model_id'])}</b></span>" for run in c.runs.values())}
   <span>{e(DECIDER_NAME)} <b>{e(c.decider.manifest["model_id"])}</b></span>
-  <span>运行日期 <b>2026-10-12</b></span></div>
+  {f'<span>{LAYA_NAME} <b>{e(c.laya.manifest["model_id"])}</b></span>' if c.laya else ''}
+  <span>运行日期 <b>2026-10-12 / 13{ " / 15" if c.laya else ""}</b></span></div>
 </div></div>
 <main class="wrap">
 <section><div class="grid g3">{kpi_html}</div></section>
 ''' + sec('结论', findings, '摘要') +
+            sec('参评决策模型概况', model_overview(c, heading=False), '模型') +
             sec('测试设计与计价口径', design, '方法') +
             sec('总费用对比', f'<div class="card"><h3>全部方案（线性刻度）</h3>{all_bars}</div><div style="height:16px"></div>'
                 f'<div class="card"><h3>去掉 Opus 后放大看</h3>{zoom}</div><div style="height:16px"></div>{table}', '结果') +
@@ -628,7 +680,8 @@ def cost_body(d, sec, footer):
             sec('思考与推理 tokens', think_table, '分析') +
             sec('准确率', acc_table, '质量') +
             sec(f'自托管决策模型：{DECIDER_NAME}', decider_section(c, d), '自托管') +
-            sec('组合方案：先 Jev，再把需复核的请求交给 LLM', casc_table, '估算') +
+            sec('Laya：研究、部署与同题对比', laya_section(c) if c.laya else pending_section(), '东京') +
+            sec('组合方案：决策模型复核后交给 LLM', casc_table, '估算') +
             sec('按场景拆分', skill_table, '明细') +
             sec('规模化后的差距', scale_table, '外推') +
             sec('局限', f'<div class="card">{caveats}</div>', '说明') + footer + '</main>')

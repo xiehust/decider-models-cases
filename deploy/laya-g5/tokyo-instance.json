@@ -1,0 +1,77 @@
+{
+  "region": "ap-northeast-1",
+  "request": {
+    "ImageId": "ami-076041e441ccf9b12",
+    "InstanceType": "g5.2xlarge",
+    "MinCount": 1,
+    "MaxCount": 1,
+    "KeyName": "decider-cases-laya-tokyo",
+    "ClientToken": "laya-1015-g5.2xlarge-approved-1-ap-northeast-1a",
+    "InstanceInitiatedShutdownBehavior": "stop",
+    "MetadataOptions": {
+      "HttpTokens": "required",
+      "HttpEndpoint": "enabled"
+    },
+    "NetworkInterfaces": [
+      {
+        "DeviceIndex": 0,
+        "SubnetId": "subnet-03ccbaa469c39af8c",
+        "Groups": [
+          "sg-06e1e236e14e106f7"
+        ],
+        "AssociatePublicIpAddress": true
+      }
+    ],
+    "BlockDeviceMappings": [
+      {
+        "DeviceName": "/dev/sda1",
+        "Ebs": {
+          "VolumeSize": 100,
+          "VolumeType": "gp3",
+          "Encrypted": true,
+          "DeleteOnTermination": true
+        }
+      }
+    ],
+    "TagSpecifications": [
+      {
+        "ResourceType": "instance",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "decider-cases-laya-tokyo"
+          },
+          {
+            "Key": "Project",
+            "Value": "decider-cases"
+          },
+          {
+            "Key": "Purpose",
+            "Value": "laya-benchmark-20261015"
+          }
+        ]
+      },
+      {
+        "ResourceType": "volume",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "decider-cases-laya-tokyo"
+          },
+          {
+            "Key": "Project",
+            "Value": "decider-cases"
+          },
+          {
+            "Key": "Purpose",
+            "Value": "laya-benchmark-20261015"
+          }
+        ]
+      }
+    ]
+  },
+  "instance_id": "i-0b93cd55e444dca0f",
+  "ami_name": "Deep Learning OSS Nvidia Driver AMI GPU PyTorch 2.12 (Ubuntu 24.04) 20261003",
+  "ssh_source": "54.189.180.95/32",
+  "launched_at_utc": "2026-10-15T01:28:27Z"
+}

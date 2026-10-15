@@ -1,0 +1,34 @@
+{
+  "checked_at_utc": "2026-10-15T01:26:36.641432+00:00",
+  "region": "ap-northeast-1",
+  "instances": [],
+  "security_groups": [
+    {
+      "id": "sg-06e1e236e14e106f7",
+      "ingress": [
+        {
+          "IpProtocol": "tcp",
+          "FromPort": 22,
+          "ToPort": 22,
+          "UserIdGroupPairs": [],
+          "IpRanges": [
+            {
+              "Description": "Benchmark management host",
+              "CidrIp": "54.189.180.95/32"
+            }
+          ],
+          "Ipv6Ranges": [],
+          "PrefixListIds": []
+        }
+      ]
+    }
+  ],
+  "key_pairs": [
+    {
+      "name": "decider-cases-laya-tokyo",
+      "id": "key-072aec5c02b7a7083"
+    }
+  ],
+  "deployment_status": "blocked_capacity",
+  "benchmark_status": "not_run"
+}

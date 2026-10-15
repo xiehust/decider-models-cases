@@ -1,0 +1,37 @@
+{
+  "torch": "2.14.1+cu130",
+  "transformers": "5.19.0",
+  "laya": "0.4.7",
+  "cuda": "13.0",
+  "gpu": "NVIDIA A10G",
+  "device": "cuda",
+  "revision": "1720e3e3357cfe1e281542e223f8273b0890ca34",
+  "amp_dtype": "torch.bfloat16",
+  "config": {
+    "encoder": "jhu-clsp/mmBERT-base",
+    "head_layers": 2,
+    "max_len": 1024,
+    "head_max_len": 256,
+    "max_prefixes": 6,
+    "act_costs": {
+      "escalate": 0.5
+    },
+    "cost_wrong_act": 3.0,
+    "amp_dtype": "bf16",
+    "model_name": "rl-agent",
+    "temperature": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "temperature_by_options": {},
+    "training": {
+      "updates": 15987,
+      "epochs_completed": 4,
+      "hours": 4.97,
+      "world_size": 1,
+      "fine_tuned_from_checkpoint": false
+    }
+  },
+  "parameters": 321908995
+}

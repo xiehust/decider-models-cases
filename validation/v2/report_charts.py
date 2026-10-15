@@ -134,7 +134,8 @@ def flow(steps, width=760, accent=BLUE):
     n = len(steps)
     gap = 26
     box_w = (width - gap * (n - 1) - 4) / n
-    colors = {'host': ('#eff6ff', BLUE), 'jev': ('#f5f3ff', VIOLET), 'check': ('#f0fdfa', TEAL), 'stop': ('#fff7ed', AMBER)}
+    colors = {'host': ('#eff6ff', BLUE), 'jev': ('#f5f3ff', VIOLET), 'decision': ('#f5f3ff', VIOLET),
+              'check': ('#f0fdfa', TEAL), 'stop': ('#fff7ed', AMBER)}
     body = []
     for i, (title, sub, kind) in enumerate(steps):
         x = 2 + i * (box_w + gap)
@@ -147,7 +148,7 @@ def flow(steps, width=760, accent=BLUE):
             ax = x + box_w + 3
             body.append(f'<path d="M{ax:.1f},45 L{ax + gap - 8:.1f},45" stroke="{SLATE}" stroke-width="1.6"/>'
                         f'<path d="M{ax + gap - 8:.1f},40 L{ax + gap - 2:.1f},45 L{ax + gap - 8:.1f},50 Z" fill="{SLATE}"/>')
-    legend = [('调用方（Agent 或代码）', BLUE), ('Jev 类型化判断', VIOLET), ('确定性校验', TEAL), ('停止/上报', AMBER)]
+    legend = [('调用方（Agent 或代码）', BLUE), ('Decider 类型化判断', VIOLET), ('确定性校验', TEAL), ('停止/上报', AMBER)]
     lx = 2
     for name, color in legend:
         body.append(f'<rect x="{lx}" y="96" width="10" height="10" rx="2" fill="{color}"/>')
@@ -368,11 +369,13 @@ def metric_strip(rows, acc_total_full, acc_total_norm, width=980):
     for t in range(0, int(lat_max) + 1, step):
         body.append(f'<line x1="{lx(t):.1f}" y1="{top - 6}" x2="{lx(t):.1f}" y2="{base}" stroke="{GRID}" stroke-dasharray="3 3"/>')
         body.append(text(lx(t), base + 16, f'{t}s', 10, MUTED, 'middle'))
-    k = a_lo
+    # A wider accuracy range needs fewer labels to keep percentages readable.
+    acc_step = next(s for s in (0.05, 0.1, 0.2, 0.25, 0.5) if pw * s / (1 - a_lo) >= 34)
+    k = round(math.ceil(a_lo / acc_step - 1e-9) * acc_step, 2)
     while k <= 1.0001:
         body.append(f'<line x1="{ax(k):.1f}" y1="{top - 6}" x2="{ax(k):.1f}" y2="{base}" stroke="{GRID}" stroke-dasharray="3 3"/>')
         body.append(text(ax(k), base + 16, f'{k:.0%}', 10, MUTED, 'middle'))
-        k = round(k + 0.05, 2)
+        k = round(k + acc_step, 2)
     for i, r in enumerate(rows):
         y = top + i * row_h
         if i % 2:

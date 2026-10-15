@@ -1,0 +1,6 @@
+MainPID=2441
+ExecMainStartTimestamp=Thu 2026-10-15 01:30:57 UTC
+ActiveState=active
+SubState=running
+NVIDIA A10G, 23028 MiB, 2315 MiB, 595.91.07
+LISTEN 0      2048       127.0.0.1:8000      0.0.0.0:*    users:(("laya-serve",pid=2441,fd=40))

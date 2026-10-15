@@ -1,14 +1,18 @@
-# Jev 应用场景验证
+# Decider 决策模型评测
 
-这个仓库记录了 2026 年 10 月 12 日对 Jev 做的一轮场景验证。Jev 是一个类型化判断模型，
-给它候选项、是非题或评分等级，它返回带概率的答案，本身不写文字。
-[jev-skill](https://github.com/wuyoscar/jev-skill) v0.2.0 共有 11 个技能，除去只负责接入配置的 jev-setup，
-仓库为其余 10 个各编写了一组接近真实业务、埋有陷阱的场景，
-经 OpenRouter 真实调用后，再用测试套件、浏览器 DOM、规则引擎和原文比对逐一核对结果。
-之后又把同一批请求交给 Bedrock 上的 Claude Opus 5.5、Claude Haiku 5.5、GPT-6 Luna，
-以及同 VPC 自托管的 Strands Decider 2B，比较成本、耗时和准确率。
+对比 **Jev、Strands Decider 2B、Laya Multilingual** 在 Agent 决策任务中的表现，
+并以 Claude Opus 5.5、Claude Haiku 5.5、GPT-6 Luna 作为 LLM 参照。
+这里的 Decider 指类型化决策模型类别；Strands Decider 是其中一个参评模型。
 
-所有测试材料都是专门编写的合成内容，不涉及真实账户或业务数据。
+评测于 2026-10-12 至 15 日进行，共用 76 个请求、147 个判断，覆盖 10 个场景。
+报告关注具体场景的正确率、概率与复核、耗时和成本。主选型口径为排除 30 个自主规划误用对照判断后的 117 题；
+总览的“什么时候用 Decider 模型”按实际场景给出三种决策模型的排名，同分并列。
+选型表同时列出三个 LLM 的正确率；仅为本场景准确率严格超过 90% 的具体决策模型标注“可考虑使用”，
+恰好 90% 不标注，LLM 高分不作为决策模型达标的依据。
+
+测试集最初按 [jev-skill](https://github.com/wuyoscar/jev-skill) v0.2.0 构建，随后用于各模型的同题比较。
+真实闭环由 Jev 驱动采集，其他模型重放相同状态；逐步答对率不能当作其他模型的任务完成率。
+所有材料都是专门编写的合成内容，不涉及真实账户或业务数据。
 
 ## 目录结构
 
@@ -29,40 +33,56 @@ validation/
     artifacts/               浏览器截图与无障碍快照
     live-*.jsonl, llm-*.json(l)  原始调用记录与重建的请求
 deploy/strands-decider-g6/   Strands Decider 2B 的 VPC 内网部署脚本，说明见其 README
+deploy/laya-g5/             东京 Laya 部署、输入审计、环境及价格回执
 ```
 
 `report/` 是生成产物。要改报告，改 `validation/v2/` 下的生成器后重新生成，不要直接编辑 HTML。
 
 ## 主要结果
 
-v2 一共调用 Jev 76 次（模型 `typesafe/jev-1.13-20260917`），API 返回的费用合计 $0.0025，单次调用中位耗时 0.19 秒。
-不含网格误用对照组时，117 个判断中有 114 个符合标准答案，另有 9 个进入 needs_review。
+三种决策模型在 117 个常规判断上的结果是：Jev **114/117（97.4%）**、
+Strands Decider **93/117（79.5%）**、Laya Multilingual **52/117（44.4%）**。
+这是本批合成数据的按题汇总，具体场景存在并列和次序变化，不代表通用能力排名。
 
-同一批 76 个请求（147 个判断）交给其他模型的结果如下。LLM 的单价是测试时给定的假设值，
-自托管模型按 g5.xlarge 按需价 $1.006/小时乘以本批次的串行用时折算。
+同一批 76 个请求（147 个判断）的六模型结果如下。LLM 的单价是测试时给定的假设值，
+Strands Decider 按美西 g5.xlarge 的 $1.006/小时折算，
+Laya 按东京 g5.2xlarge 的 $1.75776/小时折算；两者均仅计算正式批次的串行机时。
 
-| 方案 | 费用 | 中位耗时 | 答对（147 题 / 不含对照组 117 题） |
+| 方案（前三种为决策模型） | 费用 | 中位耗时 | 答对（147 题 / 不含对照组 117 题） |
 |---|---:|---:|---:|
 | Jev | $0.0025 | 0.19 秒 | 126 / 114 |
 | Strands Decider 2B（自托管，按机时） | $0.0030 | 0.11 秒 | 99 / 93 |
+| Laya Multilingual（东京自托管） | $0.0011 | 0.0227 秒（本机 HTTP） | 71 / 52 |
 | GPT-6 Luna（$0.10/$0.50 每百万 tokens） | $0.0078 | 1.07 秒 | 141 / 111 |
 | Claude Haiku 5.5（$0.10/$0.50） | $0.0137 | 1.80 秒 | 146 / 116 |
-| Claude Opus 5.5（$4/$20） | $0.40 | 3.31 秒 | 145 / 115，另有 2 个被内容过滤 |
+| Claude Opus 5.5（$4/$20） | $0.40 | 3.31 秒 | 145 / 115，另有 2 题因过滤未作答 |
 
-LLM 和 Jev 一样只输出答案，不附理由。几点值得先看：
+Laya 的时延在东京 GPU 主机本地测量，其他模型沿用原报告的客户端往返记录，网络条件不同。
+它的 76 个请求采用已有的两个 UI 输入修正；147 题均无 state、问题或选项截断，未发生 CPU fallback。
 
-- 在选项明确、证据齐全的问题上，Jev 很可靠，最高概率不低于 0.95 的判断全部答对。缺少依据时它会给出 none 或 unknown，
-  不会硬猜。
-- Jev 不适合多步规划。让它独自在网格里找路，30 个回合都没送到。改由规划器给出路线、Jev 只选下一步后，20 个回合按最短路线送达。
-- 最便宜的 LLM 也要花 Jev 的 3.1 倍。Haiku 5.5 最准，GPT-6 Luna 最快、最便宜，答错的也最多。
-- Strands Decider 2B 最快，但在这批用例上明显不准。它的服务端在并发请求下会出错，最终结果是串行测得的。
+决策模型输出类型化答案及概率；LLM 参照只输出答案，不附理由。几个主要观察：
+
+- 场景排名有差异：文档定位和代码定位中，Jev 与 Strands 并列第一；自主规划对照组中，Laya 的逐步答对数最高。
+  仿真分成 NPC、按规划路线行动和自主规划对照分别展示，避免总分掩盖不同能力。
+- 概率必须单独核验。Laya 最高概率不低于 0.95 的 28 个判断里有 18 个答错，不能把高概率直接当作可靠性保证。
+- Laya 的本批机时费用最低；实际成本还包括部署、空闲等开销，且各模型网络与硬件条件不同。
+- 三个 LLM 参照中，Haiku 5.5 的正确数最高，GPT-6 Luna 的费用和中位耗时最低。
+  它们用于衡量质量与费用差距，不参加决策模型排名。
+- Strands 的本次服务在并发下出现错误，正式比较采用串行回执。原始 Jev 规划闭环的失败、UI 核验和历史技能说明保留在各页补充证据中。
 
 完整的数据、图表和分析见报告。
+
+[Laya 的源码研究、部署与复现说明](deploy/laya-g5/README.md)包含固定的代码/权重 revision、
+输入审计及原始回执。东京 g5.xlarge 无容量后，经确认使用单张 A10G 的 g5.2xlarge；
+实际结果已加入总览图表与成本页。
 
 ## 查看报告
 
 直接用浏览器打开 `report/index.html` 即可。页面是纯静态 HTML 和内联 SVG，不加载外部资源，也不含脚本。
 总览页之外有 10 个场景页（`report/scenarios/`）和一个成本对比页（`report/cost.html`）。
+每个场景页均包含六个模型的准确率、未作答数、复核数、中位耗时和费用，
+以及可展开的逐题标准答案、实际返回值和对错对照。仿真页单列误用对照组，
+UI 使用修正后的请求结果；自托管场景费用按请求耗时占比分摊原批次机时。
 
 ## 复现
 
@@ -95,13 +115,14 @@ python3 validation/v2/run_v2.py --live --followup --output validation/v2/live-ne
 按 API 返回的费用累计到 0.02 美元即停止。
 
 **与其他模型对比。** 需要有 Bedrock 权限的 AWS 凭证（脚本用默认凭证链和 SigV4 签名）。
-`llm-requests.json` 已经提交，就是 Jev 当时看到的 76 个请求，可以直接复用。
+共用请求已保存在 `llm-requests-laya-20261015.json`，包含两个 UI 请求的输入修正；
+历史 `llm-requests.json` 保留用于追溯。重新比较时通过 `--requests` 指定修正版。
 
 ```bash
-python3 validation/v2/llm_baseline.py run --backend opus     --styles terse --output validation/v2/opus-new.jsonl
-python3 validation/v2/llm_baseline.py run --backend haiku    --styles terse --output validation/v2/haiku-new.jsonl
-python3 validation/v2/llm_baseline.py run --backend gpt6luna --styles terse --output validation/v2/luna-new.jsonl
-python3 validation/v2/llm_baseline.py run --backend decider --styles native --concurrency 1 \
+python3 validation/v2/llm_baseline.py run --backend opus     --styles terse --requests validation/v2/llm-requests-laya-20261015.json --output validation/v2/opus-new.jsonl
+python3 validation/v2/llm_baseline.py run --backend haiku    --styles terse --requests validation/v2/llm-requests-laya-20261015.json --output validation/v2/haiku-new.jsonl
+python3 validation/v2/llm_baseline.py run --backend gpt6luna --styles terse --requests validation/v2/llm-requests-laya-20261015.json --output validation/v2/luna-new.jsonl
+python3 validation/v2/llm_baseline.py run --backend decider --styles native --concurrency 1 --requests validation/v2/llm-requests-laya-20261015.json \
     --output validation/v2/decider-new.jsonl
 ```
 
